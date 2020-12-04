@@ -1,5 +1,7 @@
 package sqlite
 
+// https://www.sqlite.org/rtree.html
+
 import (
 	"context"
 	"database/sql"
@@ -8,7 +10,7 @@ import (
 	gocache "github.com/patrickmn/go-cache"
 	"github.com/skelterjohn/geom"
 	wof_geojson "github.com/whosonfirst/go-whosonfirst-geojson-v2"
-	"github.com/whosonfirst/go-whosonfirst-geojson-v2/geometry"
+	_ "github.com/whosonfirst/go-whosonfirst-geojson-v2/geometry"
 	"github.com/whosonfirst/go-whosonfirst-log"
 	"github.com/whosonfirst/go-whosonfirst-spatial/cache"
 	"github.com/whosonfirst/go-whosonfirst-spatial/database"
@@ -37,6 +39,15 @@ type SQLiteSpatialDatabase struct {
 	conn    *sql.DB
 	dsn     string
 	strict  bool
+}
+
+type RTreeSpatialIndex struct {
+	bounds geom.Rect
+	Id     string
+}
+
+func (sp RTreeSpatialIndex) Bounds() geom.Rect {
+	return sp.bounds
 }
 
 type SQLiteResults struct {
@@ -129,7 +140,7 @@ func (r *SQLiteSpatialDatabase) Close(ctx context.Context) error {
 
 func (r *SQLiteSpatialDatabase) IndexFeature(ctx context.Context, f wof_geojson.Feature) error {
 
-	str_id := f.Id()
+	// str_id := f.Id()
 
 	bboxes, err := f.BoundingBoxes()
 
@@ -151,6 +162,16 @@ func (r *SQLiteSpatialDatabase) IndexFeature(ctx context.Context, f wof_geojson.
 		llat := ne.Y - sw.Y
 		llon := ne.X - sw.X
 
+		/*
+
+INSERT INTO demo_index VALUES(
+    2,                   -- NC 12th Congressional District in 2010
+    -81.0, -79.6,
+    35.0, 36.2
+);
+
+		*/
+		
 		golog.Println("INDEX", llat, llon)
 	}
 
@@ -270,7 +291,7 @@ func (r *SQLiteSpatialDatabase) PointInPolygonCandidatesWithChannels(ctx context
 
 	for _, raw := range intersects {
 
-		sp := raw.(*SQLiteSpatialIndex)
+		sp := raw.(*RTreeSpatialIndex)
 		str_id := sp.Id
 
 		props := map[string]interface{}{
@@ -311,20 +332,41 @@ func (r *SQLiteSpatialDatabase) PointInPolygonCandidatesWithChannels(ctx context
 	return
 }
 
-func (r *SQLiteSpatialDatabase) getIntersectsByCoord(coord *geom.Coord) (interface{}, error) {
+func (r *SQLiteSpatialDatabase) getIntersectsByCoord(coord *geom.Coord) ([]*RTreeSpatialIndex, error) {
 
+	return nil, errors.New("Not implemented")
+
+	/*
 	lat := coord.Y
 	lon := coord.X
 
+	pt := rtreego.Point{lon, lat}
+
+	rect, err := rtreego.NewRect(pt, []float64{0.0001, 0.0001}) // how small can I make this?
+
+	if err != nil {
+		return nil, err
+	}
+
+	return r.getIntersectsByRect(rect)
+	*/
+}
+
+func (r *SQLiteSpatialDatabase) getIntersectsByRect(rect geom.Rect) ([]*RTreeSpatialIndex, error) {
+
+	
+	/*
+
+	SELECT id FROM demo_index
+ WHERE maxX>=-81.08 AND minX<=-80.58
+   AND maxY>=35.00  AND minY<=35.44;
+
+	*/
+
 	return nil, errors.New("Not implemented")
 }
 
-func (r *SQLiteSpatialDatabase) getIntersectsByRect(rect interface{}) (interface{}, error) {
-
-	return nil, errors.New("Not implemented")
-}
-
-func (r *SQLiteSpatialDatabase) inflateResultsWithChannels(ctx context.Context, c *geom.Coord, f filter.Filter, possible []interface{}, rsp_ch chan spr.StandardPlacesResult, err_ch chan error) {
+func (r *SQLiteSpatialDatabase) inflateResultsWithChannels(ctx context.Context, c *geom.Coord, f filter.Filter, possible []*RTreeSpatialIndex, rsp_ch chan spr.StandardPlacesResult, err_ch chan error) {
 
 	seen := make(map[string]bool)
 
@@ -333,10 +375,10 @@ func (r *SQLiteSpatialDatabase) inflateResultsWithChannels(ctx context.Context, 
 
 	for _, row := range possible {
 
-		sp := row.(interface{})
+		sp := row.(*RTreeSpatialIndex)
 		wg.Add(1)
 
-		go func(sp interface{}) {
+		go func(sp *RTreeSpatialIndex) {
 
 			defer wg.Done()
 
