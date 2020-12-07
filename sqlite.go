@@ -21,7 +21,7 @@ import (
 	"github.com/whosonfirst/go-whosonfirst-spr"
 	"github.com/whosonfirst/go-whosonfirst-sqlite"
 	sqlite_database "github.com/whosonfirst/go-whosonfirst-sqlite/database"
-	// "github.com/whosonfirst/go-whosonfirst-sqlite-features/tables"
+	"github.com/whosonfirst/go-whosonfirst-sqlite-features/tables"
 	// golog "log"
 	"net/url"
 	"strconv"
@@ -44,6 +44,7 @@ type SQLiteSpatialDatabase struct {
 	mu          *sync.RWMutex
 	db          *sqlite_database.SQLiteDatabase
 	rtree_table sqlite.Table
+	spr_table sqlite.Table
 	dsn         string
 	strict      bool
 }
@@ -88,6 +89,18 @@ func NewSQLiteSpatialDatabase(ctx context.Context, uri string) (database.Spatial
 		return nil, err
 	}
 
+	spr_table, err := tables.NewSPRTableWithDatabase(sqlite_db)
+
+	if err != nil {
+		return nil, err
+	}
+
+	rtree_table, err := tables.NewRTreeTableWithDatabase(sqlite_db)
+
+	if err != nil {
+		return nil, err
+	}
+	
 	strict := true
 
 	if q.Get("strict") == "false" {
@@ -131,6 +144,8 @@ func NewSQLiteSpatialDatabase(ctx context.Context, uri string) (database.Spatial
 	spatial_db := &SQLiteSpatialDatabase{
 		Logger:  logger,
 		db:      sqlite_db,
+		rtree_table: rtree_table,
+		spr_table: spr_table,
 		dsn:     dsn,
 		gocache: gc,
 		strict:  strict,
@@ -516,6 +531,9 @@ func (db *SQLiteSpatialDatabase) StandardPlacesResultsToFeatureCollection(ctx co
 
 func (r *SQLiteSpatialDatabase) setSPRCacheItem(ctx context.Context, f wof_geojson.Feature) error {
 
+	return r.spr_table.IndexRecord(r.db, f)
+
+	/*
 	fc, err := cache.NewSPRCacheItem(f)
 
 	if err != nil {
@@ -524,6 +542,7 @@ func (r *SQLiteSpatialDatabase) setSPRCacheItem(ctx context.Context, f wof_geojs
 
 	r.gocache.Set(f.Id(), fc, -1)
 	return nil
+	*/
 }
 
 func (r *SQLiteSpatialDatabase) retrieveSPRCacheItem(ctx context.Context, str_id string) (*cache.SPRCacheItem, error) {

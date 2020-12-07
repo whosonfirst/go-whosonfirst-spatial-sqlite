@@ -11,5 +11,5 @@ require (
 	github.com/whosonfirst/go-whosonfirst-spatial v0.0.4
 	github.com/whosonfirst/go-whosonfirst-spr v0.1.0
 	github.com/whosonfirst/go-whosonfirst-sqlite v0.1.6
-	github.com/whosonfirst/go-whosonfirst-sqlite-features v0.3.0 // indirect
+	github.com/whosonfirst/go-whosonfirst-sqlite-features v0.3.0
 )

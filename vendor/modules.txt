@@ -14,6 +14,12 @@ github.com/tidwall/gjson
 github.com/tidwall/match
 # github.com/tidwall/pretty v1.0.2
 github.com/tidwall/pretty
+# github.com/twpayne/go-geom v1.0.5
+github.com/twpayne/go-geom
+github.com/twpayne/go-geom/encoding/geojson
+github.com/twpayne/go-geom/encoding/wkt
+# github.com/whosonfirst/go-rfc-5646 v0.1.0
+github.com/whosonfirst/go-rfc-5646
 # github.com/whosonfirst/go-spatialite v0.1.1
 github.com/whosonfirst/go-spatialite
 # github.com/whosonfirst/go-whosonfirst-flags v0.1.0
@@ -23,11 +29,16 @@ github.com/whosonfirst/go-whosonfirst-flags/placetypes
 # github.com/whosonfirst/go-whosonfirst-geojson-v2 v0.12.3
 github.com/whosonfirst/go-whosonfirst-geojson-v2
 github.com/whosonfirst/go-whosonfirst-geojson-v2/geometry
+github.com/whosonfirst/go-whosonfirst-geojson-v2/properties/geometry
+github.com/whosonfirst/go-whosonfirst-geojson-v2/properties/whosonfirst
 github.com/whosonfirst/go-whosonfirst-geojson-v2/utils
 # github.com/whosonfirst/go-whosonfirst-hash v0.1.0
 github.com/whosonfirst/go-whosonfirst-hash
 # github.com/whosonfirst/go-whosonfirst-log v0.1.0
 github.com/whosonfirst/go-whosonfirst-log
+# github.com/whosonfirst/go-whosonfirst-names v0.1.0
+github.com/whosonfirst/go-whosonfirst-names
+github.com/whosonfirst/go-whosonfirst-names/tags
 # github.com/whosonfirst/go-whosonfirst-placetypes v0.2.4
 github.com/whosonfirst/go-whosonfirst-placetypes
 github.com/whosonfirst/go-whosonfirst-placetypes/placetypes
@@ -42,3 +53,7 @@ github.com/whosonfirst/go-whosonfirst-spr
 # github.com/whosonfirst/go-whosonfirst-sqlite v0.1.6
 github.com/whosonfirst/go-whosonfirst-sqlite
 github.com/whosonfirst/go-whosonfirst-sqlite/database
+github.com/whosonfirst/go-whosonfirst-sqlite/utils
+# github.com/whosonfirst/go-whosonfirst-sqlite-features v0.3.0
+github.com/whosonfirst/go-whosonfirst-sqlite-features
+github.com/whosonfirst/go-whosonfirst-sqlite-features/tables
