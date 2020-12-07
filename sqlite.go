@@ -30,7 +30,7 @@ import (
 
 func init() {
 	ctx := context.Background()
-	database.RegisterSpatialDatabase(ctx, "rtree", NewSQLiteSpatialDatabase)
+	database.RegisterSpatialDatabase(ctx, "sqlite", NewSQLiteSpatialDatabase)
 }
 
 type SQLiteSpatialDatabase struct {
