@@ -162,7 +162,7 @@ func (r *SQLiteSpatialDatabase) IndexFeature(ctx context.Context, f wof_geojson.
 		sw := bbox.Min
 		ne := bbox.Max
 
-		q := "UPSERT INTO demo_index VALUES(?, ?, ?, ?, ?)"
+		q := "UPSERT INTO rtree VALUES(?, ?, ?, ?, ?)"
 
 		_, err := r.conn.ExecContext(ctx, q, f.Id(), sw.X, sw.Y, ne.X, ne.Y)
 
@@ -349,7 +349,7 @@ func (r *SQLiteSpatialDatabase) getIntersectsByCoord(ctx context.Context, coord 
 
 func (r *SQLiteSpatialDatabase) getIntersectsByRect(ctx context.Context, rect *geom.Rect) ([]*RTreeSpatialIndex, error) {
 
-	q := "SELECT id, minX, minY, maxX, maxY FROM demo_index  WHERE maxX >= ?  AND minX <= ?  AND maxY >= ? AND minY <= ?"
+	q := "SELECT id, min_x, min_y, max_x, max_y FROM rtree  WHERE max_x >= ?  AND min_x <= ?  AND max_y >= ? AND min_y <= ?"
 
 	rows, err := r.conn.QueryContext(ctx, q, rect.Max.X, rect.Min.Y, rect.Max.Y, rect.Min.Y)
 
