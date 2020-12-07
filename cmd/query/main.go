@@ -13,7 +13,7 @@ import (
 
 func main() {
 
-	database_uri := flag.String("uri", "", "...")
+	database_uri := flag.String("database-uri", "", "...")
 	latitude := flag.Float64("latitude", 0.0, "...")
 	longitude := flag.Float64("longitude", 0.0, "...")
 

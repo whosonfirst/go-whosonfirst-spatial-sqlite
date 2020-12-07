@@ -9,8 +9,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	_ "github.com/mattn/go-sqlite3"
-	gocache "github.com/patrickmn/go-cache"
 	"github.com/skelterjohn/geom"
 	wof_geojson "github.com/whosonfirst/go-whosonfirst-geojson-v2"
 	wof_feature "github.com/whosonfirst/go-whosonfirst-geojson-v2/feature"
@@ -26,10 +24,8 @@ import (
 	sqlite_database "github.com/whosonfirst/go-whosonfirst-sqlite/database"
 	// golog "log"
 	"net/url"
-	"strconv"
 	"strings"
 	"sync"
-	"time"
 )
 
 func init() {
@@ -37,13 +33,9 @@ func init() {
 	database.RegisterSpatialDatabase(ctx, "rtree", NewSQLiteSpatialDatabase)
 }
 
-// PLEASE DISCUSS WHY patrickm/go-cache AND NOT whosonfirst/go-cache HERE
-// Is this even necessary for this package?
-
 type SQLiteSpatialDatabase struct {
 	database.SpatialDatabase
 	Logger        *log.WOFLogger
-	gocache       *gocache.Cache
 	mu            *sync.RWMutex
 	db            *sqlite_database.SQLiteDatabase
 	rtree_table   sqlite.Table
@@ -110,36 +102,6 @@ func NewSQLiteSpatialDatabase(ctx context.Context, uri string) (database.Spatial
 		strict = false
 	}
 
-	expires := 0 * time.Second
-	cleanup := 0 * time.Second
-
-	str_exp := q.Get("default_expiration")
-	str_cleanup := q.Get("cleanup_interval")
-
-	if str_exp != "" {
-
-		int_expires, err := strconv.Atoi(str_exp)
-
-		if err != nil {
-			return nil, err
-		}
-
-		expires = time.Duration(int_expires) * time.Second
-	}
-
-	if str_cleanup != "" {
-
-		int_cleanup, err := strconv.Atoi(str_cleanup)
-
-		if err != nil {
-			return nil, err
-		}
-
-		cleanup = time.Duration(int_cleanup) * time.Second
-	}
-
-	gc := gocache.New(expires, cleanup)
-
 	logger := log.SimpleWOFLogger("index")
 
 	mu := new(sync.RWMutex)
@@ -150,7 +112,6 @@ func NewSQLiteSpatialDatabase(ctx context.Context, uri string) (database.Spatial
 		rtree_table:   rtree_table,
 		geojson_table: geojson_table,
 		dsn:           dsn,
-		gocache:       gc,
 		strict:        strict,
 		mu:            mu,
 	}
@@ -535,17 +496,6 @@ func (db *SQLiteSpatialDatabase) StandardPlacesResultsToFeatureCollection(ctx co
 func (r *SQLiteSpatialDatabase) setSPRCacheItem(ctx context.Context, f wof_geojson.Feature) error {
 
 	return r.geojson_table.IndexRecord(r.db, f)
-
-	/*
-		fc, err := cache.NewSPRCacheItem(f)
-
-		if err != nil {
-			return err
-		}
-
-		r.gocache.Set(f.Id(), fc, -1)
-		return nil
-	*/
 }
 
 func (r *SQLiteSpatialDatabase) retrieveSPRCacheItem(ctx context.Context, str_id string) (*cache.SPRCacheItem, error) {
@@ -583,15 +533,4 @@ func (r *SQLiteSpatialDatabase) retrieveSPRCacheItem(ctx context.Context, str_id
 	}
 
 	return c.(*cache.SPRCacheItem), nil
-
-	/*
-
-		fc, ok := r.gocache.Get(str_id)
-
-		if !ok {
-			return nil, errors.New("Invalid cache ID")
-		}
-
-		return fc.(*cache.SPRCacheItem), nil
-	*/
 }

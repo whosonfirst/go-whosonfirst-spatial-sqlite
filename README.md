@@ -12,7 +12,7 @@ The goal is to have a package that conforms to the [database.SpatialDatabase](ht
 
 ```
 $> ./bin/query \
-	-uri 'sqlite3://?dsn=/tmp/test.db' \
+	-database-uri 'sqlite3://?dsn=/tmp/test.db' \
 	-latitude 37.616951 \
 	-longitude -122.383747 \
 | jq \
@@ -44,9 +44,15 @@ $> ./bin/query \
       "wof:path": "115/939/633/7/1159396337.geojson",
 ```
 
+Note: This assumes a database that was previously indexed using the [whosonfirst/go-whosonfirst-sqlite-features](https://github.com/whosonfirst/go-whosonfirst-sqlite-features) `wof-sqlite-index-features` tool. For example:
+
+```
+$> ./bin/wof-sqlite-index-features -rtree -geojson -dsn /tmp/test.db -mode repo:// /usr/local/data/sfomuseum-data-architecture/
+```
+
 ## See also
 
 * https://www.sqlite.org/rtree.html
 * https://github.com/whosonfirst/go-whosonfirst-spatial
-* github.com/whosonfirst/go-whosonfirst-sqlite
-* github.com/whosonfirst/go-whosonfirst-sqlite-features
+* https://github.com/whosonfirst/go-whosonfirst-sqlite
+* https://github.com/whosonfirst/go-whosonfirst-sqlite-features
