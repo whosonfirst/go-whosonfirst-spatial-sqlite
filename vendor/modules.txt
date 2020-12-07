@@ -29,10 +29,11 @@ github.com/whosonfirst/go-whosonfirst-log
 # github.com/whosonfirst/go-whosonfirst-placetypes v0.2.4
 github.com/whosonfirst/go-whosonfirst-placetypes
 github.com/whosonfirst/go-whosonfirst-placetypes/placetypes
-# github.com/whosonfirst/go-whosonfirst-spatial v0.0.3
+# github.com/whosonfirst/go-whosonfirst-spatial v0.0.4
 github.com/whosonfirst/go-whosonfirst-spatial/cache
 github.com/whosonfirst/go-whosonfirst-spatial/database
 github.com/whosonfirst/go-whosonfirst-spatial/filter
+github.com/whosonfirst/go-whosonfirst-spatial/geo
 github.com/whosonfirst/go-whosonfirst-spatial/geojson
 # github.com/whosonfirst/go-whosonfirst-spr v0.1.0
 github.com/whosonfirst/go-whosonfirst-spr

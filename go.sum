@@ -66,6 +66,8 @@ github.com/whosonfirst/go-whosonfirst-reader v0.0.1/go.mod h1:SNGLXBF9h8mmf2S3CY
 github.com/whosonfirst/go-whosonfirst-sources v0.1.0/go.mod h1:EUMHyGzUmqPPxlMmOp+28BFeoBdxxE0HCKRd67lkqGM=
 github.com/whosonfirst/go-whosonfirst-spatial v0.0.3 h1:cJ3xCEurT/nyIKt34X79GfnRpkDRN8JTiz6v6V6/Dac=
 github.com/whosonfirst/go-whosonfirst-spatial v0.0.3/go.mod h1:lVjcZgLF4JM3HpocC3nHofyX0ojtacPj7oJsUlP36pA=
+github.com/whosonfirst/go-whosonfirst-spatial v0.0.4 h1:3CbSlmVjq4XB9TEjGSL39+eAMc3IvmgF0j0pB+AMVvY=
+github.com/whosonfirst/go-whosonfirst-spatial v0.0.4/go.mod h1:lVjcZgLF4JM3HpocC3nHofyX0ojtacPj7oJsUlP36pA=
 github.com/whosonfirst/go-whosonfirst-spr v0.1.0 h1:5qE629nCiucF2upy5NjPOEl9cFatsljykYY0l2JKgAk=
 github.com/whosonfirst/go-whosonfirst-spr v0.1.0/go.mod h1:R8GtEVz1GVSnwwOjzcoVUd172ZK26Q7hQSLI6SGG7lM=
 github.com/whosonfirst/go-whosonfirst-uri v0.1.0/go.mod h1:8eaDVcc4v+HHHEDaRbApdmhPwM4/JQllw2PktvZcPVs=

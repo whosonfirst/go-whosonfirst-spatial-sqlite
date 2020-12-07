@@ -34,6 +34,7 @@ func init() {
 }
 
 // PLEASE DISCUSS WHY patrickm/go-cache AND NOT whosonfirst/go-cache HERE
+// Is this even necessary for this package?
 
 type SQLiteSpatialDatabase struct {
 	database.SpatialDatabase
