@@ -1,6 +1,6 @@
 # github.com/aaronland/go-roster v0.0.2
 github.com/aaronland/go-roster
-# github.com/mattn/go-sqlite3 v1.14.5
+# github.com/mattn/go-sqlite3 v2.0.2+incompatible
 github.com/mattn/go-sqlite3
 # github.com/mmcloughlin/geohash v0.9.0
 github.com/mmcloughlin/geohash
@@ -14,6 +14,8 @@ github.com/tidwall/gjson
 github.com/tidwall/match
 # github.com/tidwall/pretty v1.0.2
 github.com/tidwall/pretty
+# github.com/whosonfirst/go-spatialite v0.1.1
+github.com/whosonfirst/go-spatialite
 # github.com/whosonfirst/go-whosonfirst-flags v0.1.0
 github.com/whosonfirst/go-whosonfirst-flags
 github.com/whosonfirst/go-whosonfirst-flags/existential
@@ -37,3 +39,6 @@ github.com/whosonfirst/go-whosonfirst-spatial/geo
 github.com/whosonfirst/go-whosonfirst-spatial/geojson
 # github.com/whosonfirst/go-whosonfirst-spr v0.1.0
 github.com/whosonfirst/go-whosonfirst-spr
+# github.com/whosonfirst/go-whosonfirst-sqlite v0.1.6
+github.com/whosonfirst/go-whosonfirst-sqlite
+github.com/whosonfirst/go-whosonfirst-sqlite/database

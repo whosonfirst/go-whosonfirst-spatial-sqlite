@@ -7,7 +7,6 @@ package sqlite
 
 import (
 	"context"
-	"database/sql"
 	"errors"
 	_ "github.com/mattn/go-sqlite3"
 	gocache "github.com/patrickmn/go-cache"
@@ -20,6 +19,9 @@ import (
 	"github.com/whosonfirst/go-whosonfirst-spatial/filter"
 	"github.com/whosonfirst/go-whosonfirst-spatial/geojson"
 	"github.com/whosonfirst/go-whosonfirst-spr"
+	"github.com/whosonfirst/go-whosonfirst-sqlite"
+	sqlite_database "github.com/whosonfirst/go-whosonfirst-sqlite/database"
+	// "github.com/whosonfirst/go-whosonfirst-sqlite-features/tables"
 	// golog "log"
 	"net/url"
 	"strconv"
@@ -37,12 +39,13 @@ func init() {
 
 type SQLiteSpatialDatabase struct {
 	database.SpatialDatabase
-	Logger  *log.WOFLogger
-	gocache *gocache.Cache
-	mu      *sync.RWMutex
-	conn    *sql.DB
-	dsn     string
-	strict  bool
+	Logger      *log.WOFLogger
+	gocache     *gocache.Cache
+	mu          *sync.RWMutex
+	db          *sqlite_database.SQLiteDatabase
+	rtree_table sqlite.Table
+	dsn         string
+	strict      bool
 }
 
 type RTreeSpatialIndex struct {
@@ -79,7 +82,7 @@ func NewSQLiteSpatialDatabase(ctx context.Context, uri string) (database.Spatial
 		return nil, errors.New("Missing 'dsn' parameter")
 	}
 
-	conn, err := sql.Open("sqlite3", dsn)
+	sqlite_db, err := sqlite_database.NewDB(dsn)
 
 	if err != nil {
 		return nil, err
@@ -125,52 +128,40 @@ func NewSQLiteSpatialDatabase(ctx context.Context, uri string) (database.Spatial
 
 	mu := new(sync.RWMutex)
 
-	db := &SQLiteSpatialDatabase{
+	spatial_db := &SQLiteSpatialDatabase{
 		Logger:  logger,
-		conn:    conn,
+		db:      sqlite_db,
 		dsn:     dsn,
 		gocache: gc,
 		strict:  strict,
 		mu:      mu,
 	}
 
-	return db, nil
+	return spatial_db, nil
 }
 
 func (r *SQLiteSpatialDatabase) Close(ctx context.Context) error {
-
-	return nil
+	return r.db.Close()
 }
 
 func (r *SQLiteSpatialDatabase) IndexFeature(ctx context.Context, f wof_geojson.Feature) error {
 
-	bboxes, err := f.BoundingBoxes()
-
-	if err != nil {
-		return err
-	}
-
-	err = r.setSPRCacheItem(ctx, f)
-
-	if err != nil {
-		return err
-	}
-
-	for _, bbox := range bboxes.Bounds() {
-
-		sw := bbox.Min
-		ne := bbox.Max
-
-		q := "UPSERT INTO rtree VALUES(?, ?, ?, ?, ?)"
-
-		_, err := r.conn.ExecContext(ctx, q, f.Id(), sw.X, sw.Y, ne.X, ne.Y)
+	/*
+		bboxes, err := f.BoundingBoxes()
 
 		if err != nil {
 			return err
 		}
+
+	*/
+
+	err := r.setSPRCacheItem(ctx, f)
+
+	if err != nil {
+		return err
 	}
 
-	return nil
+	return r.rtree_table.IndexRecord(r.db, f)
 }
 
 func (r *SQLiteSpatialDatabase) PointInPolygon(ctx context.Context, coord *geom.Coord, filters filter.Filter) (spr.StandardPlacesResults, error) {
@@ -348,9 +339,15 @@ func (r *SQLiteSpatialDatabase) getIntersectsByCoord(ctx context.Context, coord 
 
 func (r *SQLiteSpatialDatabase) getIntersectsByRect(ctx context.Context, rect *geom.Rect) ([]*RTreeSpatialIndex, error) {
 
+	conn, err := r.db.Conn()
+
+	if err != nil {
+		return nil, err
+	}
+
 	q := "SELECT id, min_x, min_y, max_x, max_y FROM rtree  WHERE max_x >= ?  AND min_x <= ?  AND max_y >= ? AND min_y <= ?"
 
-	rows, err := r.conn.QueryContext(ctx, q, rect.Max.X, rect.Min.Y, rect.Max.Y, rect.Min.Y)
+	rows, err := conn.QueryContext(ctx, q, rect.Max.X, rect.Min.Y, rect.Max.Y, rect.Min.Y)
 
 	if err != nil {
 		return nil, err
