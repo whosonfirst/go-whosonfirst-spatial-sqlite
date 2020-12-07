@@ -8,10 +8,12 @@ package sqlite
 import (
 	"context"
 	"errors"
+	"fmt"
 	_ "github.com/mattn/go-sqlite3"
 	gocache "github.com/patrickmn/go-cache"
 	"github.com/skelterjohn/geom"
 	wof_geojson "github.com/whosonfirst/go-whosonfirst-geojson-v2"
+	wof_feature "github.com/whosonfirst/go-whosonfirst-geojson-v2/feature"
 	"github.com/whosonfirst/go-whosonfirst-geojson-v2/geometry"
 	"github.com/whosonfirst/go-whosonfirst-log"
 	"github.com/whosonfirst/go-whosonfirst-spatial/cache"
@@ -20,11 +22,12 @@ import (
 	"github.com/whosonfirst/go-whosonfirst-spatial/geojson"
 	"github.com/whosonfirst/go-whosonfirst-spr"
 	"github.com/whosonfirst/go-whosonfirst-sqlite"
-	sqlite_database "github.com/whosonfirst/go-whosonfirst-sqlite/database"
 	"github.com/whosonfirst/go-whosonfirst-sqlite-features/tables"
+	sqlite_database "github.com/whosonfirst/go-whosonfirst-sqlite/database"
 	// golog "log"
 	"net/url"
 	"strconv"
+	"strings"
 	"sync"
 	"time"
 )
@@ -39,14 +42,14 @@ func init() {
 
 type SQLiteSpatialDatabase struct {
 	database.SpatialDatabase
-	Logger      *log.WOFLogger
-	gocache     *gocache.Cache
-	mu          *sync.RWMutex
-	db          *sqlite_database.SQLiteDatabase
-	rtree_table sqlite.Table
-	spr_table sqlite.Table
-	dsn         string
-	strict      bool
+	Logger        *log.WOFLogger
+	gocache       *gocache.Cache
+	mu            *sync.RWMutex
+	db            *sqlite_database.SQLiteDatabase
+	rtree_table   sqlite.Table
+	geojson_table sqlite.Table
+	dsn           string
+	strict        bool
 }
 
 type RTreeSpatialIndex struct {
@@ -89,7 +92,7 @@ func NewSQLiteSpatialDatabase(ctx context.Context, uri string) (database.Spatial
 		return nil, err
 	}
 
-	spr_table, err := tables.NewSPRTableWithDatabase(sqlite_db)
+	geojson_table, err := tables.NewGeoJSONTableWithDatabase(sqlite_db)
 
 	if err != nil {
 		return nil, err
@@ -100,7 +103,7 @@ func NewSQLiteSpatialDatabase(ctx context.Context, uri string) (database.Spatial
 	if err != nil {
 		return nil, err
 	}
-	
+
 	strict := true
 
 	if q.Get("strict") == "false" {
@@ -142,14 +145,14 @@ func NewSQLiteSpatialDatabase(ctx context.Context, uri string) (database.Spatial
 	mu := new(sync.RWMutex)
 
 	spatial_db := &SQLiteSpatialDatabase{
-		Logger:  logger,
-		db:      sqlite_db,
-		rtree_table: rtree_table,
-		spr_table: spr_table,
-		dsn:     dsn,
-		gocache: gc,
-		strict:  strict,
-		mu:      mu,
+		Logger:        logger,
+		db:            sqlite_db,
+		rtree_table:   rtree_table,
+		geojson_table: geojson_table,
+		dsn:           dsn,
+		gocache:       gc,
+		strict:        strict,
+		mu:            mu,
 	}
 
 	return spatial_db, nil
@@ -360,7 +363,7 @@ func (r *SQLiteSpatialDatabase) getIntersectsByRect(ctx context.Context, rect *g
 		return nil, err
 	}
 
-	q := "SELECT id, min_x, min_y, max_x, max_y FROM rtree  WHERE max_x >= ?  AND min_x <= ?  AND max_y >= ? AND min_y <= ?"
+	q := fmt.Sprintf("SELECT id, min_x, min_y, max_x, max_y FROM %s  WHERE max_x >= ?  AND min_x <= ?  AND max_y >= ? AND min_y <= ?", r.rtree_table.Name())
 
 	rows, err := conn.QueryContext(ctx, q, rect.Max.X, rect.Min.Y, rect.Max.Y, rect.Min.Y)
 
@@ -531,27 +534,64 @@ func (db *SQLiteSpatialDatabase) StandardPlacesResultsToFeatureCollection(ctx co
 
 func (r *SQLiteSpatialDatabase) setSPRCacheItem(ctx context.Context, f wof_geojson.Feature) error {
 
-	return r.spr_table.IndexRecord(r.db, f)
+	return r.geojson_table.IndexRecord(r.db, f)
 
 	/*
-	fc, err := cache.NewSPRCacheItem(f)
+		fc, err := cache.NewSPRCacheItem(f)
 
-	if err != nil {
-		return err
-	}
+		if err != nil {
+			return err
+		}
 
-	r.gocache.Set(f.Id(), fc, -1)
-	return nil
+		r.gocache.Set(f.Id(), fc, -1)
+		return nil
 	*/
 }
 
 func (r *SQLiteSpatialDatabase) retrieveSPRCacheItem(ctx context.Context, str_id string) (*cache.SPRCacheItem, error) {
 
-	fc, ok := r.gocache.Get(str_id)
+	conn, err := r.db.Conn()
 
-	if !ok {
-		return nil, errors.New("Invalid cache ID")
+	if err != nil {
+		return nil, err
 	}
 
-	return fc.(*cache.SPRCacheItem), nil
+	q := fmt.Sprintf("SELECT body FROM %s WHERE id = ?", r.geojson_table.Name())
+
+	row := conn.QueryRowContext(ctx, q, str_id)
+
+	var body string
+
+	err = row.Scan(&body)
+
+	if err != nil {
+		return nil, err
+	}
+
+	feature_r := strings.NewReader(body)
+
+	f, err := wof_feature.LoadFeatureFromReader(feature_r)
+
+	if err != nil {
+		return nil, err
+	}
+
+	c, err := cache.NewSPRCacheItem(f)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return c.(*cache.SPRCacheItem), nil
+
+	/*
+
+		fc, ok := r.gocache.Get(str_id)
+
+		if !ok {
+			return nil, errors.New("Invalid cache ID")
+		}
+
+		return fc.(*cache.SPRCacheItem), nil
+	*/
 }

@@ -2,7 +2,9 @@ package main
 
 import (
 	"context"
+	"encoding/json"
 	"flag"
+	"fmt"
 	"github.com/whosonfirst/go-whosonfirst-spatial-database-sqlite"
 	"github.com/whosonfirst/go-whosonfirst-spatial/filter"
 	"github.com/whosonfirst/go-whosonfirst-spatial/geo"
@@ -42,5 +44,11 @@ func main() {
 		log.Fatalf("Failed to query database with coord %v, %v", c, err)
 	}
 
-	log.Println(r)
+	enc, err := json.Marshal(r)
+
+	if err != nil {
+		log.Fatalf("Failed to marshal results, %v", err)
+	}
+
+	fmt.Println(string(enc))
 }
