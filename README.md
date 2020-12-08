@@ -12,36 +12,64 @@ The goal is to have a package that conforms to the [database.SpatialDatabase](ht
 
 ```
 $> ./bin/query \
-	-database-uri 'sqlite3://?dsn=/tmp/test.db' \
+	-database-uri 'sqlite://?dsn=/usr/local/data/sfomuseum-data-architecture.db' \
+	-properties-uri 'sqlite://?dsn=/usr/local/data/sfomuseum-data-architecture.db' \
 	-latitude 37.616951 \
 	-longitude -122.383747 \
-| jq \
-| grep wof:path
+	-properties 'wof:hierarchy' \
+	-properties 'sfomuseum:*' \
+| jq
 
-      "wof:path": "115/939/625/7/1159396257.geojson",
-      "wof:path": "115/939/628/3/1159396283.geojson",
-      "wof:path": "147/785/565/5/1477855655.geojson",
+{
+  "properties": [
+    {
+      "mz:is_ceased": 1,
+      "mz:is_current": 0,
+      "mz:is_deprecated": 0,
+      "mz:is_superseded": 1,
+      "mz:is_superseding": 1,
+      "mz:latitude": 37.617475,
+      "mz:longitude": -122.383371,
+      "mz:max_latitude": 37.61950174060331,
+      "mz:max_longitude": -122.38139655218178,
+      "mz:min_latitude": 37.61615511156664,
+      "mz:min_longitude": -122.3853565208227,
+      "mz:uri": "https://data.whosonfirst.org/115/939/616/5/1159396165.geojson",
+      "sfomuseum:is_sfo": 1,
+      "sfomuseum:placetype": "terminal",
+      "sfomuseum:terminal_id": "CENTRAL",
+      "wof:country": "US",
+      "wof:hierarchy": [
+        {
+          "building_id": 1159396339,
+          "campus_id": 102527513,
+          "continent_id": 102191575,
+          "country_id": 85633793,
+          "county_id": 102087579,
+          "locality_id": 85922583,
+          "neighbourhood_id": -1,
+          "region_id": 85688637,
+          "wing_id": 1159396165
+        }
+      ],
+      "wof:id": 1159396165,
+      "wof:lastmodified": 1547232162,
+      "wof:name": "Central Terminal",
+      "wof:parent_id": 1159396339,
       "wof:path": "115/939/616/5/1159396165.geojson",
-      "wof:path": "115/939/613/3/1159396133.geojson",
-      "wof:path": "115/939/613/1/1159396131.geojson",
-      "wof:path": "115/915/732/7/1159157327.geojson",
-      "wof:path": "115/939/612/1/1159396121.geojson",
-      "wof:path": "115/939/617/1/1159396171.geojson",
-      "wof:path": "136/052/154/3/1360521543.geojson",
-      "wof:path": "115/939/614/9/1159396149.geojson",
-      "wof:path": "136/052/154/5/1360521545.geojson",
-      "wof:path": "115/939/632/9/1159396329.geojson",
-      "wof:path": "115/955/482/7/1159554827.geojson",
-      "wof:path": "115/939/610/9/1159396109.geojson",
-      "wof:path": "115/955/482/9/1159554829.geojson",
-      "wof:path": "147/785/560/7/1477855607.geojson",
-      "wof:path": "115/955/480/3/1159554803.geojson",
-      "wof:path": "115/915/732/5/1159157325.geojson",
-      "wof:path": "115/939/632/1/1159396321.geojson",
-      "wof:path": "147/785/560/5/1477855605.geojson",
-      "wof:path": "115/939/633/3/1159396333.geojson",
-      "wof:path": "115/939/631/9/1159396319.geojson",
-      "wof:path": "115/939/633/7/1159396337.geojson",
+      "wof:placetype": "wing",
+      "wof:repo": "sfomuseum-data-architecture",
+      "wof:superseded_by": [
+        1159396149
+      ],
+      "wof:supersedes": [
+        1159396171
+      ]
+    },
+
+    ... and so on
+   }
+]   
 ```
 
 Note: This assumes a database that was previously indexed using the [whosonfirst/go-whosonfirst-sqlite-features](https://github.com/whosonfirst/go-whosonfirst-sqlite-features) `wof-sqlite-index-features` tool. For example:

@@ -8,6 +8,8 @@ github.com/hashicorp/go-multierror
 github.com/mattn/go-sqlite3
 # github.com/mmcloughlin/geohash v0.9.0
 github.com/mmcloughlin/geohash
+# github.com/patrickmn/go-cache v2.1.0+incompatible
+github.com/patrickmn/go-cache
 # github.com/skelterjohn/geom v0.0.0-20180103142417-96f3e8a219c5
 github.com/skelterjohn/geom
 # github.com/tidwall/gjson v1.6.3
@@ -16,10 +18,18 @@ github.com/tidwall/gjson
 github.com/tidwall/match
 # github.com/tidwall/pretty v1.0.2
 github.com/tidwall/pretty
+# github.com/tidwall/sjson v1.1.2
+github.com/tidwall/sjson
 # github.com/twpayne/go-geom v1.0.5
 github.com/twpayne/go-geom
 github.com/twpayne/go-geom/encoding/geojson
 github.com/twpayne/go-geom/encoding/wkt
+# github.com/whosonfirst/go-cache v0.2.0
+github.com/whosonfirst/go-cache
+# github.com/whosonfirst/go-reader v0.2.0
+github.com/whosonfirst/go-reader
+# github.com/whosonfirst/go-reader-cachereader v0.0.0-20200520215638-b6af3cdb91ac
+github.com/whosonfirst/go-reader-cachereader
 # github.com/whosonfirst/go-rfc-5646 v0.1.0
 github.com/whosonfirst/go-rfc-5646
 # github.com/whosonfirst/go-spatialite v0.1.1
@@ -45,6 +55,8 @@ github.com/whosonfirst/go-whosonfirst-names/tags
 # github.com/whosonfirst/go-whosonfirst-placetypes v0.2.4
 github.com/whosonfirst/go-whosonfirst-placetypes
 github.com/whosonfirst/go-whosonfirst-placetypes/placetypes
+# github.com/whosonfirst/go-whosonfirst-reader v0.0.1
+github.com/whosonfirst/go-whosonfirst-reader
 # github.com/whosonfirst/go-whosonfirst-sources v0.1.0
 github.com/whosonfirst/go-whosonfirst-sources
 github.com/whosonfirst/go-whosonfirst-sources/sources
@@ -54,6 +66,7 @@ github.com/whosonfirst/go-whosonfirst-spatial/database
 github.com/whosonfirst/go-whosonfirst-spatial/filter
 github.com/whosonfirst/go-whosonfirst-spatial/geo
 github.com/whosonfirst/go-whosonfirst-spatial/geojson
+github.com/whosonfirst/go-whosonfirst-spatial/properties
 # github.com/whosonfirst/go-whosonfirst-spr v0.1.0
 github.com/whosonfirst/go-whosonfirst-spr
 # github.com/whosonfirst/go-whosonfirst-sqlite v0.1.6

@@ -5,22 +5,32 @@ import (
 	"encoding/json"
 	"flag"
 	"fmt"
-	"github.com/whosonfirst/go-whosonfirst-spatial-database-sqlite"
+	_ "github.com/whosonfirst/go-whosonfirst-spatial-database-sqlite"
+	"github.com/whosonfirst/go-whosonfirst-spatial/database"
 	"github.com/whosonfirst/go-whosonfirst-spatial/filter"
 	"github.com/whosonfirst/go-whosonfirst-spatial/geo"
+	"github.com/whosonfirst/go-whosonfirst-spatial/properties"
+	"github.com/whosonfirst/go-whosonfirst-spr"
 	"log"
 )
 
 func main() {
 
 	database_uri := flag.String("database-uri", "", "...")
+	properties_uri := flag.String("properties-uri", "", "...")
 	latitude := flag.Float64("latitude", 0.0, "...")
 	longitude := flag.Float64("longitude", 0.0, "...")
 
 	flag.Parse()
 
+	props := []string{
+		"wof:concordances",
+		"wof:hierarchy",
+		"sfomuseum:*",
+	}
+
 	ctx := context.Background()
-	db, err := sqlite.NewSQLiteSpatialDatabase(ctx, *database_uri)
+	db, err := database.NewSpatialDatabase(ctx, *database_uri)
 
 	if err != nil {
 		log.Fatalf("Failed to create database for '%s', %v", *database_uri, err)
@@ -38,13 +48,34 @@ func main() {
 		log.Fatalf("Failed to create SPR filter, %v", err)
 	}
 
+	var rsp interface{}
+
 	r, err := db.PointInPolygon(ctx, c, f)
 
 	if err != nil {
 		log.Fatalf("Failed to query database with coord %v, %v", c, err)
 	}
 
-	enc, err := json.Marshal(r)
+	rsp = r
+
+	if len(props) > 0 {
+
+		pr, err := properties.NewPropertiesReader(ctx, *properties_uri)
+
+		if err != nil {
+			log.Fatalf("Failed to create properties reader, %v", err)
+		}
+
+		r, err := pr.PropertiesResponseResultsWithStandardPlacesResults(ctx, rsp.(spr.StandardPlacesResults), props)
+
+		if err != nil {
+			log.Fatalf("Failed to generate properties response, %v", err)
+		}
+
+		rsp = r
+	}
+
+	enc, err := json.Marshal(rsp)
 
 	if err != nil {
 		log.Fatalf("Failed to marshal results, %v", err)
