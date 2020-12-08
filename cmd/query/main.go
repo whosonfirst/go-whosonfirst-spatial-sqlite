@@ -5,12 +5,13 @@ import (
 	"encoding/json"
 	"flag"
 	"fmt"
-	_ "github.com/whosonfirst/go-whosonfirst-spatial-database-sqlite"
+	_ "github.com/whosonfirst/go-whosonfirst-spatial-sqlite"
 	"github.com/whosonfirst/go-whosonfirst-spatial/database"
 	"github.com/whosonfirst/go-whosonfirst-spatial/filter"
 	"github.com/whosonfirst/go-whosonfirst-spatial/geo"
 	"github.com/whosonfirst/go-whosonfirst-spatial/properties"
 	"github.com/whosonfirst/go-whosonfirst-spr"
+	// "github.com/sfomuseum/go-flags/multi"
 	"log"
 )
 
@@ -20,6 +21,9 @@ func main() {
 	properties_uri := flag.String("properties-uri", "", "...")
 	latitude := flag.Float64("latitude", 0.0, "...")
 	longitude := flag.Float64("longitude", 0.0, "...")
+
+	// var props multi.MultString
+	//flag.Var(&props, "properties", "...")
 
 	flag.Parse()
 

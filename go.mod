@@ -1,4 +1,4 @@
-module github.com/whosonfirst/go-whosonfirst-spatial-database-sqlite
+module github.com/whosonfirst/go-whosonfirst-spatial-sqlite
 
 go 1.12
 

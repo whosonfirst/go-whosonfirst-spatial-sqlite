@@ -1,10 +1,58 @@
-# go-whosonfirst-spatial-database-sqlite
+# go-whosonfirst-spatial-sqlite
 
 ## Important
 
 This is work in progress. It may change, probably has bugs and isn't properly documented yet.
 
 The goal is to have a package that conforms to the [database.SpatialDatabase](https://github.com/whosonfirst/go-whosonfirst-spatial#spatialdatabase) interface using [mattn/go-sqlite3](https://github.com/mattn/go-sqlite3) and SQLite's [RTree](https://www.sqlite.org/rtree.html) extension.
+
+## Example
+
+```
+package main
+
+import (
+	"context"
+	"encoding/json"
+	"fmt"
+	_ "github.com/whosonfirst/go-whosonfirst-spatial-sqlite"
+	"github.com/whosonfirst/go-whosonfirst-spatial/database"
+	"github.com/whosonfirst/go-whosonfirst-spatial/filter"
+	"github.com/whosonfirst/go-whosonfirst-spatial/geo"
+	"github.com/whosonfirst/go-whosonfirst-spatial/properties"
+	"github.com/whosonfirst/go-whosonfirst-spr"
+)
+
+func main() {
+
+	database_uri := "sqlite://?dsn=whosonfirst.db"
+	properties_uri := "sqlite://?dsn=whosonfirst.db"
+	latitude := 37.616951
+	longitude := -122.383747
+
+	props := []string{
+		"wof:concordances",
+		"wof:hierarchy",
+		"sfomuseum:*",
+	}
+
+	ctx := context.Background()
+	
+	db, _ := database.NewSpatialDatabase(ctx, *database_uri)
+	pr, _ := properties.NewPropertiesReader(ctx, *properties_uri)
+	
+	c, _ := geo.NewCoordinate(*longitude, *latitude)
+	f, _ := filter.NewSPRFilter()
+	r, _ := db.PointInPolygon(ctx, c, f)
+
+	r, _ = pr.PropertiesResponseResultsWithStandardPlacesResults(ctx, r, props)
+
+	enc, _ := json.Marshal(r)
+	fmt.Println(string(enc))
+}
+```
+
+_Error handling removed for the sake of brevity._
 
 ## Tools
 
