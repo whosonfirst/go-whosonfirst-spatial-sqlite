@@ -143,7 +143,7 @@ func (r *SQLiteSpatialDatabase) IndexFeature(ctx context.Context, f wof_geojson.
 	return r.rtree_table.IndexRecord(r.db, f)
 }
 
-func (r *SQLiteSpatialDatabase) PointInPolygon(ctx context.Context, coord *geom.Coord, filters filter.Filter) (spr.StandardPlacesResults, error) {
+func (r *SQLiteSpatialDatabase) PointInPolygon(ctx context.Context, coord *geom.Coord, filters ...filter.Filter) (spr.StandardPlacesResults, error) {
 
 	ctx, cancel := context.WithCancel(ctx)
 	defer cancel()
@@ -155,7 +155,7 @@ func (r *SQLiteSpatialDatabase) PointInPolygon(ctx context.Context, coord *geom.
 	results := make([]spr.StandardPlacesResult, 0)
 	working := true
 
-	go r.PointInPolygonWithChannels(ctx, coord, filters, rsp_ch, err_ch, done_ch)
+	go r.PointInPolygonWithChannels(ctx, rsp_ch, err_ch, done_ch, coord, filters...)
 
 	for {
 		select {
@@ -183,7 +183,7 @@ func (r *SQLiteSpatialDatabase) PointInPolygon(ctx context.Context, coord *geom.
 	return spr_results, nil
 }
 
-func (r *SQLiteSpatialDatabase) PointInPolygonWithChannels(ctx context.Context, coord *geom.Coord, filters filter.Filter, rsp_ch chan spr.StandardPlacesResult, err_ch chan error, done_ch chan bool) {
+func (r *SQLiteSpatialDatabase) PointInPolygonWithChannels(ctx context.Context, rsp_ch chan spr.StandardPlacesResult, err_ch chan error, done_ch chan bool, coord *geom.Coord, filters ...filter.Filter) {
 
 	defer func() {
 		done_ch <- true
@@ -196,7 +196,7 @@ func (r *SQLiteSpatialDatabase) PointInPolygonWithChannels(ctx context.Context, 
 		return
 	}
 
-	r.inflateResultsWithChannels(ctx, coord, filters, rows, rsp_ch, err_ch)
+	r.inflateResultsWithChannels(ctx, rsp_ch, err_ch, rows, coord, filters...)
 	return
 }
 
@@ -241,7 +241,7 @@ func (r *SQLiteSpatialDatabase) PointInPolygonCandidates(ctx context.Context, co
 	return fc, nil
 }
 
-func (r *SQLiteSpatialDatabase) PointInPolygonCandidatesWithChannels(ctx context.Context, coord *geom.Coord, rsp_ch chan geojson.GeoJSONFeature, err_ch chan error, done_ch chan bool) {
+func (r *SQLiteSpatialDatabase) PointInPolygonCandidatesWithChannels(ctx context.Context, rsp_ch chan geojson.GeoJSONFeature, err_ch chan error, done_ch chan bool, coord *geom.Coord, filters ...filter.Filter) {
 
 	defer func() {
 		done_ch <- true
@@ -376,7 +376,7 @@ func (r *SQLiteSpatialDatabase) getIntersectsByRect(ctx context.Context, rect *g
 	return intersects, nil
 }
 
-func (r *SQLiteSpatialDatabase) inflateResultsWithChannels(ctx context.Context, c *geom.Coord, f filter.Filter, possible []*RTreeSpatialIndex, rsp_ch chan spr.StandardPlacesResult, err_ch chan error) {
+func (r *SQLiteSpatialDatabase) inflateResultsWithChannels(ctx context.Context, rsp_ch chan spr.StandardPlacesResult, err_ch chan error, possible []*RTreeSpatialIndex, c *geom.Coord, filters ...filter.Filter) {
 
 	seen := make(map[string]bool)
 
@@ -421,11 +421,13 @@ func (r *SQLiteSpatialDatabase) inflateResultsWithChannels(ctx context.Context, 
 
 			s := fc.SPR()
 
-			err = filter.FilterSPR(f, s)
+			for _, f := range filters {
+				err = filter.FilterSPR(f, s)
 
-			if err != nil {
-				r.Logger.Debug("SKIP %s because filter error %s", str_id, err)
-				return
+				if err != nil {
+					r.Logger.Debug("SKIP %s because filter error %s", str_id, err)
+					return
+				}
 			}
 
 			p := fc.Polygons()
