@@ -54,6 +54,32 @@ func main() {
 
 _Error handling removed for the sake of brevity._
 
+## Interfaces
+
+This package implements the following [go-whosonfirst-spatial](#) interfaces.
+
+### spatial.SpatialDatabase
+
+```
+import (
+	"github.com/whosonfirst/go-whosonfirst-spatial/database"
+	_ "github.com/whosonfirst/go-whosonfirst-spatial-sqlite"       
+)
+
+db, err := database.NewSpatialDatabase(ctx, "sqlite://?dsn={DSN}")
+```
+
+### spatial.PropertiesReader
+
+```
+import (
+	"github.com/whosonfirst/go-whosonfirst-spatial/properties"
+	_ "github.com/whosonfirst/go-whosonfirst-spatial-sqlite"       
+)
+
+pr, err := properties.NewPropertiesReader(ctx, "sqlite://?dsn={DSN}")
+```
+
 ## Tools
 
 ### query
