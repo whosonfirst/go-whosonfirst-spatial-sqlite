@@ -11,7 +11,7 @@ import (
 	"github.com/whosonfirst/go-whosonfirst-spatial/geo"
 	"github.com/whosonfirst/go-whosonfirst-spatial/properties"
 	"github.com/whosonfirst/go-whosonfirst-spr"
-	// "github.com/sfomuseum/go-flags/multi"
+	"github.com/sfomuseum/go-flags/multi"
 	"log"
 )
 
@@ -22,17 +22,19 @@ func main() {
 	latitude := flag.Float64("latitude", 0.0, "...")
 	longitude := flag.Float64("longitude", 0.0, "...")
 
-	// var props multi.MultString
-	//flag.Var(&props, "properties", "...")
+	var props multi.MultiString
+	flag.Var(&props, "properties", "...")
 
 	flag.Parse()
 
+	/*
 	props := []string{
 		"wof:concordances",
 		"wof:hierarchy",
 		"sfomuseum:*",
 	}
-
+	*/
+	
 	ctx := context.Background()
 	db, err := database.NewSpatialDatabase(ctx, *database_uri)
 

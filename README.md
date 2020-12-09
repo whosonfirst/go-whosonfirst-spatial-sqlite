@@ -85,6 +85,23 @@ pr, err := properties.NewPropertiesReader(ctx, "sqlite://?dsn={DSN}")
 ### query
 
 ```
+$> ./bin/query -h
+Usage of ./bin/query:
+  -database-uri string
+    	...
+  -latitude float
+    	...
+  -longitude float
+    	...
+  -properties value
+    	...
+  -properties-uri string
+    	...
+```
+
+For example:
+
+```
 $> ./bin/query \
 	-database-uri 'sqlite://?dsn=/usr/local/data/sfomuseum-data-architecture.db' \
 	-properties-uri 'sqlite://?dsn=/usr/local/data/sfomuseum-data-architecture.db' \

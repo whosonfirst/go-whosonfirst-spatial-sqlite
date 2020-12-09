@@ -241,7 +241,7 @@ func (r *SQLiteSpatialDatabase) PointInPolygonCandidates(ctx context.Context, co
 	return fc, nil
 }
 
-func (r *SQLiteSpatialDatabase) PointInPolygonCandidatesWithChannels(ctx context.Context, rsp_ch chan geojson.GeoJSONFeature, err_ch chan error, done_ch chan bool, coord *geom.Coord, filters ...filter.Filter) {
+func (r *SQLiteSpatialDatabase) PointInPolygonCandidatesWithChannels(ctx context.Context, coord *geom.Coord, rsp_ch chan geojson.GeoJSONFeature, err_ch chan error, done_ch chan bool) {
 
 	defer func() {
 		done_ch <- true
