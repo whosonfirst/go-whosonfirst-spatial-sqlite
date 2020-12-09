@@ -26,14 +26,6 @@ func main() {
 	flag.Var(&props, "properties", "...")
 
 	flag.Parse()
-
-	/*
-	props := []string{
-		"wof:concordances",
-		"wof:hierarchy",
-		"sfomuseum:*",
-	}
-	*/
 	
 	ctx := context.Background()
 	db, err := database.NewSpatialDatabase(ctx, *database_uri)
