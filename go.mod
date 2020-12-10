@@ -12,4 +12,5 @@ require (
 	github.com/whosonfirst/go-whosonfirst-spr v0.1.0
 	github.com/whosonfirst/go-whosonfirst-sqlite v0.1.6
 	github.com/whosonfirst/go-whosonfirst-sqlite-features v0.3.1
+	github.com/whosonfirst/go-whosonfirst-uri v0.2.0
 )

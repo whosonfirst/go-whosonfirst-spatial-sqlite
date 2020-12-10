@@ -19,6 +19,7 @@ import (
 	"github.com/whosonfirst/go-whosonfirst-spatial/filter"
 	"github.com/whosonfirst/go-whosonfirst-spatial/geojson"
 	"github.com/whosonfirst/go-whosonfirst-spr"
+	"github.com/whosonfirst/go-whosonfirst-uri"	
 	"github.com/whosonfirst/go-whosonfirst-sqlite"
 	"github.com/whosonfirst/go-whosonfirst-sqlite-features/tables"
 	sqlite_database "github.com/whosonfirst/go-whosonfirst-sqlite/database"
@@ -53,6 +54,15 @@ type RTreeSpatialIndex struct {
 
 func (sp RTreeSpatialIndex) Bounds() geom.Rect {
 	return sp.bounds
+}
+
+func (sp RTreeSpatialIndex) Path() string {
+
+	if sp.IsAlt {
+		return fmt.Sprintf("%s-%s", sp.Id, sp.AltLabel)
+	}
+	
+	return sp.Id
 }
 
 type SQLiteResults struct {
@@ -408,7 +418,7 @@ func (r *SQLiteSpatialDatabase) inflateResultsWithChannels(ctx context.Context, 
 				// pass
 			}
 
-			str_id := sp.Id
+			str_id := fmt.Sprintf("%s:%s", sp.Id, sp.AltLabel)
 
 			mu.RLock()
 			_, ok := seen[str_id]
@@ -422,7 +432,7 @@ func (r *SQLiteSpatialDatabase) inflateResultsWithChannels(ctx context.Context, 
 			seen[str_id] = true
 			mu.Unlock()
 
-			fc, err := r.retrieveSPRCacheItem(ctx, str_id)
+			fc, err := r.retrieveSPRCacheItem(ctx, sp.Path())
 
 			if err != nil {
 				r.Logger.Error("Failed to retrieve feature cache for %s, %v", str_id, err)
@@ -432,6 +442,7 @@ func (r *SQLiteSpatialDatabase) inflateResultsWithChannels(ctx context.Context, 
 			s := fc.SPR()
 
 			for _, f := range filters {
+				
 				err = filter.FilterSPR(f, s)
 
 				if err != nil {
@@ -474,7 +485,7 @@ func (db *SQLiteSpatialDatabase) StandardPlacesResultsToFeatureCollection(ctx co
 			// pass
 		}
 
-		fc, err := db.retrieveSPRCacheItem(ctx, r.Id())
+		fc, err := db.retrieveSPRCacheItem(ctx, r.Path())
 
 		if err != nil {
 			return nil, err
@@ -510,17 +521,39 @@ func (r *SQLiteSpatialDatabase) setSPRCacheItem(ctx context.Context, f wof_geojs
 	return r.geojson_table.IndexRecord(r.db, f)
 }
 
-func (r *SQLiteSpatialDatabase) retrieveSPRCacheItem(ctx context.Context, str_id string) (*cache.SPRCacheItem, error) {
+func (r *SQLiteSpatialDatabase) retrieveSPRCacheItem(ctx context.Context, uri_str string) (*cache.SPRCacheItem, error) {
 
+	id, uri_args, err := uri.ParseURI(uri_str)
+
+	if err != nil {
+		return nil, err
+	}
+	
 	conn, err := r.db.Conn()
 
 	if err != nil {
 		return nil, err
 	}
 
+	args := []interface{}{
+		id,
+	}
+	
 	q := fmt.Sprintf("SELECT body FROM %s WHERE id = ?", r.geojson_table.Name())
 
-	row := conn.QueryRowContext(ctx, q, str_id)
+	if uri_args.IsAlternate {
+
+		source, err := uri_args.AltGeom.String()
+
+		if err != nil {
+			return nil, err
+		}
+
+		q = fmt.Sprintf("%s AND is_alt=1 AND source = ?", q)
+		args = append(args, source)
+	}
+	
+	row := conn.QueryRowContext(ctx, q, args...)
 
 	var body string
 
