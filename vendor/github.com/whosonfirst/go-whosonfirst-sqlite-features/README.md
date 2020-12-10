@@ -115,8 +115,10 @@ CREATE VIRTUAL TABLE %s USING rtree (
 		min_y,
 		max_x,
 		max_y,
-		is_alt,
-		lastmodified
+		+wof_id INTEGER,
+		+is_alt INTEGER,
+		+alt_label TEXT,
+		+lastmodified INTEGER
 	);
 ```
 
@@ -126,13 +128,11 @@ Section `3.1.1` of the [SQLite RTree documentation](https://www.sqlite.org/rtree
 
 > In the argments to "rtree" in the CREATE VIRTUAL TABLE statement, the names of the columns are taken from the first token of each argument. All subsequent tokens within each argument are silently ignored. This means, for example, that if you try to give a column a type affinity or add a constraint such as UNIQUE or NOT NULL or DEFAULT to a column, those extra tokens are accepted as valid, but they do not change the behavior of the rtree. In an RTREE virtual table, the first column always has a type affinity of INTEGER and all other data columns have a type affinity of NUMERIC. Recommended practice is to omit any extra tokens in the rtree specification. Let each argument to "rtree" be a single ordinary label that is the name of the corresponding column, and omit all other tokens from the argument list.
 
-For example, a given row in the `rtree` table looks like this:
+Section `4.1` goes on to say:
 
-```
-1477856011|-122.387908935547|37.6149787902832|-122.384384155273|37.6177368164062|0.0|1568838528.0
-```
+> Beginning with SQLite version 3.24.0 (2018-06-04), r-tree tables can have auxiliary columns that store arbitrary data. ... Auxiliary columns are marked with a "+" symbol before the column name. Auxiliary columns must come after all of the coordinate boundary columns. There is a limit of no more than 100 auxiliary columns.
 
-As of this writing you _should not try to index alternate geometries_ in the `rtree` table. Pending a decision about how and where to store (and query) alternate geometry labels, and how to reconcile them with the unique ID constraint, there is no mechanism to prevent the last feature in a set of primary and alternate geometries from being indexed.
+With that in mind the `rtree` table relies on SQLite to automatically generate a new primary key value for the `id` column. The Who's On First record's ID is _not_ the primary key for the table and is stored in the `wof_id` column. It may be associated with (1) primary record and (n) alternate geometry records. If an alternate geometry is indexed the `is_alt` column value will be set to "1" and the `alt_label` column will be populated with the value in that record's `src:alt_label` property.
 
 ### search
 

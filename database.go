@@ -45,8 +45,10 @@ type SQLiteSpatialDatabase struct {
 }
 
 type RTreeSpatialIndex struct {
-	bounds geom.Rect
-	Id     string
+	bounds   geom.Rect
+	Id       string
+	IsAlt    bool
+	AltLabel string
 }
 
 func (sp RTreeSpatialIndex) Bounds() geom.Rect {
@@ -324,7 +326,7 @@ func (r *SQLiteSpatialDatabase) getIntersectsByRect(ctx context.Context, rect *g
 		return nil, err
 	}
 
-	q := fmt.Sprintf("SELECT id, min_x, min_y, max_x, max_y FROM %s  WHERE max_x >= ?  AND min_x <= ?  AND max_y >= ? AND min_y <= ?", r.rtree_table.Name())
+	q := fmt.Sprintf("SELECT id, wof_id, is_alt, alt_label, min_x, min_y, max_x, max_y FROM %s  WHERE max_x >= ?  AND min_x <= ?  AND max_y >= ? AND min_y <= ?", r.rtree_table.Name())
 
 	rows, err := conn.QueryContext(ctx, q, rect.Max.X, rect.Min.Y, rect.Max.Y, rect.Min.Y)
 
@@ -339,12 +341,15 @@ func (r *SQLiteSpatialDatabase) getIntersectsByRect(ctx context.Context, rect *g
 	for rows.Next() {
 
 		var id string
+		var wof_id string
+		var is_alt int32
+		var alt_label string
 		var minx float64
 		var miny float64
 		var maxx float64
 		var maxy float64
 
-		err := rows.Scan(&id, &minx, &miny, &maxx, &maxy)
+		err := rows.Scan(&id, &wof_id, is_alt, alt_label, &minx, &miny, &maxx, &maxy)
 
 		if err != nil {
 			return nil, err
@@ -366,8 +371,13 @@ func (r *SQLiteSpatialDatabase) getIntersectsByRect(ctx context.Context, rect *g
 		}
 
 		i := &RTreeSpatialIndex{
-			Id:     id,
+			Id:     wof_id,
 			bounds: rect,
+		}
+
+		if is_alt == 1 {
+			i.IsAlt = true
+			i.AltLabel = alt_label
 		}
 
 		intersects = append(intersects, i)

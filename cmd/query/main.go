@@ -5,13 +5,13 @@ import (
 	"encoding/json"
 	"flag"
 	"fmt"
+	"github.com/sfomuseum/go-flags/multi"
 	_ "github.com/whosonfirst/go-whosonfirst-spatial-sqlite"
 	"github.com/whosonfirst/go-whosonfirst-spatial/database"
 	"github.com/whosonfirst/go-whosonfirst-spatial/filter"
 	"github.com/whosonfirst/go-whosonfirst-spatial/geo"
 	"github.com/whosonfirst/go-whosonfirst-spatial/properties"
 	"github.com/whosonfirst/go-whosonfirst-spr"
-	"github.com/sfomuseum/go-flags/multi"
 	"log"
 )
 
@@ -26,7 +26,7 @@ func main() {
 	flag.Var(&props, "properties", "...")
 
 	flag.Parse()
-	
+
 	ctx := context.Background()
 	db, err := database.NewSpatialDatabase(ctx, *database_uri)
 
