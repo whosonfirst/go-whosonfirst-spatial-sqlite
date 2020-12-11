@@ -9,6 +9,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	gocache "github.com/patrickmn/go-cache"
 	"github.com/skelterjohn/geom"
 	wof_geojson "github.com/whosonfirst/go-whosonfirst-geojson-v2"
 	wof_feature "github.com/whosonfirst/go-whosonfirst-geojson-v2/feature"
@@ -23,10 +24,11 @@ import (
 	"github.com/whosonfirst/go-whosonfirst-sqlite-features/tables"
 	sqlite_database "github.com/whosonfirst/go-whosonfirst-sqlite/database"
 	"github.com/whosonfirst/go-whosonfirst-uri"
-	golog "log"
+	// golog "log"
 	"net/url"
 	"strings"
 	"sync"
+	"time"
 )
 
 func init() {
@@ -41,6 +43,7 @@ type SQLiteSpatialDatabase struct {
 	db            *sqlite_database.SQLiteDatabase
 	rtree_table   sqlite.Table
 	geojson_table sqlite.Table
+	gocache       *gocache.Cache
 	dsn           string
 	strict        bool
 }
@@ -116,6 +119,11 @@ func NewSQLiteSpatialDatabase(ctx context.Context, uri string) (database.Spatial
 
 	logger := log.SimpleWOFLogger("index")
 
+	expires := 5 * time.Minute
+	cleanup := 30 * time.Minute
+
+	gc := gocache.New(expires, cleanup)
+
 	mu := new(sync.RWMutex)
 
 	spatial_db := &SQLiteSpatialDatabase{
@@ -123,6 +131,7 @@ func NewSQLiteSpatialDatabase(ctx context.Context, uri string) (database.Spatial
 		db:            sqlite_db,
 		rtree_table:   rtree_table,
 		geojson_table: geojson_table,
+		gocache:       gc,
 		dsn:           dsn,
 		strict:        strict,
 		mu:            mu,
@@ -516,6 +525,12 @@ func (r *SQLiteSpatialDatabase) setSPRCacheItem(ctx context.Context, f wof_geojs
 
 func (r *SQLiteSpatialDatabase) retrieveSPRCacheItem(ctx context.Context, uri_str string) (*cache.SPRCacheItem, error) {
 
+	c, ok := r.gocache.Get(uri_str)
+
+	if ok {
+		return c.(*cache.SPRCacheItem), nil
+	}
+
 	id, uri_args, err := uri.ParseURI(uri_str)
 
 	if err != nil {
@@ -564,11 +579,13 @@ func (r *SQLiteSpatialDatabase) retrieveSPRCacheItem(ctx context.Context, uri_st
 		return nil, err
 	}
 
-	c, err := cache.NewSPRCacheItem(f)
+	cache_item, err := cache.NewSPRCacheItem(f)
 
 	if err != nil {
 		return nil, err
 	}
 
-	return c.(*cache.SPRCacheItem), nil
+	r.gocache.Set(uri_str, cache_item, -1)
+
+	return cache_item.(*cache.SPRCacheItem), nil
 }
