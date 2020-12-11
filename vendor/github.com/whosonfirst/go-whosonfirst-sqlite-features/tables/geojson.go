@@ -94,11 +94,12 @@ func (t *GeoJSONTable) Schema() string {
 		body TEXT,
 		source TEXT,
 		is_alt BOOLEAN,
+		alt_label TEXT,
 		lastmodified INTEGER
 	);
 
-	CREATE UNIQUE INDEX geojson_by_id ON %s (id, source);
-	CREATE INDEX geojson_by_alt ON %s (id, is_alt);
+	CREATE UNIQUE INDEX geojson_by_id ON %s (id, source, alt_label);
+	CREATE INDEX geojson_by_alt ON %s (id, is_alt, alt_label);
 	CREATE INDEX geojson_by_lastmod ON %s (lastmodified);
 	`
 
@@ -127,6 +128,7 @@ func (t *GeoJSONTable) IndexFeature(db sqlite.Database, f geojson.Feature) error
 
 	source := whosonfirst.Source(f)
 	is_alt := whosonfirst.IsAlt(f)
+	alt_label := whosonfirst.AltLabel(f)
 
 	if is_alt && !t.options.IndexAltFiles {
 		return nil
@@ -141,9 +143,9 @@ func (t *GeoJSONTable) IndexFeature(db sqlite.Database, f geojson.Feature) error
 	}
 
 	sql := fmt.Sprintf(`INSERT OR REPLACE INTO %s (
-		id, body, source, is_alt, lastmodified
+		id, body, source, is_alt, alt_label, lastmodified
 	) VALUES (
-		?, ?, ?, ?, ?
+		?, ?, ?, ?, ?, ?
 	)`, t.Name())
 
 	stmt, err := tx.Prepare(sql)
@@ -156,7 +158,7 @@ func (t *GeoJSONTable) IndexFeature(db sqlite.Database, f geojson.Feature) error
 
 	str_body := string(body)
 
-	_, err = stmt.Exec(str_id, str_body, source, is_alt, lastmod)
+	_, err = stmt.Exec(str_id, str_body, source, is_alt, alt_label, lastmod)
 
 	if err != nil {
 		return err

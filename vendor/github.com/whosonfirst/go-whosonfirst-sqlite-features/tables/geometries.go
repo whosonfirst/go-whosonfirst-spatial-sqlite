@@ -105,9 +105,10 @@ func (t *GeometriesTable) Schema() string {
 	// https://stackoverflow.com/questions/17761089/cannot-create-column-with-spatialite-unexpected-metadata-layout
 
 	sql := `CREATE TABLE %s (
-		id INTEGER NOT NULL PRIMARY KEY,
-		is_alt TINYINT,
+		id INTEGER NOT NULL,
 		type TEXT,
+		is_alt TINYINT,
+		alt_label TEXT,
 		lastmodified INTEGER
 	);
 
@@ -115,9 +116,10 @@ func (t *GeometriesTable) Schema() string {
 	SELECT AddGeometryColumn('%s', 'geom', 4326, 'GEOMETRY', 'XY');
 	SELECT CreateSpatialIndex('%s', 'geom');
 
+	CREATE UNIQUE INDEX by_id ON %s (id, alt_label);
 	CREATE INDEX geometries_by_lastmod ON %s (lastmodified);`
 
-	return fmt.Sprintf(sql, t.Name(), t.Name(), t.Name(), t.Name())
+	return fmt.Sprintf(sql, t.Name(), t.Name(), t.Name(), t.Name(), t.Name())
 }
 
 func (t *GeometriesTable) InitializeTable(db sqlite.Database) error {
@@ -139,6 +141,7 @@ func (t *GeometriesTable) IndexFeature(db sqlite.Database, f geojson.Feature) er
 
 	str_id := f.Id()
 	is_alt := whosonfirst.IsAlt(f)
+	alt_label := whosonfirst.AltLabel(f)
 
 	if is_alt && !t.options.IndexAltFiles {
 		return nil
@@ -177,9 +180,9 @@ func (t *GeometriesTable) IndexFeature(db sqlite.Database, f geojson.Feature) er
 	str_wkt, err := wkt.Marshal(g)
 
 	sql := fmt.Sprintf(`INSERT OR REPLACE INTO %s (
-		id, is_alt, type, geom, lastmodified
+		id, is_alt, alt_label, type, geom, lastmodified
 	) VALUES (
-		?, ?, ?, GeomFromText('%s', 4326), ?
+		?, ?, ?, ?, GeomFromText('%s', 4326), ?
 	)`, t.Name(), str_wkt)
 
 	stmt, err := tx.Prepare(sql)
@@ -192,7 +195,7 @@ func (t *GeometriesTable) IndexFeature(db sqlite.Database, f geojson.Feature) er
 
 	geom_type := "common"
 
-	_, err = stmt.Exec(str_id, is_alt, geom_type, lastmod)
+	_, err = stmt.Exec(str_id, is_alt, alt_label, geom_type, lastmod)
 
 	if err != nil {
 		return err

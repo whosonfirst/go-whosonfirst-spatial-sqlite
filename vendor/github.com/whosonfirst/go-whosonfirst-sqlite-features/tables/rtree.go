@@ -3,8 +3,10 @@ package tables
 // https://www.sqlite.org/rtree.html
 
 import (
+	"errors"
 	"fmt"
 	"github.com/whosonfirst/go-whosonfirst-geojson-v2"
+	"github.com/whosonfirst/go-whosonfirst-geojson-v2/properties/geometry"
 	"github.com/whosonfirst/go-whosonfirst-geojson-v2/properties/whosonfirst"
 	"github.com/whosonfirst/go-whosonfirst-sqlite"
 	"github.com/whosonfirst/go-whosonfirst-sqlite-features"
@@ -29,15 +31,6 @@ type RTreeTable struct {
 	features.FeatureTable
 	name    string
 	options *RTreeTableOptions
-}
-
-type RTreeRow struct {
-	Id           int64
-	MinX         float64
-	MinY         float64
-	MaxX         float64
-	MaxY         float64
-	LastModified int64
 }
 
 func NewRTreeTable() (sqlite.Table, error) {
@@ -103,24 +96,25 @@ func (t *RTreeTable) Schema() string {
 
 		Recommended practice is to omit any extra tokens in the rtree specification. Let each argument to "rtree" be a single ordinary label that is the name of the corresponding column, and omit all other tokens from the argument list.
 
-			--
+		4.1. Auxiliary Columns
 
-			For example:
+		Beginning with SQLite version 3.24.0 (2018-06-04), r-tree tables can have auxiliary columns that store arbitrary data. Auxiliary columns can be used in place of secondary tables such as "demo_data".
 
-			1477856011|-122.387908935547|37.6149787902832|-122.384384155273|37.6177368164062|0.0|1568838528.0
+		Auxiliary columns are marked with a "+" symbol before the column name. Auxiliary columns must come after all of the coordinate boundary columns. There is a limit of no more than 100 auxiliary columns. The following example shows an r-tree table with auxiliary columns that is equivalent to the two tables "demo_index" and "demo_data" above:
 
-			TBD: How to reconcile alternate geometry labels (storage and querying) with the primary key constraints...
-
+		Note: Auxiliary columns must come at the end of a table definition
 	*/
 
 	sql := `CREATE VIRTUAL TABLE %s USING rtree (
 		id,
 		min_x,
-		min_y,
 		max_x,
+		min_y,
 		max_y,
-		is_alt,
-		lastmodified
+		+wof_id INTEGER,
+		+is_alt TINYINT,
+		+alt_label TEXT,
+		+lastmodified INTEGER
 	);`
 
 	return fmt.Sprintf(sql, t.Name())
@@ -137,21 +131,42 @@ func (t *RTreeTable) IndexRecord(db sqlite.Database, i interface{}) error {
 
 func (t *RTreeTable) IndexFeature(db sqlite.Database, f geojson.Feature) error {
 
+	switch geometry.Type(f) {
+	case "Polygon", "MultiPolygon":
+		// pass
+	default:
+		return nil
+	}
+
 	conn, err := db.Conn()
 
 	if err != nil {
 		return err
 	}
 
-	str_id := f.Id()
+	wof_id := f.Id()
 	is_alt := whosonfirst.IsAlt(f) // this returns a boolean which is interpreted as a float by SQLite
 
 	if is_alt && !t.options.IndexAltFiles {
 		return nil
 	}
 
+	alt_label := ""
+
+	if is_alt {
+
+		alt_label = whosonfirst.AltLabel(f)
+
+		if alt_label == "" {
+			return errors.New("Missing src:alt_label property")
+		}
+	}
+
 	lastmod := whosonfirst.LastModified(f)
 
+	// TBD: Store polygon alongside bounding box in rtree table
+	// https://github.com/whosonfirst/go-whosonfirst-sqlite-features/issues/11
+	
 	bboxes, err := f.BoundingBoxes()
 
 	if err != nil {
@@ -165,9 +180,9 @@ func (t *RTreeTable) IndexFeature(db sqlite.Database, f geojson.Feature) error {
 	}
 
 	sql := fmt.Sprintf(`INSERT OR REPLACE INTO %s (
-		id, min_x, min_y, max_x, max_y, is_alt, lastmodified
+		id, min_x, max_x, min_y, max_y, wof_id, is_alt, alt_label, lastmodified
 	) VALUES (
-		?, ?, ?, ?, ?, ?, ?
+		NULL, ?, ?, ?, ?, ?, ?, ?, ?
 	)`, t.Name())
 
 	stmt, err := tx.Prepare(sql)
@@ -183,7 +198,7 @@ func (t *RTreeTable) IndexFeature(db sqlite.Database, f geojson.Feature) error {
 		sw := bbox.Min
 		ne := bbox.Max
 
-		_, err = stmt.Exec(str_id, sw.X, sw.Y, ne.X, ne.Y, is_alt, lastmod)
+		_, err = stmt.Exec(sw.X, ne.X, sw.Y, ne.Y, wof_id, is_alt, alt_label, lastmod)
 
 		if err != nil {
 			return err
