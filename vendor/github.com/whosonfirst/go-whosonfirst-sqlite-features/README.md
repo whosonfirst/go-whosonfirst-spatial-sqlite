@@ -49,21 +49,27 @@ CREATE INDEX ancestors_by_lastmod ON concordances (lastmodified);`
 
 ```
 CREATE TABLE geojson (
-	id INTEGER NOT NULL PRIMARY KEY,
+	id INTEGER NOT NULL,
 	body TEXT,
+	source TEXT,
+	is_alt BOOLEAN,
+	alt_label TEXT,
 	lastmodified INTEGER
 );
 
-CREATE INDEX geojson_by_lastmod ON geojson (lastmodified);
+CREATE UNIQUE INDEX geojson_by_id ON %s (id, source, alt_label);
+CREATE INDEX geojson_by_alt ON %s (id, is_alt, alt_label);
+CREATE INDEX geojson_by_lastmod ON %s (lastmodified);
 ```
 
 ### geometries
 
 ```
 CREATE TABLE geometries (
-	id INTEGER NOT NULL PRIMARY KEY,
-	is_alt TINYINT,
+	id INTEGER NOT NULL,
 	type TEXT,
+	is_alt TINYINT,
+	alt_label TEXT,
 	lastmodified INTEGER
 );
 
@@ -71,6 +77,7 @@ SELECT InitSpatialMetaData();
 SELECT AddGeometryColumn('geometries', 'geom', 4326, 'GEOMETRY', 'XY');
 SELECT CreateSpatialIndex('geometries', 'geom');
 
+CREATE UNIQUE INDEX by_id ON geometries (id, alt_label);
 CREATE INDEX geometries_by_lastmod ON geometries (lastmodified);`
 ```
 
@@ -110,16 +117,16 @@ CREATE INDEX names_by_wofid ON names (id);
 
 ```
 CREATE VIRTUAL TABLE %s USING rtree (
-		id,
-		min_x,
-		min_y,
-		max_x,
-		max_y,
-		+wof_id INTEGER,
-		+is_alt INTEGER,
-		+alt_label TEXT,
-		+lastmodified INTEGER
-	);
+	id,
+	min_x,
+	max_x,
+	min_y,
+	max_y,
+	+wof_id INTEGER,
+	+is_alt TINYINT,
+	+alt_label TEXT,
+	+lastmodified INTEGER
+);
 ```
 
 #### Notes
