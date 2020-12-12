@@ -6,6 +6,8 @@ This is work in progress. It may change, probably has bugs and isn't properly do
 
 The goal is to have a package that conforms to the [database.SpatialDatabase](https://github.com/whosonfirst/go-whosonfirst-spatial#spatialdatabase) interface using [mattn/go-sqlite3](https://github.com/mattn/go-sqlite3) and SQLite's [RTree](https://www.sqlite.org/rtree.html) extension.
 
+Also, this is not as fast as it should be. This is largely with the way WOF records are inflated and passed around in order to support GeoJSON output. There is [an open ticket](https://github.com/whosonfirst/go-whosonfirst-spatial-sqlite/issues/2) to address this.
+
 ## Example
 
 ```
