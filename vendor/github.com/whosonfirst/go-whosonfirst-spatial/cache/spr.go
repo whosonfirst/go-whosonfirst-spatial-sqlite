@@ -2,7 +2,6 @@ package cache
 
 import (
 	wof_geojson "github.com/whosonfirst/go-whosonfirst-geojson-v2"
-	"github.com/whosonfirst/go-whosonfirst-geojson-v2/geometry"
 	"github.com/whosonfirst/go-whosonfirst-spatial/geojson"
 	"github.com/whosonfirst/go-whosonfirst-spr"
 )
@@ -15,9 +14,7 @@ import (
 type SPRCacheItem struct {
 	CacheItem       `json:",omitempty"`
 	FeatureSPR      spr.StandardPlacesResult `json:"spr"`
-	FeaturePolygons []wof_geojson.Polygon    `json:"polygons"`
-	// FeatureSPR      *feature.WOFStandardPlacesResult  `json:"spr"`
-	// FeaturePolygons []geometry.Polygon    `json:"polygons"`
+	feature wof_geojson.Feature
 }
 
 func NewSPRCacheItem(f wof_geojson.Feature) (CacheItem, error) {
@@ -28,16 +25,9 @@ func NewSPRCacheItem(f wof_geojson.Feature) (CacheItem, error) {
 		return nil, err
 	}
 
-	polys, err := geometry.PolygonsForFeature(f)
-
-	if err != nil {
-		return nil, err
-	}
-
 	fc := SPRCacheItem{
-		// FeatureSPR:      s.(*feature.WOFStandardPlacesResult),
+		feature: f,
 		FeatureSPR:      s,
-		FeaturePolygons: polys,
 	}
 
 	return &fc, nil
@@ -89,9 +79,4 @@ func (fc *SPRCacheItem) Geometry() geojson.GeoJSONGeometry {
 	}
 
 	return geom
-}
-
-func (fc *SPRCacheItem) Polygons() []wof_geojson.Polygon {
-
-	return fc.FeaturePolygons
 }

@@ -8,6 +8,5 @@ import (
 
 type CacheItem interface {
 	SPR() spr.StandardPlacesResult
-	Polygons() []wof_geojson.Polygon
 	Geometry() geojson.GeoJSONGeometry
 }
