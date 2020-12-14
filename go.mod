@@ -9,7 +9,7 @@ require (
 	github.com/tidwall/gjson v1.6.4
 	github.com/whosonfirst/go-whosonfirst-geojson-v2 v0.13.0
 	github.com/whosonfirst/go-whosonfirst-log v0.1.0
-	github.com/whosonfirst/go-whosonfirst-spatial v0.0.8
+	github.com/whosonfirst/go-whosonfirst-spatial v0.0.9
 	github.com/whosonfirst/go-whosonfirst-spr v0.1.0
 	github.com/whosonfirst/go-whosonfirst-sqlite v0.1.6
 	github.com/whosonfirst/go-whosonfirst-sqlite-features v0.4.0

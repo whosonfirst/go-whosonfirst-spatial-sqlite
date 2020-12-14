@@ -7,6 +7,7 @@ package sqlite
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
 	gocache "github.com/patrickmn/go-cache"
@@ -18,12 +19,13 @@ import (
 	"github.com/whosonfirst/go-whosonfirst-spatial/cache"
 	"github.com/whosonfirst/go-whosonfirst-spatial/database"
 	"github.com/whosonfirst/go-whosonfirst-spatial/filter"
-	"github.com/whosonfirst/go-whosonfirst-spatial/geojson"
+	// "github.com/whosonfirst/go-whosonfirst-spatial/geojson"
 	"github.com/whosonfirst/go-whosonfirst-spr"
 	"github.com/whosonfirst/go-whosonfirst-sqlite"
 	"github.com/whosonfirst/go-whosonfirst-sqlite-features/tables"
 	sqlite_database "github.com/whosonfirst/go-whosonfirst-sqlite/database"
 	"github.com/whosonfirst/go-whosonfirst-uri"
+	"github.com/paulmach/go.geojson"
 	// golog "log"
 	"net/url"
 	"strings"
@@ -212,16 +214,16 @@ func (r *SQLiteSpatialDatabase) PointInPolygonWithChannels(ctx context.Context, 
 	return
 }
 
-func (r *SQLiteSpatialDatabase) PointInPolygonCandidates(ctx context.Context, coord *geom.Coord) (*geojson.GeoJSONFeatureCollection, error) {
+func (r *SQLiteSpatialDatabase) PointInPolygonCandidates(ctx context.Context, coord *geom.Coord) (*geojson.FeatureCollection, error) {
 
 	ctx, cancel := context.WithCancel(ctx)
 	defer cancel()
 
-	rsp_ch := make(chan geojson.GeoJSONFeature)
+	rsp_ch := make(chan *geojson.Feature)
 	err_ch := make(chan error)
 	done_ch := make(chan bool)
 
-	features := make([]geojson.GeoJSONFeature, 0)
+	features := make([]*geojson.Feature, 0)
 	working := true
 
 	go r.PointInPolygonCandidatesWithChannels(ctx, coord, rsp_ch, err_ch, done_ch)
@@ -245,7 +247,7 @@ func (r *SQLiteSpatialDatabase) PointInPolygonCandidates(ctx context.Context, co
 		}
 	}
 
-	fc := &geojson.GeoJSONFeatureCollection{
+	fc := &geojson.FeatureCollection{
 		Type:     "FeatureCollection",
 		Features: features,
 	}
@@ -253,7 +255,7 @@ func (r *SQLiteSpatialDatabase) PointInPolygonCandidates(ctx context.Context, co
 	return fc, nil
 }
 
-func (r *SQLiteSpatialDatabase) PointInPolygonCandidatesWithChannels(ctx context.Context, coord *geom.Coord, rsp_ch chan geojson.GeoJSONFeature, err_ch chan error, done_ch chan bool) {
+func (r *SQLiteSpatialDatabase) PointInPolygonCandidatesWithChannels(ctx context.Context, coord *geom.Coord, rsp_ch chan *geojson.Feature, err_ch chan error, done_ch chan bool) {
 
 	defer func() {
 		done_ch <- true
@@ -281,22 +283,23 @@ func (r *SQLiteSpatialDatabase) PointInPolygonCandidatesWithChannels(ctx context
 
 		nelon := b.Max.X
 		nelat := b.Max.Y
+		
+		sw := []float64{swlon, swlat}
+		nw := []float64{swlon, nelat}
+		ne := []float64{nelon, nelat}
+		se := []float64{nelon, swlat}
 
-		sw := geojson.GeoJSONPoint{swlon, swlat}
-		nw := geojson.GeoJSONPoint{swlon, nelat}
-		ne := geojson.GeoJSONPoint{nelon, nelat}
-		se := geojson.GeoJSONPoint{nelon, swlat}
-
-		ring := geojson.GeoJSONRing{sw, nw, ne, se, sw}
-		poly := geojson.GeoJSONPolygon{ring}
-		multi := geojson.GeoJSONMultiPolygon{poly}
-
-		geom := geojson.GeoJSONGeometry{
-			Type:        "MultiPolygon",
-			Coordinates: multi,
+		ring := [][]float64{
+			sw, nw, ne, se, sw,
 		}
 
-		feature := geojson.GeoJSONFeature{
+		poly := [][][]float64{
+			ring,
+		}
+
+		geom := geojson.NewPolygonGeometry(poly)
+		
+		feature := &geojson.Feature{
 			Type:       "Feature",
 			Properties: props,
 			Geometry:   geom,
@@ -441,8 +444,13 @@ func (r *SQLiteSpatialDatabase) inflateResultsWithChannels(ctx context.Context, 
 				return
 			}
 
-			s := fc.SPR()
+			s, err := fc.SPR()
 
+			if err != nil {
+				r.Logger.Error("Failed to instantiate spr cache for %s, %v", str_id, err)
+				return
+			}
+			
 			for _, f := range filters {
 
 				err = filter.FilterSPR(f, s)
@@ -453,8 +461,13 @@ func (r *SQLiteSpatialDatabase) inflateResultsWithChannels(ctx context.Context, 
 				}
 			}
 
-			geom := fc.Geometry()
+			geom, err := fc.Geometry()
 
+			if err != nil {
+				r.Logger.Error("Failed to instantiate geometry cache for %s, %v", str_id, err)
+				return
+			}
+			
 			contains := geom.ContainsCoordinate(*c)
 
 			/*
@@ -476,9 +489,9 @@ func (r *SQLiteSpatialDatabase) inflateResultsWithChannels(ctx context.Context, 
 	wg.Wait()
 }
 
-func (db *SQLiteSpatialDatabase) StandardPlacesResultsToFeatureCollection(ctx context.Context, results spr.StandardPlacesResults) (*geojson.GeoJSONFeatureCollection, error) {
+func (db *SQLiteSpatialDatabase) StandardPlacesResultsToFeatureCollection(ctx context.Context, results spr.StandardPlacesResults) (*geojson.FeatureCollection, error) {
 
-	features := make([]geojson.GeoJSONFeature, 0)
+	features := make([]*geojson.Feature, 0)
 
 	for _, r := range results.Results() {
 
@@ -495,26 +508,54 @@ func (db *SQLiteSpatialDatabase) StandardPlacesResultsToFeatureCollection(ctx co
 			return nil, err
 		}
 
-		f := geojson.GeoJSONFeature{
+		spr, err := fc.SPR()
+
+		if err != nil {
+			return nil, err
+		}
+
+		spr_enc, err := json.Marshal(spr)
+
+		if err != nil {
+			return nil, err
+		}
+
+		var spr_map map[string]interface{}
+
+		err = json.Unmarshal(spr_enc, &spr_map)
+
+		if err != nil {
+			return nil, err
+		}
+		
+		geom, err := fc.Geometry()
+
+		if err != nil {
+			return nil, err
+		}
+		
+		f := &geojson.Feature {
 			Type:       "Feature",
-			Properties: fc.SPR(),
-			Geometry:   fc.Geometry(),
+			Properties: spr_map,
+			Geometry:   geom,
 		}
 
 		features = append(features, f)
 	}
 
+	/*
 	pg := geojson.Pagination{
 		TotalCount: len(features),
 		Page:       1,
 		PerPage:    len(features),
 		PageCount:  1,
 	}
-
-	collection := geojson.GeoJSONFeatureCollection{
+	*/
+	
+	collection := geojson.FeatureCollection{
 		Type:       "FeatureCollection",
 		Features:   features,
-		Pagination: pg,
+		// Pagination: pg,
 	}
 
 	return &collection, nil
