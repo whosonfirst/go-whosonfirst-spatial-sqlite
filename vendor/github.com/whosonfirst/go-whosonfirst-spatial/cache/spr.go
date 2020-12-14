@@ -1,20 +1,16 @@
 package cache
 
 import (
+	"encoding/json"
 	wof_geojson "github.com/whosonfirst/go-whosonfirst-geojson-v2"
 	"github.com/whosonfirst/go-whosonfirst-spatial/geojson"
 	"github.com/whosonfirst/go-whosonfirst-spr"
 )
 
-// see the way we're storing a geojson.Geometry but returning a
-// geojson.Polygons per the interface definition? see notes in
-// go-whosonfirst-geojson-v2/geometry/polygon.go function called
-// PolygonsForFeature for details (20170921/thisisaaronland)
-
 type SPRCacheItem struct {
 	CacheItem       `json:",omitempty"`
 	FeatureSPR      spr.StandardPlacesResult `json:"spr"`
-	feature wof_geojson.Feature
+	geom geojson.GeoJSONGeometry
 }
 
 func NewSPRCacheItem(f wof_geojson.Feature) (CacheItem, error) {
@@ -25,8 +21,16 @@ func NewSPRCacheItem(f wof_geojson.Feature) (CacheItem, error) {
 		return nil, err
 	}
 
+	var g *geojson.GeoJSONFeature
+
+	err = json.Unmarshal(f.Bytes(), &g)
+
+	if err != nil {
+		return nil, err
+	}
+			
 	fc := SPRCacheItem{
-		feature: f,
+		geom: g.Geometry,
 		FeatureSPR:      s,
 	}
 
@@ -39,6 +43,9 @@ func (fc *SPRCacheItem) SPR() spr.StandardPlacesResult {
 
 func (fc *SPRCacheItem) Geometry() geojson.GeoJSONGeometry {
 
+	return fc.geom
+
+	/*
 	multi_poly := make([]geojson.GeoJSONPolygon, 0)
 
 	for _, p := range fc.Polygons() {
@@ -79,4 +86,5 @@ func (fc *SPRCacheItem) Geometry() geojson.GeoJSONGeometry {
 	}
 
 	return geom
+	*/
 }
