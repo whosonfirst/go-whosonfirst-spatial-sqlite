@@ -20,6 +20,7 @@ import (
 	"github.com/whosonfirst/go-whosonfirst-spatial/database"
 	"github.com/whosonfirst/go-whosonfirst-spatial/filter"
 	// "github.com/whosonfirst/go-whosonfirst-spatial/geojson"
+	"github.com/whosonfirst/go-whosonfirst-spatial/geo"	
 	"github.com/whosonfirst/go-whosonfirst-spr"
 	"github.com/whosonfirst/go-whosonfirst-sqlite"
 	"github.com/whosonfirst/go-whosonfirst-sqlite-features/tables"
@@ -468,7 +469,7 @@ func (r *SQLiteSpatialDatabase) inflateResultsWithChannels(ctx context.Context, 
 				return
 			}
 			
-			contains := geom.ContainsCoordinate(*c)
+			contains := geo.GeoJSONGeometryContainsCoord(geom, c)
 
 			/*
 			if err != nil {
