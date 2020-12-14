@@ -13,7 +13,7 @@ import (
 	"github.com/skelterjohn/geom"
 	wof_geojson "github.com/whosonfirst/go-whosonfirst-geojson-v2"
 	wof_feature "github.com/whosonfirst/go-whosonfirst-geojson-v2/feature"
-	"github.com/whosonfirst/go-whosonfirst-geojson-v2/geometry"
+	// "github.com/whosonfirst/go-whosonfirst-geojson-v2/geometry"
 	"github.com/whosonfirst/go-whosonfirst-log"
 	"github.com/whosonfirst/go-whosonfirst-spatial/cache"
 	"github.com/whosonfirst/go-whosonfirst-spatial/database"
@@ -453,15 +453,17 @@ func (r *SQLiteSpatialDatabase) inflateResultsWithChannels(ctx context.Context, 
 				}
 			}
 
-			p := fc.Polygons()
+			geom := fc.Geometry()
 
-			contains, err := geometry.PolygonsContainsCoord(p, *c)
+			contains := geom.ContainsCoordinate(*c)
 
+			/*
 			if err != nil {
 				r.Logger.Error("failed to calculate intersection for %s, because %s", str_id, err)
 				return
 			}
-
+			*/
+			
 			if !contains {
 				r.Logger.Debug("SKIP %s because does not contain coord (%v)", str_id, c)
 				return
