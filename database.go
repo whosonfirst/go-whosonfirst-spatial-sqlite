@@ -11,23 +11,21 @@ import (
 	"errors"
 	"fmt"
 	gocache "github.com/patrickmn/go-cache"
+	"github.com/paulmach/go.geojson"
 	"github.com/skelterjohn/geom"
 	wof_geojson "github.com/whosonfirst/go-whosonfirst-geojson-v2"
 	wof_feature "github.com/whosonfirst/go-whosonfirst-geojson-v2/feature"
-	// "github.com/whosonfirst/go-whosonfirst-geojson-v2/geometry"
 	"github.com/whosonfirst/go-whosonfirst-log"
 	"github.com/whosonfirst/go-whosonfirst-spatial/cache"
 	"github.com/whosonfirst/go-whosonfirst-spatial/database"
 	"github.com/whosonfirst/go-whosonfirst-spatial/filter"
-	// "github.com/whosonfirst/go-whosonfirst-spatial/geojson"
-	"github.com/whosonfirst/go-whosonfirst-spatial/geo"	
+	"github.com/whosonfirst/go-whosonfirst-spatial/geo"
 	"github.com/whosonfirst/go-whosonfirst-spr"
 	"github.com/whosonfirst/go-whosonfirst-sqlite"
 	"github.com/whosonfirst/go-whosonfirst-sqlite-features/tables"
 	sqlite_database "github.com/whosonfirst/go-whosonfirst-sqlite/database"
 	"github.com/whosonfirst/go-whosonfirst-uri"
-	"github.com/paulmach/go.geojson"
-	// golog "log"
+	golog "log"
 	"net/url"
 	"strings"
 	"sync"
@@ -163,6 +161,12 @@ func (r *SQLiteSpatialDatabase) PointInPolygon(ctx context.Context, coord *geom.
 	ctx, cancel := context.WithCancel(ctx)
 	defer cancel()
 
+	t1 := time.Now()
+
+	defer func() {
+		golog.Printf("Time to point in polygon, %v\n", time.Since(t1))
+	}()
+
 	rsp_ch := make(chan spr.StandardPlacesResult)
 	err_ch := make(chan error)
 	done_ch := make(chan bool)
@@ -284,7 +288,7 @@ func (r *SQLiteSpatialDatabase) PointInPolygonCandidatesWithChannels(ctx context
 
 		nelon := b.Max.X
 		nelat := b.Max.Y
-		
+
 		sw := []float64{swlon, swlat}
 		nw := []float64{swlon, nelat}
 		ne := []float64{nelon, nelat}
@@ -299,7 +303,7 @@ func (r *SQLiteSpatialDatabase) PointInPolygonCandidatesWithChannels(ctx context
 		}
 
 		geom := geojson.NewPolygonGeometry(poly)
-		
+
 		feature := &geojson.Feature{
 			Type:       "Feature",
 			Properties: props,
@@ -333,6 +337,12 @@ func (r *SQLiteSpatialDatabase) getIntersectsByCoord(ctx context.Context, coord 
 }
 
 func (r *SQLiteSpatialDatabase) getIntersectsByRect(ctx context.Context, rect *geom.Rect) ([]*RTreeSpatialIndex, error) {
+
+	t1 := time.Now()
+
+	defer func() {
+		golog.Printf("Time to get intersects by rect, %v\n", time.Since(t1))
+	}()
 
 	conn, err := r.db.Conn()
 
@@ -404,6 +414,12 @@ func (r *SQLiteSpatialDatabase) getIntersectsByRect(ctx context.Context, rect *g
 
 func (r *SQLiteSpatialDatabase) inflateResultsWithChannels(ctx context.Context, rsp_ch chan spr.StandardPlacesResult, err_ch chan error, possible []*RTreeSpatialIndex, c *geom.Coord, filters ...filter.Filter) {
 
+	t1 := time.Now()
+
+	defer func() {
+		golog.Printf("Time to inflate results, %v\n", time.Since(t1))
+	}()
+
 	seen := make(map[string]bool)
 
 	mu := new(sync.RWMutex)
@@ -414,6 +430,12 @@ func (r *SQLiteSpatialDatabase) inflateResultsWithChannels(ctx context.Context, 
 		wg.Add(1)
 
 		go func(sp *RTreeSpatialIndex) {
+
+			t2 := time.Now()
+
+			defer func() {
+				golog.Printf("Time to inflate %s, %v\n", sp.Id, time.Since(t2))
+			}()
 
 			defer wg.Done()
 
@@ -438,20 +460,40 @@ func (r *SQLiteSpatialDatabase) inflateResultsWithChannels(ctx context.Context, 
 			seen[str_id] = true
 			mu.Unlock()
 
+			/*
+
+				this is where things are slowing down
+
+				2020/12/14 14:16:37 Time to send to retrieve spr 136251273, 858.369953ms
+				2020/12/14 14:16:37 Time to send to retrieve spr 101737759, 915.301481ms
+				2020/12/14 14:16:37 Time to send to retrieve spr 85633041, 961.260135ms
+				2020/12/14 14:16:40 Time to send to yield spr 136251273, 951.071543ms
+				2020/12/14 14:16:40 Time to send to retrieve geometry 136251273, 321.989845ms
+
+			*/
+
+			t3 := time.Now()
+
 			fc, err := r.retrieveSPRCacheItem(ctx, sp.Path())
+
+			golog.Printf("Time to send to retrieve spr %s, %v\n", sp.Id, time.Since(t3))
 
 			if err != nil {
 				r.Logger.Error("Failed to retrieve feature cache for %s, %v", str_id, err)
 				return
 			}
 
+			t4 := time.Now()
+
 			s, err := fc.SPR()
+
+			golog.Printf("Time to send to yield spr %s, %v\n", sp.Id, time.Since(t4))
 
 			if err != nil {
 				r.Logger.Error("Failed to instantiate spr cache for %s, %v", str_id, err)
 				return
 			}
-			
+
 			for _, f := range filters {
 
 				err = filter.FilterSPR(f, s)
@@ -462,26 +504,29 @@ func (r *SQLiteSpatialDatabase) inflateResultsWithChannels(ctx context.Context, 
 				}
 			}
 
+			t5 := time.Now()
+
 			geom, err := fc.Geometry()
+
+			golog.Printf("Time to send to retrieve geometry %s, %v\n", sp.Id, time.Since(t5))
 
 			if err != nil {
 				r.Logger.Error("Failed to instantiate geometry cache for %s, %v", str_id, err)
 				return
 			}
-			
+
+			t6 := time.Now()
+
 			contains := geo.GeoJSONGeometryContainsCoord(geom, c)
 
-			/*
-			if err != nil {
-				r.Logger.Error("failed to calculate intersection for %s, because %s", str_id, err)
-				return
-			}
-			*/
-			
+			golog.Printf("Time to send to contains %s, %v\n", sp.Id, time.Since(t6))
+
 			if !contains {
 				r.Logger.Debug("SKIP %s because does not contain coord (%v)", str_id, c)
 				return
 			}
+
+			golog.Printf("Time to send to channel %s, %v\n", sp.Id, time.Since(t2))
 
 			rsp_ch <- s
 		}(sp)
@@ -528,14 +573,14 @@ func (db *SQLiteSpatialDatabase) StandardPlacesResultsToFeatureCollection(ctx co
 		if err != nil {
 			return nil, err
 		}
-		
+
 		geom, err := fc.Geometry()
 
 		if err != nil {
 			return nil, err
 		}
-		
-		f := &geojson.Feature {
+
+		f := &geojson.Feature{
 			Type:       "Feature",
 			Properties: spr_map,
 			Geometry:   geom,
@@ -545,17 +590,17 @@ func (db *SQLiteSpatialDatabase) StandardPlacesResultsToFeatureCollection(ctx co
 	}
 
 	/*
-	pg := geojson.Pagination{
-		TotalCount: len(features),
-		Page:       1,
-		PerPage:    len(features),
-		PageCount:  1,
-	}
+		pg := geojson.Pagination{
+			TotalCount: len(features),
+			Page:       1,
+			PerPage:    len(features),
+			PageCount:  1,
+		}
 	*/
-	
+
 	collection := geojson.FeatureCollection{
-		Type:       "FeatureCollection",
-		Features:   features,
+		Type:     "FeatureCollection",
+		Features: features,
 		// Pagination: pg,
 	}
 
@@ -605,6 +650,8 @@ func (r *SQLiteSpatialDatabase) retrieveSPRCacheItem(ctx context.Context, uri_st
 		args = append(args, source)
 	}
 
+	t1 := time.Now()
+
 	row := conn.QueryRowContext(ctx, q, args...)
 
 	var body string
@@ -615,6 +662,10 @@ func (r *SQLiteSpatialDatabase) retrieveSPRCacheItem(ctx context.Context, uri_st
 		return nil, err
 	}
 
+	golog.Printf("Time to query row for %d, %v\n", id, time.Since(t1))
+
+	t2 := time.Now()
+
 	feature_r := strings.NewReader(body)
 
 	f, err := wof_feature.LoadFeatureFromReader(feature_r)
@@ -622,6 +673,8 @@ func (r *SQLiteSpatialDatabase) retrieveSPRCacheItem(ctx context.Context, uri_st
 	if err != nil {
 		return nil, err
 	}
+
+	golog.Printf("Time to read body for %d, %v\n", id, time.Since(t2))
 
 	cache_item, err := cache.NewSPRCacheItem(f)
 

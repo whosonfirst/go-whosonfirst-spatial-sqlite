@@ -50,6 +50,7 @@ github.com/opencontainers/go-digest v1.0.0-rc1/go.mod h1:cMLVZDEM3+U2I4VmLI6N8jQ
 github.com/opencontainers/image-spec v1.0.1/go.mod h1:BtxoFyWECRxE4U/7sNtV5W15zMzWCbyJoFRP3s7yZA0=
 github.com/opencontainers/runc v1.0.0-rc9/go.mod h1:qT5XzbpPznkRYVz/mWwUaVBUv2rmF59PVA73FjuZG0U=
 github.com/ory/dockertest/v3 v3.6.0/go.mod h1:4ZOpj8qBUmh8fcBSVzkH2bws2s91JdGvHUqan4GHEuQ=
+github.com/patrickmn/go-cache v1.0.0 h1:3gD5McaYs9CxjyK5AXGcq8gdeCARtd/9gJDUvVeaZ0Y=
 github.com/patrickmn/go-cache v2.1.0+incompatible h1:HRMgzkcYKYpi3C8ajMPV8OFXaaRUnok+kx1WdO15EQc=
 github.com/patrickmn/go-cache v2.1.0+incompatible/go.mod h1:3Qf8kWWT7OJRJbdiICTKqZju1ZixQ/KpMGzzAfe6+WQ=
 github.com/paulmach/go.geojson v1.4.0 h1:5x5moCkCtDo5x8af62P9IOAYGQcYHtxz2QJ3x1DoCgY=
@@ -130,6 +131,8 @@ github.com/whosonfirst/go-whosonfirst-spatial v0.0.8 h1:OQb56QtPbRE9VPsqQYg8lvts
 github.com/whosonfirst/go-whosonfirst-spatial v0.0.8/go.mod h1:h8MYSHoAPrWsNA6zVOOa5vr/TRvGhf068741Z1CMOd8=
 github.com/whosonfirst/go-whosonfirst-spatial v0.0.9 h1:5HegByB+MFcrvMjpCtb6l95XTGESOLrXIZ1y2r9FpUc=
 github.com/whosonfirst/go-whosonfirst-spatial v0.0.9/go.mod h1:P3QfnVj/zW+6LQjUM1/DKegb4WcDtYgOcqbcVZRl2lQ=
+github.com/whosonfirst/go-whosonfirst-spatial v0.0.10 h1:4zCZDuA6sAzitU2W0NnuZSMuZvwbKlPQt63QjeudyZI=
+github.com/whosonfirst/go-whosonfirst-spatial v0.0.10/go.mod h1:P3QfnVj/zW+6LQjUM1/DKegb4WcDtYgOcqbcVZRl2lQ=
 github.com/whosonfirst/go-whosonfirst-spr v0.1.0 h1:5qE629nCiucF2upy5NjPOEl9cFatsljykYY0l2JKgAk=
 github.com/whosonfirst/go-whosonfirst-spr v0.1.0/go.mod h1:R8GtEVz1GVSnwwOjzcoVUd172ZK26Q7hQSLI6SGG7lM=
 github.com/whosonfirst/go-whosonfirst-sqlite v0.1.6 h1:XhAlLoPm7y/4565du5H7R5Swjf/pBl+cuXHoAs6evLA=

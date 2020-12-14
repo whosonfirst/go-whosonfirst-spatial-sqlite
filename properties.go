@@ -5,9 +5,9 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/paulmach/go.geojson"
 	"github.com/tidwall/gjson"
 	wof_geojson "github.com/whosonfirst/go-whosonfirst-geojson-v2"
-	"github.com/whosonfirst/go-whosonfirst-spatial/geojson"
 	spatial_properties "github.com/whosonfirst/go-whosonfirst-spatial/properties"
 	"github.com/whosonfirst/go-whosonfirst-spr"
 	"github.com/whosonfirst/go-whosonfirst-sqlite"
@@ -131,7 +131,7 @@ func (pr *SQLitePropertiesReader) PropertiesResponseResultsWithStandardPlacesRes
 	return props_rsp, nil
 }
 
-func (pr *SQLitePropertiesReader) AppendPropertiesWithFeatureCollection(ctx context.Context, fc *geojson.GeoJSONFeatureCollection, properties []string) error {
+func (pr *SQLitePropertiesReader) AppendPropertiesWithFeatureCollection(ctx context.Context, fc *geojson.FeatureCollection, properties []string) error {
 
 	ctx, cancel := context.WithCancel(ctx)
 	defer cancel()
@@ -168,7 +168,7 @@ func (pr *SQLitePropertiesReader) Close(ctx context.Context) error {
 	return pr.db.Close()
 }
 
-func (pr *SQLitePropertiesReader) appendPropertiesWithChannels(ctx context.Context, idx int, f geojson.GeoJSONFeature, properties []string, rsp_ch chan spatial_properties.ChannelResponse, err_ch chan error, done_ch chan bool) {
+func (pr *SQLitePropertiesReader) appendPropertiesWithChannels(ctx context.Context, idx int, f *geojson.Feature, properties []string, rsp_ch chan spatial_properties.ChannelResponse, err_ch chan error, done_ch chan bool) {
 
 	defer func() {
 		done_ch <- true
@@ -226,7 +226,7 @@ func (pr *SQLitePropertiesReader) appendPropertiesWithChannels(ctx context.Conte
 		return
 	}
 
-	var new_f geojson.GeoJSONFeature
+	var new_f *geojson.Feature
 	err = json.Unmarshal(target, &new_f)
 
 	if err != nil {
