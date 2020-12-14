@@ -15,6 +15,8 @@ import (
 	"github.com/whosonfirst/go-whosonfirst-uri"
 	"github.com/whosonfirst/warning"
 	"strconv"
+	"time"
+	"log"
 )
 
 type WOFFeature struct {
@@ -184,6 +186,8 @@ func (f *WOFFeature) ContainsCoord(c geom.Coord) (bool, error) {
 
 func (f *WOFFeature) SPR() (spr.StandardPlacesResult, error) {
 
+	t1 := time.Now()
+	
 	id := whosonfirst.Id(f)
 	parent_id := whosonfirst.ParentId(f)
 	name := whosonfirst.Name(f)
@@ -191,6 +195,8 @@ func (f *WOFFeature) SPR() (spr.StandardPlacesResult, error) {
 	country := whosonfirst.Country(f)
 	repo := whosonfirst.Repo(f)
 
+	log.Printf("time to basics %v\n", time.Since(t1))
+	
 	path, err := uri.Id2RelPath(id)
 
 	if err != nil {
@@ -203,6 +209,8 @@ func (f *WOFFeature) SPR() (spr.StandardPlacesResult, error) {
 		return nil, err
 	}
 
+	log.Printf("time to uri %v\n", time.Since(t1))
+	
 	is_current, err := whosonfirst.IsCurrent(f)
 
 	if err != nil {
@@ -233,21 +241,29 @@ func (f *WOFFeature) SPR() (spr.StandardPlacesResult, error) {
 		return nil, err
 	}
 
+	log.Printf("time to existential %v\n", time.Since(t1))
+	
 	centroid, err := whosonfirst.Centroid(f)
 
 	if err != nil {
 		return nil, err
 	}
 
+	log.Printf("time to centroid %v\n", time.Since(t1))
+	
 	bboxes, err := f.BoundingBoxes()
 
 	if err != nil {
 		return nil, err
 	}
 
+	log.Printf("time to bounding boxes %v\n", time.Since(t1))
+	
 	coord := centroid.Coord()
 	mbr := bboxes.MBR()
 
+	log.Printf("time to geom %v\n", time.Since(t1))
+	
 	superseded_by := whosonfirst.SupersededBy(f)
 	supersedes := whosonfirst.Supersedes(f)
 
