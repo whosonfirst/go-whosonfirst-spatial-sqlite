@@ -716,8 +716,12 @@ func (r *SQLiteSpatialDatabase) retrieveSPRCacheItem(ctx context.Context, uri_st
 		return nil, err
 	}
 
-	path := "fixme"
-
+	path, err := uri.Id2RelPath(id, uri_args)
+	
+	if err != nil {
+		return nil, err
+	}
+	
 	s := &SQLiteStandardPlacesResult{
 		WOFId:           spr_id,
 		WOFParentId:     parent_id,
