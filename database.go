@@ -15,12 +15,12 @@ import (
 	"github.com/skelterjohn/geom"
 	wof_geojson "github.com/whosonfirst/go-whosonfirst-geojson-v2"
 	wof_feature "github.com/whosonfirst/go-whosonfirst-geojson-v2/feature"
-	"github.com/whosonfirst/go-whosonfirst-geojson-v2/geometry"
+	// "github.com/whosonfirst/go-whosonfirst-geojson-v2/geometry"
 	"github.com/whosonfirst/go-whosonfirst-log"
 	"github.com/whosonfirst/go-whosonfirst-spatial/cache"
 	"github.com/whosonfirst/go-whosonfirst-spatial/database"
 	"github.com/whosonfirst/go-whosonfirst-spatial/filter"
-	// "github.com/whosonfirst/go-whosonfirst-spatial/geo"
+	"github.com/whosonfirst/go-whosonfirst-spatial/geo"
 	"github.com/whosonfirst/go-whosonfirst-spr"
 	"github.com/whosonfirst/go-whosonfirst-sqlite"
 	"github.com/whosonfirst/go-whosonfirst-sqlite-features/tables"
@@ -469,7 +469,26 @@ func (r *SQLiteSpatialDatabase) inflateSpatialIndexWithChannels(ctx context.Cont
 	// changes to go-whosonfirst-sqlite/tables/rtree.go
 	
 	// GeoJSONPolygonContainsCoord(poly [][][]float64, c *geom.Coord)
+
+	var coords [][][]float64
+
+	err := json.Unmarshal([]byte(sp.geometry), &coords)
+
+	if err != nil {
+		err_ch <- err
+		return
+	}
+
+	if len(coords) == 0 {
+		err_ch <- errors.New("Missing coordinates for polygon")
+		return
+	}
+
+	if !geo.GeoJSONPolygonContainsCoord(coords, c){
+		return
+	}
 	
+	/*
 	var coords [][]geom.Coord
 
 	err := json.Unmarshal([]byte(sp.geometry), &coords)
@@ -513,7 +532,8 @@ func (r *SQLiteSpatialDatabase) inflateSpatialIndexWithChannels(ctx context.Cont
 	if !poly.ContainsCoord(*c) {
 		return
 	}
-
+	*/
+	
 	// there is at least one ring that contains the coord
 	// now we check the filters - whether or not they pass
 	// we can skip every subsequent polygon with the same
