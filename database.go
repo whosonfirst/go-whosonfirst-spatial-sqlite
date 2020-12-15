@@ -426,8 +426,8 @@ func (r *SQLiteSpatialDatabase) inflateResultsWithChannels(ctx context.Context, 
 	*/
 
 	seen := make(map[string]bool)
-
 	mu := new(sync.RWMutex)
+
 	wg := new(sync.WaitGroup)
 
 	for _, sp := range possible {
@@ -435,111 +435,95 @@ func (r *SQLiteSpatialDatabase) inflateResultsWithChannels(ctx context.Context, 
 		wg.Add(1)
 
 		go func(sp *RTreeSpatialIndex) {
-
-			/*
-				t2 := time.Now()
-
-				defer func() {
-					golog.Printf("Time to inflate %s, %v\n", sp.Id, time.Since(t2))
-				}()
-			*/
-
 			defer wg.Done()
-
-			select {
-			case <-ctx.Done():
-				return
-			default:
-				// pass
-			}
-
-			str_id := fmt.Sprintf("%s:%s", sp.Id, sp.AltLabel)
-
-			mu.RLock()
-			_, ok := seen[str_id]
-			mu.RUnlock()
-
-			if ok {
-				return
-			}
-
-			mu.Lock()
-			seen[str_id] = true
-			mu.Unlock()
-
-			/*
-
-				this is where things are slowing down
-
-				2020/12/14 14:16:37 Time to send to retrieve spr 136251273, 858.369953ms
-				2020/12/14 14:16:37 Time to send to retrieve spr 101737759, 915.301481ms
-				2020/12/14 14:16:37 Time to send to retrieve spr 85633041, 961.260135ms
-				2020/12/14 14:16:40 Time to send to yield spr 136251273, 951.071543ms
-				2020/12/14 14:16:40 Time to send to retrieve geometry 136251273, 321.989845ms
-
-			*/
-
-			// t3 := time.Now()
-
-			fc, err := r.retrieveSPRCacheItem(ctx, sp.Path())
-
-			// golog.Printf("Time to send to retrieve spr %s, %v\n", sp.Id, time.Since(t3))
-
-			if err != nil {
-				r.Logger.Error("Failed to retrieve feature cache for %s, %v", str_id, err)
-				return
-			}
-
-			// t4 := time.Now()
-
-			s, err := fc.SPR()
-
-			// golog.Printf("Time to send to yield spr %s, %v\n", sp.Id, time.Since(t4))
-
-			if err != nil {
-				r.Logger.Error("Failed to instantiate spr cache for %s, %v", str_id, err)
-				return
-			}
-
-			for _, f := range filters {
-
-				err = filter.FilterSPR(f, s)
-
-				if err != nil {
-					r.Logger.Debug("SKIP %s because filter error %s", str_id, err)
-					return
-				}
-			}
-
-			// t5 := time.Now()
-
-			geom, err := fc.Geometry()
-
-			// golog.Printf("Time to send to retrieve geometry %s, %v\n", sp.Id, time.Since(t5))
-
-			if err != nil {
-				r.Logger.Error("Failed to instantiate geometry cache for %s, %v", str_id, err)
-				return
-			}
-
-			// t6 := time.Now()
-
-			contains := geo.GeoJSONGeometryContainsCoord(geom, c)
-
-			// golog.Printf("Time to send to contains %s, %v\n", sp.Id, time.Since(t6))
-
-			if !contains {
-				r.Logger.Debug("SKIP %s because does not contain coord (%v)", str_id, c)
-				return
-			}
-
-			// golog.Printf("Time to send to channel %s, %v\n", sp.Id, time.Since(t2))
-
-			rsp_ch <- s
+			r.inflateSpatialIndexWithChannels(ctx, rsp_ch, err_ch, seen, mu, sp, c, filters...)
 		}(sp)
 	}
 
 	wg.Wait()
+}
+
+func (r *SQLiteSpatialDatabase) inflateSpatialIndexWithChannels(ctx context.Context, rsp_ch chan spr.StandardPlacesResult, err_ch chan error, seen map[string]bool, mu *sync.RWMutex, sp *RTreeSpatialIndex, c *geom.Coord, filters ...filter.Filter) {
+
+	select {
+	case <-ctx.Done():
+		return
+	default:
+		// pass
+	}
+
+	str_id := fmt.Sprintf("%s:%s", sp.Id, sp.AltLabel)
+
+	mu.RLock()
+	_, ok := seen[str_id]
+	mu.RUnlock()
+
+	if ok {
+		return
+	}
+
+	mu.Lock()
+	seen[str_id] = true
+	mu.Unlock()
+
+	// t3 := time.Now()
+
+	fc, err := r.retrieveSPRCacheItem(ctx, sp.Path())
+
+	// golog.Printf("Time to send to retrieve spr %s, %v\n", sp.Id, time.Since(t3))
+
+	if err != nil {
+		r.Logger.Error("Failed to retrieve feature cache for %s, %v", str_id, err)
+		return
+	}
+
+	// t4 := time.Now()
+
+	s, err := fc.SPR()
+
+	// golog.Printf("Time to send to yield spr %s, %v\n", sp.Id, time.Since(t4))
+
+	if err != nil {
+		r.Logger.Error("Failed to instantiate spr cache for %s, %v", str_id, err)
+		return
+	}
+
+	for _, f := range filters {
+
+		err = filter.FilterSPR(f, s)
+
+		if err != nil {
+			r.Logger.Debug("SKIP %s because filter error %s", str_id, err)
+			return
+		}
+	}
+
+	// t5 := time.Now()
+
+	geom, err := fc.Geometry()
+
+	// golog.Printf("Time to send to retrieve geometry %s, %v\n", sp.Id, time.Since(t5))
+
+	if err != nil {
+		r.Logger.Error("Failed to instantiate geometry cache for %s, %v", str_id, err)
+		return
+	}
+
+	// t6 := time.Now()
+
+	contains := geo.GeoJSONGeometryContainsCoord(geom, c)
+
+	// golog.Printf("Time to send to contains %s, %v\n", sp.Id, time.Since(t6))
+
+	if !contains {
+		r.Logger.Debug("SKIP %s because does not contain coord (%v)", str_id, c)
+		return
+	}
+
+	// golog.Printf("Time to send to channel %s, %v\n", sp.Id, time.Since(t2))
+
+	rsp_ch <- s
+
 }
 
 func (db *SQLiteSpatialDatabase) StandardPlacesResultsToFeatureCollection(ctx context.Context, results spr.StandardPlacesResults) (*geojson.FeatureCollection, error) {
