@@ -195,7 +195,7 @@ func (pr *SQLitePropertiesReader) appendPropertiesWithChannels(ctx context.Conte
 		return
 	}
 
-	id_rsp := gjson.GetBytes(target, "wof:id")
+	id_rsp := gjson.GetBytes(target, "properties.wof:id")
 
 	if !id_rsp.Exists() {
 		err_ch <- errors.New("Missing wof:id")
@@ -219,7 +219,7 @@ func (pr *SQLitePropertiesReader) appendPropertiesWithChannels(ctx context.Conte
 
 	source := []byte(body)
 
-	target, err = spatial_properties.AppendPropertiesWithJSON(ctx, source, target, properties, "")
+	target, err = spatial_properties.AppendPropertiesWithJSON(ctx, source, target, properties, "properties")
 
 	if err != nil {
 		err_ch <- err
