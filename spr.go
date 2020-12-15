@@ -24,9 +24,13 @@ type SQLiteStandardPlacesResult struct {
 	MZIsCeased               int64   `json:"mz:is_ceased"`
 	MZIsSuperseded           int64   `json:"mz:is_superseded"`
 	MZIsSuperseding          int64   `json:"mz:is_superseding"`
-	WOFPath                  string  `json:"wof:path"`
-	WOFRepo                  string  `json:"wof:repo"`
-	WOFLastModified          int64   `json:"wof:lastmodified"`
+
+	// supersedes and superseding need to be added here pending
+	// https://github.com/whosonfirst/go-whosonfirst-sqlite-features/issues/14
+
+	WOFPath         string `json:"wof:path"`
+	WOFRepo         string `json:"wof:repo"`
+	WOFLastModified int64  `json:"wof:lastmodified"`
 }
 
 func (spr *SQLiteStandardPlacesResult) Id() string {
@@ -105,9 +109,13 @@ func (spr *SQLiteStandardPlacesResult) IsSuperseding() flags.ExistentialFlag {
 	return existentialFlag(spr.MZIsSuperseding)
 }
 
+// https://github.com/whosonfirst/go-whosonfirst-sqlite-features/issues/14
+
 func (spr *SQLiteStandardPlacesResult) SupersededBy() []int64 {
 	return []int64{}
 }
+
+// https://github.com/whosonfirst/go-whosonfirst-sqlite-features/issues/14
 
 func (spr *SQLiteStandardPlacesResult) Supersedes() []int64 {
 	return []int64{}

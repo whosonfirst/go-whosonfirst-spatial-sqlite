@@ -38,15 +38,15 @@ func init() {
 
 type SQLiteSpatialDatabase struct {
 	database.SpatialDatabase
-	Logger        *log.WOFLogger
-	mu            *sync.RWMutex
-	db            *sqlite_database.SQLiteDatabase
-	rtree_table   sqlite.Table
-	geometry_table sqlite.Table	
-	spr_table     sqlite.Table
-	gocache       *gocache.Cache
-	dsn           string
-	strict        bool
+	Logger         *log.WOFLogger
+	mu             *sync.RWMutex
+	db             *sqlite_database.SQLiteDatabase
+	rtree_table    sqlite.Table
+	geometry_table sqlite.Table
+	spr_table      sqlite.Table
+	gocache        *gocache.Cache
+	dsn            string
+	strict         bool
 }
 
 type RTreeSpatialIndex struct {
@@ -106,7 +106,7 @@ func NewSQLiteSpatialDatabase(ctx context.Context, uri string) (database.Spatial
 	if err != nil {
 		return nil, err
 	}
-	
+
 	rtree_table, err := tables.NewRTreeTableWithDatabase(sqlite_db)
 
 	if err != nil {
@@ -135,15 +135,15 @@ func NewSQLiteSpatialDatabase(ctx context.Context, uri string) (database.Spatial
 	mu := new(sync.RWMutex)
 
 	spatial_db := &SQLiteSpatialDatabase{
-		Logger:        logger,
-		db:            sqlite_db,
-		rtree_table:   rtree_table,
+		Logger:         logger,
+		db:             sqlite_db,
+		rtree_table:    rtree_table,
 		geometry_table: geometry_table,
-		spr_table:     spr_table,
-		gocache:       gc,
-		dsn:           dsn,
-		strict:        strict,
-		mu:            mu,
+		spr_table:      spr_table,
+		gocache:        gc,
+		dsn:            dsn,
+		strict:         strict,
+		mu:             mu,
 	}
 
 	return spatial_db, nil
@@ -601,7 +601,7 @@ func (db *SQLiteSpatialDatabase) StandardPlacesResultsToFeatureCollection(ctx co
 func (r *SQLiteSpatialDatabase) setSPRCacheItem(ctx context.Context, f wof_geojson.Feature) error {
 
 	// do this concurrently
-	
+
 	err := r.rtree_table.IndexRecord(r.db, f)
 
 	if err != nil {
@@ -613,7 +613,7 @@ func (r *SQLiteSpatialDatabase) setSPRCacheItem(ctx context.Context, f wof_geojs
 	if err != nil {
 		return err
 	}
-	
+
 	err = r.geometry_table.IndexRecord(r.db, f)
 
 	if err != nil {
@@ -661,6 +661,9 @@ func (r *SQLiteSpatialDatabase) retrieveSPRCacheItem(ctx context.Context, uri_st
 		alt_label,
 	}
 
+	// supersedes and superseding need to be added here pending
+	// https://github.com/whosonfirst/go-whosonfirst-sqlite-features/issues/14
+
 	spr_q := fmt.Sprintf(`SELECT 
 		id, parent_id, name, placetype,
 		country, repo,
@@ -669,7 +672,6 @@ func (r *SQLiteSpatialDatabase) retrieveSPRCacheItem(ctx context.Context, uri_st
 		max_latitude, max_longitude,
 		is_current, is_deprecated, is_ceased,
 		is_superseded, is_superseding,
-		superseded_by, supersedes,
 		lastmodified
 	FROM %s WHERE id = ? AND alt_label = ?`, r.spr_table.Name())
 
@@ -695,16 +697,18 @@ func (r *SQLiteSpatialDatabase) retrieveSPRCacheItem(ctx context.Context, uri_st
 	var is_superseded int64
 	var is_superseding int64
 
-	var superseded_by string
-	var supersedes string
+	// supersedes and superseding need to be added here pending
+	// https://github.com/whosonfirst/go-whosonfirst-sqlite-features/issues/14
 
 	var lastmodified int64
+
+	// supersedes and superseding need to be added here pending
+	// https://github.com/whosonfirst/go-whosonfirst-sqlite-features/issues/14
 
 	err = row.Scan(
 		&spr_id, &parent_id, &name, &placetype, &country, &repo,
 		&latitude, &longitude, &min_latitude, &max_latitude, &min_longitude, &max_longitude,
 		&is_current, &is_deprecated, &is_ceased, &is_superseded, &is_superseding,
-		&superseded_by, &supersedes,
 		&lastmodified,
 	)
 
@@ -712,27 +716,27 @@ func (r *SQLiteSpatialDatabase) retrieveSPRCacheItem(ctx context.Context, uri_st
 		return nil, err
 	}
 
-	golog.Println("DEBUG", superseded_by, supersedes)
-
 	path := "fixme"
 
 	s := &SQLiteStandardPlacesResult{
-		WOFId:          spr_id,
-		WOFParentId:    parent_id,
-		WOFName:        name,
-		WOFCountry:     country,
-		WOFPlacetype:   placetype,
-		MZLatitude:     latitude,
-		MZLongitude:    longitude,
-		MZMinLatitude:  min_latitude,
-		MZMaxLatitude:  max_latitude,
-		MZMinLongitude: min_longitude,
-		MZMaxLongitude: max_longitude,
-		MZIsCurrent:    is_current,
-		MZIsDeprecated: is_deprecated,
-		MZIsCeased:     is_ceased,
-		// is_superseded: is_superseded,
-		// is_superseding: is_superseding,
+		WOFId:           spr_id,
+		WOFParentId:     parent_id,
+		WOFName:         name,
+		WOFCountry:      country,
+		WOFPlacetype:    placetype,
+		MZLatitude:      latitude,
+		MZLongitude:     longitude,
+		MZMinLatitude:   min_latitude,
+		MZMaxLatitude:   max_latitude,
+		MZMinLongitude:  min_longitude,
+		MZMaxLongitude:  max_longitude,
+		MZIsCurrent:     is_current,
+		MZIsDeprecated:  is_deprecated,
+		MZIsCeased:      is_ceased,
+		MZIsSuperseded:  is_superseded,
+		MZIsSuperseding: is_superseding,
+		// supersedes and superseding go here pending
+		// https://github.com/whosonfirst/go-whosonfirst-sqlite-features/issues/14
 		WOFPath:         path,
 		WOFRepo:         repo,
 		WOFLastModified: lastmodified,
@@ -749,7 +753,7 @@ func (r *SQLiteSpatialDatabase) retrieveSPRCacheItem(ctx context.Context, uri_st
 	if err != nil {
 		return nil, err
 	}
-	
+
 	geom, err := geojson.UnmarshalGeometry([]byte(geom_str))
 
 	if err != nil {

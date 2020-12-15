@@ -18,9 +18,9 @@ import (
 
 type SQLitePropertiesReader struct {
 	spatial_properties.PropertiesReader
-	db            *sqlite_database.SQLiteDatabase
-	properties_table sqlite.Table	
-	dsn           string
+	db               *sqlite_database.SQLiteDatabase
+	properties_table sqlite.Table
+	dsn              string
 }
 
 func init() {
@@ -55,11 +55,11 @@ func NewSQLitePropertiesReader(ctx context.Context, uri string) (spatial_propert
 	if err != nil {
 		return nil, err
 	}
-	
+
 	pr := &SQLitePropertiesReader{
-		dsn:           dsn,
-		properties_table: properties_table,		
-		db:            sqlite_db,
+		dsn:              dsn,
+		properties_table: properties_table,
+		db:               sqlite_db,
 	}
 
 	return pr, nil
