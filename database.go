@@ -14,7 +14,7 @@ import (
 	"github.com/paulmach/go.geojson"
 	"github.com/skelterjohn/geom"
 	wof_geojson "github.com/whosonfirst/go-whosonfirst-geojson-v2"
-	wof_feature "github.com/whosonfirst/go-whosonfirst-geojson-v2/feature"
+	// wof_feature "github.com/whosonfirst/go-whosonfirst-geojson-v2/feature"
 	"github.com/whosonfirst/go-whosonfirst-log"
 	"github.com/whosonfirst/go-whosonfirst-spatial/cache"
 	"github.com/whosonfirst/go-whosonfirst-spatial/database"
@@ -43,6 +43,7 @@ type SQLiteSpatialDatabase struct {
 	db            *sqlite_database.SQLiteDatabase
 	rtree_table   sqlite.Table
 	geojson_table sqlite.Table
+	spr_table sqlite.Table	
 	gocache       *gocache.Cache
 	dsn           string
 	strict        bool
@@ -112,6 +113,12 @@ func NewSQLiteSpatialDatabase(ctx context.Context, uri string) (database.Spatial
 		return nil, err
 	}
 
+	spr_table, err := tables.NewSPRTableWithDatabase(sqlite_db)
+
+	if err != nil {
+		return nil, err
+	}
+	
 	strict := true
 
 	if q.Get("strict") == "false" {
@@ -132,6 +139,7 @@ func NewSQLiteSpatialDatabase(ctx context.Context, uri string) (database.Spatial
 		db:            sqlite_db,
 		rtree_table:   rtree_table,
 		geojson_table: geojson_table,
+		spr_table: spr_table,
 		gocache:       gc,
 		dsn:           dsn,
 		strict:        strict,
@@ -690,10 +698,106 @@ func (r *SQLiteSpatialDatabase) retrieveSPRCacheItem(ctx context.Context, uri_st
 		return nil, err
 	}
 
+	alt_label := ""
+
+	if uri_args.IsAlternate {
+
+		source, err := uri_args.AltGeom.String()
+
+		if err != nil {
+			return nil, err
+		}
+
+		alt_label = source
+	}
+	
 	args := []interface{}{
 		id,
+		alt_label,
+	}
+	
+	q := fmt.Sprintf(`SELECT 
+		id, parent_id, name, placetype,
+		country, repo,
+		latitude, longitude,
+		min_latitude, min_longitude,
+		max_latitude, max_longitude,
+		is_current, is_deprecated, is_ceased,
+		is_superseded, is_superseding,
+		superseded_by, supersedes,
+		lastmodified
+	FROM %s WHERE id = ? AND alt_label = ?`, r.spr_table.Name())
+
+	// t1 := time.Now()
+
+	row := conn.QueryRowContext(ctx, q, args...)
+
+	var spr_id string
+	var parent_id string
+	var name string
+	var placetype string
+	var country string
+	var latitude float64
+	var longitude float64
+	var min_latitude float64
+	var max_latitude float64
+	var min_longitude float64
+	var max_longitude float64
+	var is_current int64
+	var is_deprecated int64
+	var is_ceased int64
+	var is_superseded int64
+	var is_superseding int64
+	var superseded_by string
+	var supersedes string	
+	var lastmodified int64
+	
+	err = row.Scan(&spr_id, &parent_id, &name, &placetype, &country, &latitude, &longitude, &min_latitude, &max_latitude, &min_longitude, &max_longitude, &is_current, &is_deprecated, &is_ceased, &is_superseded, &is_superseding, &lastmodified)
+
+	if err != nil {
+		return nil, err
 	}
 
+	golog.Println("DEBUG", superseded_by, supersedes)
+	
+	path := "fixme"
+	repo := "fixme"
+	
+	s := &SQLiteStandardPlacesResult{
+		id: spr_id,
+		parent_id: parent_id,
+		name: name,
+		placetype: placetype,
+		latitude: latitude,
+		longitude: longitude,
+		min_latitude: min_latitude,
+		max_latitude: max_latitude,
+		min_longitude: min_longitude,
+		max_longitude: max_longitude,
+		is_current: is_current,
+		is_deprecated: is_deprecated,
+		is_ceased: is_ceased,
+		// is_superseded: is_superseded,
+		// is_superseding: is_superseding,
+		path: path,
+		repo: repo,
+		lastmodified: lastmodified,
+	}
+
+	var g *geojson.Geometry
+
+	
+	cache_item := &SQLiteCacheItem{
+		spr: s,
+		geometry: g,
+	}
+
+	r.gocache.Set(uri_str, cache_item, -1)
+
+	return cache_item.(*cache.SPRCacheItem), nil
+
+	/*
+	
 	q := fmt.Sprintf("SELECT body FROM %s WHERE id = ?", r.geojson_table.Name())
 
 	if uri_args.IsAlternate {
@@ -741,4 +845,5 @@ func (r *SQLiteSpatialDatabase) retrieveSPRCacheItem(ctx context.Context, uri_st
 	r.gocache.Set(uri_str, cache_item, -1)
 
 	return cache_item.(*cache.SPRCacheItem), nil
+	*/
 }
