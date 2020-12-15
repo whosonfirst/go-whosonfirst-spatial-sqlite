@@ -1,31 +1,31 @@
 package sqlite
 
 import (
-	"github.com/whosonfirst/go-whosonfirst-spr"
 	"github.com/whosonfirst/go-whosonfirst-flags"
-	"github.com/whosonfirst/go-whosonfirst-flags/existential"	
+	"github.com/whosonfirst/go-whosonfirst-flags/existential"
+	"github.com/whosonfirst/go-whosonfirst-spr"
 )
 
 type SQLiteStandardPlacesResult struct {
 	spr.StandardPlacesResult
-	id                    string  `json:"wof:id"`	
-	parent_id                    string  `json:"wof:parent_id"`
-	name                  string  `json:"wof:name"`
-	placetype             string  `json:"wof:placetype"`
-	latitude               float64 `json:"mz:latitude"`
-	longitude              float64 `json:"mz:longitude"`
-	min_latitude            float64 `json:"spr:min_latitude"`
-	min_longitude           float64 `json:"mz:min_longitude"`
-	max_latitude            float64 `json:"mz:max_latitude"`
-	max_longitude           float64 `json:"mz:max_longitude"`
-	is_current int64 `json:"mz:is_current"`
-	is_deprecated int64 `json:"mz:is_deprecated"`
-	is_ceased int64 `json:"mz:is_ceased"`
-	is_superseded int64 `json:"mz:is_superseded"`
-	is_superseding int64 `json:"mz:is_superseding"`	
-	path                  string  `json:"wof:path"`
-	repo                  string  `json:"wof:repo"`
-	lastmodified int64 `json:wof:lastmodified"`
+	id             string  `json:"wof:id"`
+	parent_id      string  `json:"wof:parent_id"`
+	name           string  `json:"wof:name"`
+	placetype      string  `json:"wof:placetype"`
+	latitude       float64 `json:"mz:latitude"`
+	longitude      float64 `json:"mz:longitude"`
+	min_latitude   float64 `json:"spr:min_latitude"`
+	min_longitude  float64 `json:"mz:min_longitude"`
+	max_latitude   float64 `json:"mz:max_latitude"`
+	max_longitude  float64 `json:"mz:max_longitude"`
+	is_current     int64   `json:"mz:is_current"`
+	is_deprecated  int64   `json:"mz:is_deprecated"`
+	is_ceased      int64   `json:"mz:is_ceased"`
+	is_superseded  int64   `json:"mz:is_superseded"`
+	is_superseding int64   `json:"mz:is_superseding"`
+	path           string  `json:"wof:path"`
+	repo           string  `json:"wof:repo"`
+	lastmodified   int64   `json:wof:lastmodified"`
 }
 
 func (spr *SQLiteStandardPlacesResult) Id() string {

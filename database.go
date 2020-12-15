@@ -43,7 +43,7 @@ type SQLiteSpatialDatabase struct {
 	db            *sqlite_database.SQLiteDatabase
 	rtree_table   sqlite.Table
 	geojson_table sqlite.Table
-	spr_table sqlite.Table	
+	spr_table     sqlite.Table
 	gocache       *gocache.Cache
 	dsn           string
 	strict        bool
@@ -118,7 +118,7 @@ func NewSQLiteSpatialDatabase(ctx context.Context, uri string) (database.Spatial
 	if err != nil {
 		return nil, err
 	}
-	
+
 	strict := true
 
 	if q.Get("strict") == "false" {
@@ -139,7 +139,7 @@ func NewSQLiteSpatialDatabase(ctx context.Context, uri string) (database.Spatial
 		db:            sqlite_db,
 		rtree_table:   rtree_table,
 		geojson_table: geojson_table,
-		spr_table: spr_table,
+		spr_table:     spr_table,
 		gocache:       gc,
 		dsn:           dsn,
 		strict:        strict,
@@ -486,10 +486,10 @@ func (r *SQLiteSpatialDatabase) inflateSpatialIndexWithChannels(ctx context.Cont
 		return
 	}
 
-	if !geo.GeoJSONPolygonContainsCoord(coords, c){
+	if !geo.GeoJSONPolygonContainsCoord(coords, c) {
 		return
 	}
-		
+
 	// there is at least one ring that contains the coord
 	// now we check the filters - whether or not they pass
 	// we can skip every subsequent polygon with the same
@@ -524,80 +524,6 @@ func (r *SQLiteSpatialDatabase) inflateSpatialIndexWithChannels(ctx context.Cont
 	}
 
 	rsp_ch <- s
-
-	/*
-		str_id := fmt.Sprintf("%s:%s", sp.Id, sp.AltLabel)
-
-		mu.RLock()
-		_, ok := seen[str_id]
-		mu.RUnlock()
-
-		if ok {
-			return
-		}
-
-		mu.Lock()
-		seen[str_id] = true
-		mu.Unlock()
-
-		// t3 := time.Now()
-
-		fc, err := r.retrieveSPRCacheItem(ctx, sp.Path())
-
-		// golog.Printf("Time to send to retrieve spr %s, %v\n", sp.Id, time.Since(t3))
-
-		if err != nil {
-			r.Logger.Error("Failed to retrieve feature cache for %s, %v", str_id, err)
-			return
-		}
-
-		// t4 := time.Now()
-
-		s, err := fc.SPR()
-
-		// golog.Printf("Time to send to yield spr %s, %v\n", sp.Id, time.Since(t4))
-
-		if err != nil {
-			r.Logger.Error("Failed to instantiate spr cache for %s, %v", str_id, err)
-			return
-		}
-
-		for _, f := range filters {
-
-			err = filter.FilterSPR(f, s)
-
-			if err != nil {
-				r.Logger.Debug("SKIP %s because filter error %s", str_id, err)
-				return
-			}
-		}
-
-		// t5 := time.Now()
-
-		geom, err := fc.Geometry()
-
-		// golog.Printf("Time to send to retrieve geometry %s, %v\n", sp.Id, time.Since(t5))
-
-		if err != nil {
-			r.Logger.Error("Failed to instantiate geometry cache for %s, %v", str_id, err)
-			return
-		}
-
-		// t6 := time.Now()
-
-		contains := geo.GeoJSONGeometryContainsCoord(geom, c)
-
-		// golog.Printf("Time to send to contains %s, %v\n", sp.Id, time.Since(t6))
-
-		if !contains {
-			r.Logger.Debug("SKIP %s because does not contain coord (%v)", str_id, c)
-			return
-		}
-
-		// golog.Printf("Time to send to channel %s, %v\n", sp.Id, time.Since(t2))
-
-		rsp_ch <- s
-	*/
 }
 
 func (db *SQLiteSpatialDatabase) StandardPlacesResultsToFeatureCollection(ctx context.Context, results spr.StandardPlacesResults) (*geojson.FeatureCollection, error) {
@@ -710,12 +636,12 @@ func (r *SQLiteSpatialDatabase) retrieveSPRCacheItem(ctx context.Context, uri_st
 
 		alt_label = source
 	}
-	
+
 	args := []interface{}{
 		id,
 		alt_label,
 	}
-	
+
 	q := fmt.Sprintf(`SELECT 
 		id, parent_id, name, placetype,
 		country, repo,
@@ -749,9 +675,9 @@ func (r *SQLiteSpatialDatabase) retrieveSPRCacheItem(ctx context.Context, uri_st
 	var is_superseded int64
 	var is_superseding int64
 	var superseded_by string
-	var supersedes string	
+	var supersedes string
 	var lastmodified int64
-	
+
 	err = row.Scan(&spr_id, &parent_id, &name, &placetype, &country, &latitude, &longitude, &min_latitude, &max_latitude, &min_longitude, &max_longitude, &is_current, &is_deprecated, &is_ceased, &is_superseded, &is_superseding, &lastmodified)
 
 	if err != nil {
@@ -759,36 +685,89 @@ func (r *SQLiteSpatialDatabase) retrieveSPRCacheItem(ctx context.Context, uri_st
 	}
 
 	golog.Println("DEBUG", superseded_by, supersedes)
-	
+
 	path := "fixme"
 	repo := "fixme"
-	
+
 	s := &SQLiteStandardPlacesResult{
-		id: spr_id,
-		parent_id: parent_id,
-		name: name,
-		placetype: placetype,
-		latitude: latitude,
-		longitude: longitude,
-		min_latitude: min_latitude,
-		max_latitude: max_latitude,
+		id:            spr_id,
+		parent_id:     parent_id,
+		name:          name,
+		placetype:     placetype,
+		latitude:      latitude,
+		longitude:     longitude,
+		min_latitude:  min_latitude,
+		max_latitude:  max_latitude,
 		min_longitude: min_longitude,
 		max_longitude: max_longitude,
-		is_current: is_current,
+		is_current:    is_current,
 		is_deprecated: is_deprecated,
-		is_ceased: is_ceased,
+		is_ceased:     is_ceased,
 		// is_superseded: is_superseded,
 		// is_superseding: is_superseding,
-		path: path,
-		repo: repo,
+		path:         path,
+		repo:         repo,
 		lastmodified: lastmodified,
+	}
+
+	//
+
+	geom_q := "SELECT geometry FROM %s WHERE id = ? AND alt_label = ?"
+
+	geom_rows, err := conn.QueryContext(ctx, geom_q, args...)
+
+	if err != nil {
+		return nil, err
+	}
+
+	geom_coords := make([][][][]float64, 0)
+
+	for geom_rows.Next() {
+
+		var str_geom string
+		err := geom_rows.Scan(&str_geom)
+
+		if err != nil {
+			return nil, err
+		}
+
+		var coords [][][]float64
+
+		err = json.Unmarshal([]byte(str_geom), &coords)
+
+		if err != nil {
+			return nil, err
+		}
+
+		geom_coords = append(geom_coords, coords)
+	}
+
+	err = geom_rows.Close()
+
+	if err != nil {
+		return nil, err
+	}
+
+	err = geom_rows.Err()
+
+	if err != nil {
+		return nil, err
+	}
+
+	if len(geom_coords) == 0 {
+		return nil, errors.New("No coordinates")
 	}
 
 	var g *geojson.Geometry
 
-	
+	if len(geom_coords) == 1 {
+		g = geojson.NewPolygonGeometry(geom_coords[0])
+	} else {
+		g = geojson.NewMultiPolygonGeometry(geom_coords...)
+	}
+
 	cache_item := &SQLiteCacheItem{
-		spr: s,
+		spr:      s,
 		geometry: g,
 	}
 
@@ -797,53 +776,53 @@ func (r *SQLiteSpatialDatabase) retrieveSPRCacheItem(ctx context.Context, uri_st
 	return cache_item.(*cache.SPRCacheItem), nil
 
 	/*
-	
-	q := fmt.Sprintf("SELECT body FROM %s WHERE id = ?", r.geojson_table.Name())
 
-	if uri_args.IsAlternate {
+		q := fmt.Sprintf("SELECT body FROM %s WHERE id = ?", r.geojson_table.Name())
 
-		source, err := uri_args.AltGeom.String()
+		if uri_args.IsAlternate {
+
+			source, err := uri_args.AltGeom.String()
+
+			if err != nil {
+				return nil, err
+			}
+
+			q = fmt.Sprintf("%s AND is_alt=1 AND source = ?", q)
+			args = append(args, source)
+		}
+
+		// t1 := time.Now()
+
+		row := conn.QueryRowContext(ctx, q, args...)
+
+		var body string
+
+		err = row.Scan(&body)
 
 		if err != nil {
 			return nil, err
 		}
 
-		q = fmt.Sprintf("%s AND is_alt=1 AND source = ?", q)
-		args = append(args, source)
-	}
+		// golog.Printf("Time to query row for %d, %v\n", id, time.Since(t1))
 
-	// t1 := time.Now()
+		// t2 := time.Now()
 
-	row := conn.QueryRowContext(ctx, q, args...)
+		f, err := wof_feature.LoadFeature([]byte(body))
 
-	var body string
+		if err != nil {
+			return nil, err
+		}
 
-	err = row.Scan(&body)
+		// golog.Printf("Time to load feature for %d, %v\n", id, time.Since(t2))
 
-	if err != nil {
-		return nil, err
-	}
+		cache_item, err := cache.NewSPRCacheItem(f)
 
-	// golog.Printf("Time to query row for %d, %v\n", id, time.Since(t1))
+		if err != nil {
+			return nil, err
+		}
 
-	// t2 := time.Now()
+		r.gocache.Set(uri_str, cache_item, -1)
 
-	f, err := wof_feature.LoadFeature([]byte(body))
-
-	if err != nil {
-		return nil, err
-	}
-
-	// golog.Printf("Time to load feature for %d, %v\n", id, time.Since(t2))
-
-	cache_item, err := cache.NewSPRCacheItem(f)
-
-	if err != nil {
-		return nil, err
-	}
-
-	r.gocache.Set(uri_str, cache_item, -1)
-
-	return cache_item.(*cache.SPRCacheItem), nil
+		return cache_item.(*cache.SPRCacheItem), nil
 	*/
 }
