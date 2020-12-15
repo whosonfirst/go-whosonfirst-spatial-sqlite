@@ -42,7 +42,7 @@ type SQLiteSpatialDatabase struct {
 	mu            *sync.RWMutex
 	db            *sqlite_database.SQLiteDatabase
 	rtree_table   sqlite.Table
-	geojson_table sqlite.Table
+	geometry_table sqlite.Table	
 	spr_table     sqlite.Table
 	gocache       *gocache.Cache
 	dsn           string
@@ -101,12 +101,12 @@ func NewSQLiteSpatialDatabase(ctx context.Context, uri string) (database.Spatial
 		return nil, err
 	}
 
-	geojson_table, err := tables.NewGeoJSONTableWithDatabase(sqlite_db)
+	geometry_table, err := tables.NewGeometryTableWithDatabase(sqlite_db)
 
 	if err != nil {
 		return nil, err
 	}
-
+	
 	rtree_table, err := tables.NewRTreeTableWithDatabase(sqlite_db)
 
 	if err != nil {
@@ -138,7 +138,7 @@ func NewSQLiteSpatialDatabase(ctx context.Context, uri string) (database.Spatial
 		Logger:        logger,
 		db:            sqlite_db,
 		rtree_table:   rtree_table,
-		geojson_table: geojson_table,
+		geometry_table: geometry_table,
 		spr_table:     spr_table,
 		gocache:       gc,
 		dsn:           dsn,
@@ -599,10 +599,29 @@ func (db *SQLiteSpatialDatabase) StandardPlacesResultsToFeatureCollection(ctx co
 }
 
 func (r *SQLiteSpatialDatabase) setSPRCacheItem(ctx context.Context, f wof_geojson.Feature) error {
-	return r.geojson_table.IndexRecord(r.db, f)
-}
 
-// TBD - retrieve from "spr" table?
+	// do this concurrently
+	
+	err := 	return r.rtree_table.IndexRecord(r.db, f)
+
+	if err != nil {
+		return err
+	}
+
+	err := 	return r.spr_table.IndexRecord(r.db, f)
+
+	if err != nil {
+		return err
+	}
+	
+	err := 	return r.geometry_table.IndexRecord(r.db, f)
+
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
 
 func (r *SQLiteSpatialDatabase) retrieveSPRCacheItem(ctx context.Context, uri_str string) (*SQLiteCacheItem, error) {
 
@@ -654,8 +673,6 @@ func (r *SQLiteSpatialDatabase) retrieveSPRCacheItem(ctx context.Context, uri_st
 		lastmodified
 	FROM %s WHERE id = ? AND alt_label = ?`, r.spr_table.Name())
 
-	// t1 := time.Now()
-
 	row := conn.QueryRowContext(ctx, spr_q, args...)
 
 	var spr_id string
@@ -692,7 +709,6 @@ func (r *SQLiteSpatialDatabase) retrieveSPRCacheItem(ctx context.Context, uri_st
 	)
 
 	if err != nil {
-		golog.Println("SAD SPR QUERY", args)
 		return nil, err
 	}
 
@@ -722,63 +738,25 @@ func (r *SQLiteSpatialDatabase) retrieveSPRCacheItem(ctx context.Context, uri_st
 		WOFLastModified: lastmodified,
 	}
 
-	// this takes too long because you can't put indexes on virtual tables
+	geom_q := fmt.Sprintf("SELECT body FROM %s WHERE id = ? AND alt_label = ?", r.geometry_table.Name())
 
-	geom_q := fmt.Sprintf("SELECT geometry FROM %s WHERE wof_id = ? AND alt_label = ?", r.rtree_table.Name())
+	geom_row := conn.QueryRowContext(ctx, geom_q, args...)
 
-	geom_rows, err := conn.QueryContext(ctx, geom_q, args...)
+	var geom_str string
+
+	err = geom_row.Scan(&geom_str)
+
+	if err != nil {
+		return nil, err
+	}
+	
+	geom, err := geojson.UnmarshalGeometry([]byte(geom_str))
 
 	if err != nil {
 		return nil, err
 	}
 
-	geom_coords := make([][][][]float64, 0)
-
-	for geom_rows.Next() {
-
-		var str_geom string
-		err := geom_rows.Scan(&str_geom)
-
-		if err != nil {
-			return nil, err
-		}
-
-		var coords [][][]float64
-
-		err = json.Unmarshal([]byte(str_geom), &coords)
-
-		if err != nil {
-			return nil, err
-		}
-
-		geom_coords = append(geom_coords, coords)
-	}
-
-	err = geom_rows.Close()
-
-	if err != nil {
-		return nil, err
-	}
-
-	err = geom_rows.Err()
-
-	if err != nil {
-		return nil, err
-	}
-
-	if len(geom_coords) == 0 {
-		return nil, errors.New("No coordinates")
-	}
-
-	var g *geojson.Geometry
-
-	if len(geom_coords) == 1 {
-		g = geojson.NewPolygonGeometry(geom_coords[0])
-	} else {
-		g = geojson.NewMultiPolygonGeometry(geom_coords...)
-	}
-
-	cache_item, err := NewSQLiteCacheItem(s, g)
+	cache_item, err := NewSQLiteCacheItem(s, geom)
 
 	if err != nil {
 		return nil, err
