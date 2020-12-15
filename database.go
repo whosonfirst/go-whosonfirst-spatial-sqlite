@@ -602,19 +602,19 @@ func (r *SQLiteSpatialDatabase) setSPRCacheItem(ctx context.Context, f wof_geojs
 
 	// do this concurrently
 	
-	err := 	return r.rtree_table.IndexRecord(r.db, f)
+	err := r.rtree_table.IndexRecord(r.db, f)
 
 	if err != nil {
 		return err
 	}
 
-	err := 	return r.spr_table.IndexRecord(r.db, f)
+	err = r.spr_table.IndexRecord(r.db, f)
 
 	if err != nil {
 		return err
 	}
 	
-	err := 	return r.geometry_table.IndexRecord(r.db, f)
+	err = r.geometry_table.IndexRecord(r.db, f)
 
 	if err != nil {
 		return err

@@ -19,7 +19,7 @@ import (
 type SQLitePropertiesReader struct {
 	spatial_properties.PropertiesReader
 	db            *sqlite_database.SQLiteDatabase
-	geojson_table sqlite.Table
+	properties_table sqlite.Table	
 	dsn           string
 }
 
@@ -50,15 +50,15 @@ func NewSQLitePropertiesReader(ctx context.Context, uri string) (spatial_propert
 		return nil, err
 	}
 
-	geojson_table, err := tables.NewGeoJSONTableWithDatabase(sqlite_db)
+	properties_table, err := tables.NewPropertiesTableWithDatabase(sqlite_db)
 
 	if err != nil {
 		return nil, err
 	}
-
+	
 	pr := &SQLitePropertiesReader{
 		dsn:           dsn,
-		geojson_table: geojson_table,
+		properties_table: properties_table,		
 		db:            sqlite_db,
 	}
 
@@ -67,7 +67,7 @@ func NewSQLitePropertiesReader(ctx context.Context, uri string) (spatial_propert
 
 func (pr *SQLitePropertiesReader) IndexFeature(ctx context.Context, f wof_geojson.Feature) error {
 
-	return pr.geojson_table.IndexRecord(pr.db, f)
+	return pr.properties_table.IndexRecord(pr.db, f)
 }
 
 func (pr *SQLitePropertiesReader) PropertiesResponseResultsWithStandardPlacesResults(ctx context.Context, results spr.StandardPlacesResults, properties []string) (*spatial_properties.PropertiesResponseResults, error) {
@@ -94,7 +94,7 @@ func (pr *SQLitePropertiesReader) PropertiesResponseResultsWithStandardPlacesRes
 
 		str_id := r.Id()
 
-		q := fmt.Sprintf("SELECT body FROM %s WHERE id = ?", pr.geojson_table.Name())
+		q := fmt.Sprintf("SELECT body FROM %s WHERE id = ?", pr.properties_table.Name())
 
 		row := conn.QueryRowContext(ctx, q, str_id)
 
@@ -195,7 +195,7 @@ func (pr *SQLitePropertiesReader) appendPropertiesWithChannels(ctx context.Conte
 		return
 	}
 
-	id_rsp := gjson.GetBytes(target, "properties.wof:id")
+	id_rsp := gjson.GetBytes(target, "wof:id")
 
 	if !id_rsp.Exists() {
 		err_ch <- errors.New("Missing wof:id")
@@ -204,7 +204,7 @@ func (pr *SQLitePropertiesReader) appendPropertiesWithChannels(ctx context.Conte
 
 	str_id := id_rsp.String()
 
-	q := fmt.Sprintf("SELECT body FROM %s WHERE id = ?", pr.geojson_table.Name())
+	q := fmt.Sprintf("SELECT body FROM %s WHERE id = ?", pr.properties_table.Name())
 
 	row := conn.QueryRowContext(ctx, q, str_id)
 
@@ -219,7 +219,7 @@ func (pr *SQLitePropertiesReader) appendPropertiesWithChannels(ctx context.Conte
 
 	source := []byte(body)
 
-	target, err = spatial_properties.AppendPropertiesWithJSON(ctx, source, target, properties, "properties")
+	target, err = spatial_properties.AppendPropertiesWithJSON(ctx, source, target, properties, "")
 
 	if err != nil {
 		err_ch <- err
