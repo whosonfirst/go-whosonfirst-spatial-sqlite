@@ -27,7 +27,6 @@ import (
 	"github.com/whosonfirst/go-whosonfirst-uri"
 	golog "log"
 	"net/url"
-	"strings"
 	"sync"
 	"time"
 )
@@ -666,9 +665,7 @@ func (r *SQLiteSpatialDatabase) retrieveSPRCacheItem(ctx context.Context, uri_st
 
 	t2 := time.Now()
 
-	feature_r := strings.NewReader(body)
-
-	f, err := wof_feature.LoadFeatureFromReader(feature_r)
+	f, err := wof_feature.LoadFeature([]byte(body))
 
 	if err != nil {
 		return nil, err
