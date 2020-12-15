@@ -7,53 +7,54 @@ import (
 )
 
 type SQLiteStandardPlacesResult struct {
-	spr.StandardPlacesResult
-	id             string  `json:"wof:id"`
-	parent_id      string  `json:"wof:parent_id"`
-	name           string  `json:"wof:name"`
-	placetype      string  `json:"wof:placetype"`
-	latitude       float64 `json:"mz:latitude"`
-	longitude      float64 `json:"mz:longitude"`
-	min_latitude   float64 `json:"spr:min_latitude"`
-	min_longitude  float64 `json:"mz:min_longitude"`
-	max_latitude   float64 `json:"mz:max_latitude"`
-	max_longitude  float64 `json:"mz:max_longitude"`
-	is_current     int64   `json:"mz:is_current"`
-	is_deprecated  int64   `json:"mz:is_deprecated"`
-	is_ceased      int64   `json:"mz:is_ceased"`
-	is_superseded  int64   `json:"mz:is_superseded"`
-	is_superseding int64   `json:"mz:is_superseding"`
-	path           string  `json:"wof:path"`
-	repo           string  `json:"wof:repo"`
-	lastmodified   int64   `json:wof:lastmodified"`
+	spr.StandardPlacesResult `json:",omitempty"`
+	WOFId                    string  `json:"wof:id"`
+	WOFParentId              string  `json:"wof:parent_id"`
+	WOFName                  string  `json:"wof:name"`
+	WOFCountry               string  `json:"wof:country"`
+	WOFPlacetype             string  `json:"wof:placetype"`
+	MZLatitude               float64 `json:"mz:latitude"`
+	MZLongitude              float64 `json:"mz:longitude"`
+	MZMinLatitude            float64 `json:"spr:min_latitude"`
+	MZMinLongitude           float64 `json:"mz:min_longitude"`
+	MZMaxLatitude            float64 `json:"mz:max_latitude"`
+	MZMaxLongitude           float64 `json:"mz:max_longitude"`
+	MZIsCurrent              int64   `json:"mz:is_current"`
+	MZIsDeprecated           int64   `json:"mz:is_deprecated"`
+	MZIsCeased               int64   `json:"mz:is_ceased"`
+	MZIsSuperseded           int64   `json:"mz:is_superseded"`
+	MZIsSuperseding          int64   `json:"mz:is_superseding"`
+	WOFPath                  string  `json:"wof:path"`
+	WOFRepo                  string  `json:"wof:repo"`
+	WOFLastModified          int64   `json:"wof:lastmodified"`
 }
 
 func (spr *SQLiteStandardPlacesResult) Id() string {
-	return spr.id
+	return spr.WOFId
 }
 
 func (spr *SQLiteStandardPlacesResult) ParentId() string {
-	return spr.parent_id
+	return spr.WOFParentId
 }
 
 func (spr *SQLiteStandardPlacesResult) Name() string {
-	return spr.name
+	return spr.WOFName
 }
 
 func (spr *SQLiteStandardPlacesResult) Placetype() string {
-	return spr.placetype
+	return spr.WOFPlacetype
 }
 
 func (spr *SQLiteStandardPlacesResult) Country() string {
-	return "XX"
+	return spr.WOFCountry
 }
 
 func (spr *SQLiteStandardPlacesResult) Repo() string {
-	return spr.repo
+	return spr.WOFRepo
 }
 
 func (spr *SQLiteStandardPlacesResult) Path() string {
-	return spr.path
+	return spr.WOFPath
 }
 
 func (spr *SQLiteStandardPlacesResult) URI() string {
@@ -61,47 +62,47 @@ func (spr *SQLiteStandardPlacesResult) URI() string {
 }
 
 func (spr *SQLiteStandardPlacesResult) Latitude() float64 {
-	return spr.latitude
+	return spr.MZLatitude
 }
 
 func (spr *SQLiteStandardPlacesResult) Longitude() float64 {
-	return spr.longitude
+	return spr.MZLongitude
 }
 
 func (spr *SQLiteStandardPlacesResult) MinLatitude() float64 {
-	return spr.min_latitude
+	return spr.MZMinLatitude
 }
 
 func (spr *SQLiteStandardPlacesResult) MinLongitude() float64 {
-	return spr.min_longitude
+	return spr.MZMinLongitude
 }
 
 func (spr *SQLiteStandardPlacesResult) MaxLatitude() float64 {
-	return spr.max_latitude
+	return spr.MZMaxLatitude
 }
 
 func (spr *SQLiteStandardPlacesResult) MaxLongitude() float64 {
-	return spr.max_longitude
+	return spr.MZMaxLongitude
 }
 
 func (spr *SQLiteStandardPlacesResult) IsCurrent() flags.ExistentialFlag {
-	return existentialFlag(spr.is_current)
+	return existentialFlag(spr.MZIsCurrent)
 }
 
 func (spr *SQLiteStandardPlacesResult) IsCeased() flags.ExistentialFlag {
-	return existentialFlag(spr.is_ceased)
+	return existentialFlag(spr.MZIsCeased)
 }
 
 func (spr *SQLiteStandardPlacesResult) IsDeprecated() flags.ExistentialFlag {
-	return existentialFlag(spr.is_deprecated)
+	return existentialFlag(spr.MZIsDeprecated)
 }
 
 func (spr *SQLiteStandardPlacesResult) IsSuperseded() flags.ExistentialFlag {
-	return existentialFlag(spr.is_superseded)
+	return existentialFlag(spr.MZIsSuperseded)
 }
 
 func (spr *SQLiteStandardPlacesResult) IsSuperseding() flags.ExistentialFlag {
-	return existentialFlag(spr.is_superseding)
+	return existentialFlag(spr.MZIsSuperseding)
 }
 
 func (spr *SQLiteStandardPlacesResult) SupersededBy() []int64 {
@@ -113,7 +114,7 @@ func (spr *SQLiteStandardPlacesResult) Supersedes() []int64 {
 }
 
 func (spr *SQLiteStandardPlacesResult) LastModified() int64 {
-	return spr.lastmodified
+	return spr.WOFLastModified
 }
 
 func existentialFlag(i int64) flags.ExistentialFlag {
