@@ -766,9 +766,10 @@ func (r *SQLiteSpatialDatabase) retrieveSPRCacheItem(ctx context.Context, uri_st
 		g = geojson.NewMultiPolygonGeometry(geom_coords...)
 	}
 
-	cache_item := &SQLiteCacheItem{
-		spr:      s,
-		geometry: g,
+	cache_item, err := NewSQLiteCacheItem(s, g)
+
+	if err != nil {
+		return nil, err
 	}
 
 	r.gocache.Set(uri_str, cache_item, -1)

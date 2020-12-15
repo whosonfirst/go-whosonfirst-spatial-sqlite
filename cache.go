@@ -12,6 +12,16 @@ type SQLiteCacheItem struct {
 	geometry        *geojson.Geometry
 }
 
+func NewSQLiteCacheItem(s spr.StandardPlacesResult, g *geojson.Geometry) (cache.CacheItem, error) {
+
+	c := &SQLiteCacheItem{
+		spr:      s,
+		geometry: g,
+	}
+
+	return c, nil
+}
+
 func (c *SQLiteCacheItem) SPR() (spr.StandardPlacesResult, error) {
 	return c.spr, nil
 }
