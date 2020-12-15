@@ -2,9 +2,6 @@ package sqlite
 
 // https://www.sqlite.org/rtree.html
 
-// There is a bunch of code in here that could/should
-// be reconciled with go-whosonfirst-spatial/database/rtree
-
 import (
 	"context"
 	"encoding/json"
@@ -14,9 +11,7 @@ import (
 	"github.com/paulmach/go.geojson"
 	"github.com/skelterjohn/geom"
 	wof_geojson "github.com/whosonfirst/go-whosonfirst-geojson-v2"
-	// wof_feature "github.com/whosonfirst/go-whosonfirst-geojson-v2/feature"
 	"github.com/whosonfirst/go-whosonfirst-log"
-	// "github.com/whosonfirst/go-whosonfirst-spatial/cache"
 	"github.com/whosonfirst/go-whosonfirst-spatial/database"
 	"github.com/whosonfirst/go-whosonfirst-spatial/filter"
 	"github.com/whosonfirst/go-whosonfirst-spatial/geo"
@@ -346,14 +341,6 @@ func (r *SQLiteSpatialDatabase) getIntersectsByCoord(ctx context.Context, coord 
 
 func (r *SQLiteSpatialDatabase) getIntersectsByRect(ctx context.Context, rect *geom.Rect) ([]*RTreeSpatialIndex, error) {
 
-	/*
-		t1 := time.Now()
-
-		defer func() {
-			golog.Printf("Time to get intersects by rect, %v\n", time.Since(t1))
-		}()
-	*/
-
 	conn, err := r.db.Conn()
 
 	if err != nil {
@@ -423,14 +410,6 @@ func (r *SQLiteSpatialDatabase) getIntersectsByRect(ctx context.Context, rect *g
 }
 
 func (r *SQLiteSpatialDatabase) inflateResultsWithChannels(ctx context.Context, rsp_ch chan spr.StandardPlacesResult, err_ch chan error, possible []*RTreeSpatialIndex, c *geom.Coord, filters ...filter.Filter) {
-
-	/*
-		t1 := time.Now()
-
-		defer func() {
-			golog.Printf("Time to inflate results, %v\n", time.Since(t1))
-		}()
-	*/
 
 	seen := make(map[string]bool)
 	mu := new(sync.RWMutex)
@@ -580,19 +559,9 @@ func (db *SQLiteSpatialDatabase) StandardPlacesResultsToFeatureCollection(ctx co
 		features = append(features, f)
 	}
 
-	/*
-		pg := geojson.Pagination{
-			TotalCount: len(features),
-			Page:       1,
-			PerPage:    len(features),
-			PageCount:  1,
-		}
-	*/
-
 	collection := geojson.FeatureCollection{
 		Type:     "FeatureCollection",
 		Features: features,
-		// Pagination: pg,
 	}
 
 	return &collection, nil
@@ -628,7 +597,7 @@ func (r *SQLiteSpatialDatabase) retrieveSPRCacheItem(ctx context.Context, uri_st
 	// Note to self: I actually tried chunking this out in to separate functions
 	// talking to the database concurrently with channels and stuff and it was
 	// subtly slower than just doing it this way... (20201215/thisisaaronland)
-	
+
 	c, ok := r.gocache.Get(uri_str)
 
 	if ok {
@@ -721,11 +690,11 @@ func (r *SQLiteSpatialDatabase) retrieveSPRCacheItem(ctx context.Context, uri_st
 	}
 
 	path, err := uri.Id2RelPath(id, uri_args)
-	
+
 	if err != nil {
 		return nil, err
 	}
-	
+
 	s := &SQLiteStandardPlacesResult{
 		WOFId:           spr_id,
 		WOFParentId:     parent_id,

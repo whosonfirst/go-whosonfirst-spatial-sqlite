@@ -29,7 +29,7 @@ $> ./bin/wof-sqlite-index-features \
 	-geometry \
 	-properties \
 	-timings \
-	-dsn /usr/local/ca-poly-spr.db \
+	-dsn /usr/local/ca-alt.db \
 	-mode repo:// \
 	/usr/local/data/whosonfirst-data-admin-ca/
 
@@ -49,9 +49,30 @@ And then...
 
 ```
 $> ./bin/query \
-	-database-uri 'sqlite://?dsn=/usr/local/data/ca-poly-spr.db' \
+	-database-uri 'sqlite://?dsn=/usr/local/data/ca-alt.db' \
 	-latitude 45.572744 \
 	-longitude -73.586295
+| jq \
+| grep wof:id
+
+2020/12/15 15:32:05 Unable to parse placetype (alt) for ID 85874359, because 'Invalid placetype' - skipping placetype filters
+2020/12/15 15:32:06 Unable to parse placetype (alt) for ID 85633041, because 'Invalid placetype' - skipping placetype filters
+2020/12/15 15:32:06 Unable to parse placetype (alt) for ID 136251273, because 'Invalid placetype' - skipping placetype filters
+2020/12/15 15:32:06 Unable to parse placetype (alt) for ID 85633041, because 'Invalid placetype' - skipping placetype filters
+2020/12/15 15:32:06 Unable to parse placetype (alt) for ID 136251273, because 'Invalid placetype' - skipping placetype filters
+2020/12/15 15:32:06 Unable to parse placetype (alt) for ID 85633041, because 'Invalid placetype' - skipping placetype filters
+2020/12/15 15:32:06 Time to point in polygon, 596.579126ms
+      "wof:id": "1108955735",
+      "wof:id": "85874359",
+      "wof:id": "85874359",
+      "wof:id": "890458661",
+      "wof:id": "85633041",
+      "wof:id": "136251273",
+      "wof:id": "85633041",
+      "wof:id": "85633041",
+      "wof:id": "136251273",
+      "wof:id": "85633041",
+      "wof:id": "136251273",
 ```
 
 _TBW: Indexing tables on start-up._
