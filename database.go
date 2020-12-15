@@ -642,7 +642,7 @@ func (r *SQLiteSpatialDatabase) retrieveSPRCacheItem(ctx context.Context, uri_st
 		alt_label,
 	}
 
-	q := fmt.Sprintf(`SELECT 
+	spr_q := fmt.Sprintf(`SELECT 
 		id, parent_id, name, placetype,
 		country, repo,
 		latitude, longitude,
@@ -654,40 +654,53 @@ func (r *SQLiteSpatialDatabase) retrieveSPRCacheItem(ctx context.Context, uri_st
 		lastmodified
 	FROM %s WHERE id = ? AND alt_label = ?`, r.spr_table.Name())
 
+	golog.Println(spr_q, args)
+	
 	// t1 := time.Now()
 
-	row := conn.QueryRowContext(ctx, q, args...)
+	row := conn.QueryRowContext(ctx, spr_q, args...)
 
 	var spr_id string
 	var parent_id string
 	var name string
 	var placetype string
 	var country string
+	var repo string
+	
 	var latitude float64
 	var longitude float64
 	var min_latitude float64
 	var max_latitude float64
 	var min_longitude float64
 	var max_longitude float64
+	
 	var is_current int64
 	var is_deprecated int64
 	var is_ceased int64
 	var is_superseded int64
 	var is_superseding int64
+	
 	var superseded_by string
 	var supersedes string
+	
 	var lastmodified int64
 
-	err = row.Scan(&spr_id, &parent_id, &name, &placetype, &country, &latitude, &longitude, &min_latitude, &max_latitude, &min_longitude, &max_longitude, &is_current, &is_deprecated, &is_ceased, &is_superseded, &is_superseding, &lastmodified)
+	err = row.Scan(
+		&spr_id, &parent_id, &name, &placetype, &country, &repo,
+		&latitude, &longitude, &min_latitude, &max_latitude, &min_longitude, &max_longitude,
+		&is_current, &is_deprecated, &is_ceased, &is_superseded, &is_superseding,
+		&superseded_by, &supersedes,
+		&lastmodified,
+	)
 
 	if err != nil {
+		golog.Println("SAD SPR QUERY", args)
 		return nil, err
 	}
 
 	golog.Println("DEBUG", superseded_by, supersedes)
 
 	path := "fixme"
-	repo := "fixme"
 
 	s := &SQLiteStandardPlacesResult{
 		id:            spr_id,
@@ -710,9 +723,11 @@ func (r *SQLiteSpatialDatabase) retrieveSPRCacheItem(ctx context.Context, uri_st
 		lastmodified: lastmodified,
 	}
 
+	golog.Println("SPR", id, alt_label, s)
+	
 	//
 
-	geom_q := "SELECT geometry FROM %s WHERE id = ? AND alt_label = ?"
+	geom_q := fmt.Sprintf("SELECT geometry FROM %s WHERE id = ? AND alt_label = ?", r.rtree_table.Name())
 
 	geom_rows, err := conn.QueryContext(ctx, geom_q, args...)
 
