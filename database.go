@@ -15,17 +15,18 @@ import (
 	"github.com/skelterjohn/geom"
 	wof_geojson "github.com/whosonfirst/go-whosonfirst-geojson-v2"
 	wof_feature "github.com/whosonfirst/go-whosonfirst-geojson-v2/feature"
+	"github.com/whosonfirst/go-whosonfirst-geojson-v2/geometry"
 	"github.com/whosonfirst/go-whosonfirst-log"
 	"github.com/whosonfirst/go-whosonfirst-spatial/cache"
 	"github.com/whosonfirst/go-whosonfirst-spatial/database"
 	"github.com/whosonfirst/go-whosonfirst-spatial/filter"
-	"github.com/whosonfirst/go-whosonfirst-spatial/geo"
+	// "github.com/whosonfirst/go-whosonfirst-spatial/geo"
 	"github.com/whosonfirst/go-whosonfirst-spr"
 	"github.com/whosonfirst/go-whosonfirst-sqlite"
 	"github.com/whosonfirst/go-whosonfirst-sqlite-features/tables"
 	sqlite_database "github.com/whosonfirst/go-whosonfirst-sqlite/database"
 	"github.com/whosonfirst/go-whosonfirst-uri"
-	// golog "log"
+	golog "log"
 	"net/url"
 	"sync"
 	"time"
@@ -49,6 +50,7 @@ type SQLiteSpatialDatabase struct {
 }
 
 type RTreeSpatialIndex struct {
+	geometry string
 	bounds   geom.Rect
 	Id       string
 	IsAlt    bool
@@ -160,13 +162,11 @@ func (r *SQLiteSpatialDatabase) PointInPolygon(ctx context.Context, coord *geom.
 	ctx, cancel := context.WithCancel(ctx)
 	defer cancel()
 
-	/*
-		t1 := time.Now()
+	t1 := time.Now()
 
-		defer func() {
-			golog.Printf("Time to point in polygon, %v\n", time.Since(t1))
-		}()
-	*/
+	defer func() {
+		golog.Printf("Time to point in polygon, %v\n", time.Since(t1))
+	}()
 
 	rsp_ch := make(chan spr.StandardPlacesResult)
 	err_ch := make(chan error)
@@ -353,9 +353,7 @@ func (r *SQLiteSpatialDatabase) getIntersectsByRect(ctx context.Context, rect *g
 		return nil, err
 	}
 
-	q := fmt.Sprintf("SELECT id, wof_id, is_alt, alt_label, min_x, min_y, max_x, max_y FROM %s  WHERE min_x <= ? AND max_x >= ?  AND min_y <= ? AND max_y >= ?", r.rtree_table.Name())
-
-	// golog.Println(q, rect.Min.X, rect.Max.X, rect.Min.Y, rect.Max.Y)
+	q := fmt.Sprintf("SELECT id, wof_id, is_alt, alt_label, geometry, min_x, min_y, max_x, max_y FROM %s  WHERE min_x <= ? AND max_x >= ?  AND min_y <= ? AND max_y >= ?", r.rtree_table.Name())
 
 	rows, err := conn.QueryContext(ctx, q, rect.Min.X, rect.Max.X, rect.Min.Y, rect.Max.Y)
 
@@ -373,12 +371,13 @@ func (r *SQLiteSpatialDatabase) getIntersectsByRect(ctx context.Context, rect *g
 		var wof_id string
 		var is_alt int32
 		var alt_label string
+		var geometry string
 		var minx float64
 		var miny float64
 		var maxx float64
 		var maxy float64
 
-		err := rows.Scan(&id, &wof_id, &is_alt, &alt_label, &minx, &miny, &maxx, &maxy)
+		err := rows.Scan(&id, &wof_id, &is_alt, &alt_label, &geometry, &minx, &miny, &maxx, &maxy)
 
 		if err != nil {
 			return nil, err
@@ -400,8 +399,9 @@ func (r *SQLiteSpatialDatabase) getIntersectsByRect(ctx context.Context, rect *g
 		}
 
 		i := &RTreeSpatialIndex{
-			Id:     wof_id,
-			bounds: rect,
+			Id:       wof_id,
+			bounds:   rect,
+			geometry: geometry,
 		}
 
 		if is_alt == 1 {
@@ -454,6 +454,9 @@ func (r *SQLiteSpatialDatabase) inflateSpatialIndexWithChannels(ctx context.Cont
 
 	str_id := fmt.Sprintf("%s:%s", sp.Id, sp.AltLabel)
 
+	// have we already looked up the filters for this ID?
+	// see notes below
+
 	mu.RLock()
 	_, ok := seen[str_id]
 	mu.RUnlock()
@@ -462,29 +465,75 @@ func (r *SQLiteSpatialDatabase) inflateSpatialIndexWithChannels(ctx context.Cont
 		return
 	}
 
+	// replace with go-whosonfirst-spatial/geo/geojson but blocked on
+	// changes to go-whosonfirst-sqlite/tables/rtree.go
+	
+	// GeoJSONPolygonContainsCoord(poly [][][]float64, c *geom.Coord)
+	
+	var coords [][]geom.Coord
+
+	err := json.Unmarshal([]byte(sp.geometry), &coords)
+
+	if err != nil {
+		err_ch <- err
+		return
+	}
+
+	if len(coords) == 0 {
+		err_ch <- errors.New("Missing coordinates for polygon")
+		return
+	}
+
+	ext := geom.Polygon{}
+	int := make([]geom.Polygon, 0)
+
+	for _, ext_c := range coords[0] {
+		ext.AddVertex(ext_c)
+	}
+
+	if len(coords) > 1 {
+
+		for _, r := range coords[1:] {
+
+			ring := geom.Polygon{}
+
+			for _, int_c := range r {
+				ring.AddVertex(int_c)
+			}
+
+			int = append(int, ring)
+		}
+	}
+
+	poly := geometry.Polygon{
+		Exterior: ext,
+		Interior: int,
+	}
+
+	if !poly.ContainsCoord(*c) {
+		return
+	}
+
+	// there is at least one ring that contains the coord
+	// now we check the filters - whether or not they pass
+	// we can skip every subsequent polygon with the same
+	// ID
+
 	mu.Lock()
 	seen[str_id] = true
 	mu.Unlock()
 
-	// t3 := time.Now()
-
 	fc, err := r.retrieveSPRCacheItem(ctx, sp.Path())
-
-	// golog.Printf("Time to send to retrieve spr %s, %v\n", sp.Id, time.Since(t3))
 
 	if err != nil {
 		r.Logger.Error("Failed to retrieve feature cache for %s, %v", str_id, err)
 		return
 	}
 
-	// t4 := time.Now()
-
 	s, err := fc.SPR()
 
-	// golog.Printf("Time to send to yield spr %s, %v\n", sp.Id, time.Since(t4))
-
 	if err != nil {
-		r.Logger.Error("Failed to instantiate spr cache for %s, %v", str_id, err)
+		r.Logger.Error("Failed to retrieve feature cache for %s, %v", str_id, err)
 		return
 	}
 
@@ -498,32 +547,81 @@ func (r *SQLiteSpatialDatabase) inflateSpatialIndexWithChannels(ctx context.Cont
 		}
 	}
 
-	// t5 := time.Now()
-
-	geom, err := fc.Geometry()
-
-	// golog.Printf("Time to send to retrieve geometry %s, %v\n", sp.Id, time.Since(t5))
-
-	if err != nil {
-		r.Logger.Error("Failed to instantiate geometry cache for %s, %v", str_id, err)
-		return
-	}
-
-	// t6 := time.Now()
-
-	contains := geo.GeoJSONGeometryContainsCoord(geom, c)
-
-	// golog.Printf("Time to send to contains %s, %v\n", sp.Id, time.Since(t6))
-
-	if !contains {
-		r.Logger.Debug("SKIP %s because does not contain coord (%v)", str_id, c)
-		return
-	}
-
-	// golog.Printf("Time to send to channel %s, %v\n", sp.Id, time.Since(t2))
-
 	rsp_ch <- s
 
+	/*
+		str_id := fmt.Sprintf("%s:%s", sp.Id, sp.AltLabel)
+
+		mu.RLock()
+		_, ok := seen[str_id]
+		mu.RUnlock()
+
+		if ok {
+			return
+		}
+
+		mu.Lock()
+		seen[str_id] = true
+		mu.Unlock()
+
+		// t3 := time.Now()
+
+		fc, err := r.retrieveSPRCacheItem(ctx, sp.Path())
+
+		// golog.Printf("Time to send to retrieve spr %s, %v\n", sp.Id, time.Since(t3))
+
+		if err != nil {
+			r.Logger.Error("Failed to retrieve feature cache for %s, %v", str_id, err)
+			return
+		}
+
+		// t4 := time.Now()
+
+		s, err := fc.SPR()
+
+		// golog.Printf("Time to send to yield spr %s, %v\n", sp.Id, time.Since(t4))
+
+		if err != nil {
+			r.Logger.Error("Failed to instantiate spr cache for %s, %v", str_id, err)
+			return
+		}
+
+		for _, f := range filters {
+
+			err = filter.FilterSPR(f, s)
+
+			if err != nil {
+				r.Logger.Debug("SKIP %s because filter error %s", str_id, err)
+				return
+			}
+		}
+
+		// t5 := time.Now()
+
+		geom, err := fc.Geometry()
+
+		// golog.Printf("Time to send to retrieve geometry %s, %v\n", sp.Id, time.Since(t5))
+
+		if err != nil {
+			r.Logger.Error("Failed to instantiate geometry cache for %s, %v", str_id, err)
+			return
+		}
+
+		// t6 := time.Now()
+
+		contains := geo.GeoJSONGeometryContainsCoord(geom, c)
+
+		// golog.Printf("Time to send to contains %s, %v\n", sp.Id, time.Since(t6))
+
+		if !contains {
+			r.Logger.Debug("SKIP %s because does not contain coord (%v)", str_id, c)
+			return
+		}
+
+		// golog.Printf("Time to send to channel %s, %v\n", sp.Id, time.Since(t2))
+
+		rsp_ch <- s
+	*/
 }
 
 func (db *SQLiteSpatialDatabase) StandardPlacesResultsToFeatureCollection(ctx context.Context, results spr.StandardPlacesResults) (*geojson.FeatureCollection, error) {
@@ -599,9 +697,10 @@ func (db *SQLiteSpatialDatabase) StandardPlacesResultsToFeatureCollection(ctx co
 }
 
 func (r *SQLiteSpatialDatabase) setSPRCacheItem(ctx context.Context, f wof_geojson.Feature) error {
-
 	return r.geojson_table.IndexRecord(r.db, f)
 }
+
+// TBD - retrieve from "spr" table?
 
 func (r *SQLiteSpatialDatabase) retrieveSPRCacheItem(ctx context.Context, uri_str string) (*cache.SPRCacheItem, error) {
 
