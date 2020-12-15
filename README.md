@@ -8,6 +8,54 @@ The goal is to have a package that conforms to the [database.SpatialDatabase](ht
 
 Also, this is not as fast as it should be. This is largely with the way WOF records are inflated and passed around in order to support GeoJSON output. There is [an open ticket](https://github.com/whosonfirst/go-whosonfirst-spatial-sqlite/issues/2) to address this.
 
+## Databases
+
+This code depends on (4) tables as indexed by the `go-whosonfirst-sqlite-features` package:
+
+* [rtree](https://github.com/whosonfirst/go-whosonfirst-sqlite-features#rtree) - this table is used to perform point-in-polygon spatial queries.
+* [spr](https://github.com/whosonfirst/go-whosonfirst-sqlite-features#spr) - this table is used to generate [standard place response](#) (SPR) results.
+* [geometry](https://github.com/whosonfirst/go-whosonfirst-sqlite-features#geometry) - this table is used to append geometries to GeoJSON-formatted results.
+* [properties](https://github.com/whosonfirst/go-whosonfirst-sqlite-features#properties) - this table is used to append extra properties (to the SPR response) for GeoJSON-formatted results.
+
+The `go-whosonfirst-sqlite-features` package also indexes a `geojson` table  but it turns out that retrieving, and parsing, properties and geometries from their own tables is faster.
+
+Here's an example of the creating a compatible SQLite database for all the [administative data in Canada](https://github.com/whosonfirst-data/whosonfirst-data-admin-ca) using the `wof-sqlite-index-features` tool which is part of the [go-whosonfirst-sqlite-features-index](https://github.com/whosonfirst/go-whosonfirst-sqlite-features-index) package:
+
+```
+$> ./bin/wof-sqlite-index-features \
+	-index-alt-files \
+	-rtree \
+	-spr \
+	-geometry \
+	-properties \
+	-timings \
+	-dsn /usr/local/ca-poly-spr.db \
+	-mode repo:// \
+	/usr/local/data/whosonfirst-data-admin-ca/
+
+13:09:44.642004 [wof-sqlite-index-features] STATUS time to index rtree (11860) : 30.469010289s
+13:09:44.642136 [wof-sqlite-index-features] STATUS time to index geometry (11860) : 5.155172377s
+13:09:44.642141 [wof-sqlite-index-features] STATUS time to index properties (11860) : 4.631908497s
+13:09:44.642143 [wof-sqlite-index-features] STATUS time to index spr (11860) : 19.160260741s
+13:09:44.642146 [wof-sqlite-index-features] STATUS time to index all (11860) : 1m0.000182571s
+13:10:44.642848 [wof-sqlite-index-features] STATUS time to index spr (32724) : 39.852608874s
+13:10:44.642861 [wof-sqlite-index-features] STATUS time to index rtree (32724) : 57.361318918s
+13:10:44.642864 [wof-sqlite-index-features] STATUS time to index geometry (32724) : 10.242155898s
+13:10:44.642868 [wof-sqlite-index-features] STATUS time to index properties (32724) : 10.815961878s
+13:10:44.642871 [wof-sqlite-index-features] STATUS time to index all (32724) : 2m0.000429956s
+```
+
+And then...
+
+```
+$> ./bin/query \
+	-database-uri 'sqlite://?dsn=/usr/local/data/ca-poly-spr.db' \
+	-latitude 45.572744 \
+	-longitude -73.586295
+```
+
+_TBW: Indexing tables on start-up._
+
 ## Example
 
 ```
