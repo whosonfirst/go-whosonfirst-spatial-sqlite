@@ -625,6 +625,10 @@ func (r *SQLiteSpatialDatabase) setSPRCacheItem(ctx context.Context, f wof_geojs
 
 func (r *SQLiteSpatialDatabase) retrieveSPRCacheItem(ctx context.Context, uri_str string) (*SQLiteCacheItem, error) {
 
+	// Note to self: I actually tried chunking this out in to separate functions
+	// talking to the database concurrently with channels and stuff and it was
+	// subtly slower than just doing it this way... (20201215/thisisaaronland)
+	
 	c, ok := r.gocache.Get(uri_str)
 
 	if ok {
