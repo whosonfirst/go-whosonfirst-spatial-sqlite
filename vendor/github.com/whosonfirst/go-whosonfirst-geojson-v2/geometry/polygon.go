@@ -1,16 +1,14 @@
 package geometry
 
 import (
-	"encoding/json"
 	"errors"
 	"fmt"
+	pm_geojson "github.com/paulmach/go.geojson"
 	"github.com/skelterjohn/geom"
 	"github.com/tidwall/gjson"
 	"github.com/whosonfirst/go-whosonfirst-geojson-v2"
-	"github.com/whosonfirst/go-whosonfirst-geojson-v2/utils"
-	pm "github.com/paulmach/go.geojson"
-	"log"
-	"time"
+	_ "log"
+	_ "time"
 )
 
 type Polygon struct {
@@ -31,93 +29,40 @@ func (p Polygon) ContainsCoord(c geom.Coord) bool {
 
 	ext := p.ExteriorRing()
 
-	contains := false
+	if !ext.ContainsCoord(c) {
+		return false
+	}
 
-	if ext.ContainsCoord(c) {
-
-		contains = true
-
-		for _, int := range p.InteriorRings() {
-
-			if int.ContainsCoord(c) {
-				contains = false
-				break
-			}
+	for _, int := range p.InteriorRings() {
+		
+		if int.ContainsCoord(c) {
+			return false
 		}
 	}
 
-	return contains
+	return true
 }
 
-func GeometryForFeature(f geojson.Feature) (*geojson.Geometry, error) {
-
-	// see notes below in PolygonsForFeature
-
-	t := gjson.GetBytes(f.Bytes(), "geometry.type")
-
-	if !t.Exists() {
-		return nil, errors.New("Failed to determine geometry.type")
-	}
-
-	c := gjson.GetBytes(f.Bytes(), "geometry.coordinates")
-
-	if !c.Exists() {
-		return nil, errors.New("Failed to determine geometry.coordinates")
-	}
-
-	g := gjson.GetBytes(f.Bytes(), "geometry")
-
-	var geom geojson.Geometry
-	err := json.Unmarshal([]byte(g.Raw), &geom)
-
-	if err != nil {
-		return nil, err
-	}
-
-	return &geom, nil
+func GeometryForFeature(f geojson.Feature) (*pm_geojson.Geometry, error) {
+	geom_rsp := gjson.GetBytes(f.Bytes(), "geometry")
+	return pm_geojson.UnmarshalGeometry([]byte(geom_rsp.String()))
 }
 
 func PolygonsForFeature(f geojson.Feature) ([]geojson.Polygon, error) {
 
-	// so here's the thing - in the first function (GeometryForFeature)
-	// we're going UnMarshal the geomtry and then in the second function
-	// (PolygonsForGeometry) we Marshal it again - we do this because the
-	// second function hands off to a bunch of 'gjsonToFoo' functions to
-	// create a bunch of of geojson.Polygon thingies... which can't be
-	// round-tripped to and from serialized blobs because the underlying
-	// geom package (specifically the polygon/path package) doesn't export
-	// public coordinates... which becomes a problem when you are trying
-	// to cache geojson thingies in go-whosonfirst-pip using a caching thing
-	// that writes to disk (or a database) and so have no way to rebuild
-	// the geometries (see above wrt public coordinates)... which means
-	// that we're probably going to change the interface for cache.Feature
-	// in go-whosonfirst-pip to require a blob of []byte rather than a set
-	// of []geojson.Polygon... so that's why we're two-stepping the existing
-	// bytes in f, mostly so that there is a generic GeometryForFeature
-	// function that caching layers can access... I mean I suppose we could
-	// monkey-patch the geom package too but not today
-	// (20170920/thisisaaronland)
-
-	t1 := time.Now()
-
-	defer func(){
-		log.Printf("TIME TO POLYSGEOM, %v\n", time.Since(t1))
-	}()
-
-
-	g, err := pm.UnmarshalGeometry(f.Bytes())
+	g, err := GeometryForFeature(f)
 
 	if err != nil {
 		return nil, err
 	}
 
 	polys := make([]geojson.Polygon, 0)
-	
+
 	switch g.Type {
 
 	case "LineString":
 
-		exterior_ring := NewRing(g.LineString)
+		exterior_ring := newRing(g.LineString)
 
 		polygon := Polygon{
 			Exterior: exterior_ring,
@@ -127,19 +72,18 @@ func PolygonsForFeature(f geojson.Feature) ([]geojson.Polygon, error) {
 
 	case "Polygon":
 
-		polygon := NewPolygon(g.Polygon)		
+		polygon := newPolygon(g.Polygon)
 		polys = []geojson.Polygon{polygon}
 
 	case "MultiPolygon":
 
 		for _, poly := range g.MultiPolygon {
-			polygon := NewPolygon(poly)		
+			polygon := newPolygon(poly)
 			polys = append(polys, polygon)
 		}
 
 	case "Point":
 
-		
 		lat := g.Point[1]
 		lon := g.Point[0]
 
@@ -154,7 +98,7 @@ func PolygonsForFeature(f geojson.Feature) ([]geojson.Polygon, error) {
 			pt,
 		}
 
-		exterior_ring := NewRing(coords)
+		exterior_ring := newRing(coords)
 
 		if err != nil {
 			return nil, err
@@ -170,35 +114,16 @@ func PolygonsForFeature(f geojson.Feature) ([]geojson.Polygon, error) {
 		polys = []geojson.Polygon{polygon}
 		return polys, nil
 
-	/*
 	case "MultiPoint":
 
-		multi_coords := make([]geom.Coord, len(coords))
-
-		for i, c := range coords {
-
-			pt := c.Array()
-
-			lat := pt[1].Float()
-			lon := pt[0].Float()
-
-			coord, _ := utils.NewCoordinateFromLatLons(lat, lon)
-			multi_coords[i] = coord
-		}
-
-		exterior, err := utils.NewPolygonFromCoords(multi_coords)
-
-		if err != nil {
-			return nil, err
-		}
+		exterior_ring := newRing(g.MultiPoint)
 
 		polygon := Polygon{
-			Exterior: exterior,
+			Exterior: exterior_ring,
 		}
 
 		polys = []geojson.Polygon{polygon}
-        */
-		
+
 	default:
 
 		msg := fmt.Sprintf("Invalid geometry type '%s'", g.Type)
@@ -206,183 +131,29 @@ func PolygonsForFeature(f geojson.Feature) ([]geojson.Polygon, error) {
 	}
 
 	return polys, nil
-
-	/*
-	
-	g, err := GeometryForFeature(f)
-	
-	if err != nil {
-		return nil, err
-	}
-
-	log.Printf("TIME TO GEOM FEATURE %v\n", time.Since(t1))
-
-	return PolygonsForGeometry(g)
-	*/
 }
 
-func PolygonsForGeometry(g *geojson.Geometry) ([]geojson.Polygon, error) {
+func newRing(coords [][]float64) geom.Polygon {
 
-	b, err := json.Marshal(g)
+	poly := geom.Polygon{}
 
-	if err != nil {
-		return nil, err
+	for _, pt := range coords {
+		poly.AddVertex(geom.Coord{X: pt[0], Y: pt[1]})
 	}
 
-	t := gjson.GetBytes(b, "type")
-	c := gjson.GetBytes(b, "coordinates")
-
-	coords := c.Array()
-
-	if len(coords) == 0 {
-		return nil, errors.New("Invalid geometry.coordinates")
-	}
-
-	polys := make([]geojson.Polygon, 0)
-
-	switch t.String() {
-
-	case "LineString":
-
-		multi_coords := make([]geom.Coord, len(coords))
-
-		for i, c := range coords {
-
-			pt := c.Array()
-
-			lat := pt[1].Float()
-			lon := pt[0].Float()
-
-			coord, _ := utils.NewCoordinateFromLatLons(lat, lon)
-			multi_coords[i] = coord
-		}
-
-		exterior, err := utils.NewPolygonFromCoords(multi_coords)
-
-		if err != nil {
-			return nil, err
-		}
-
-		polygon := Polygon{
-			Exterior: exterior,
-		}
-
-		polys = []geojson.Polygon{polygon}
-
-	case "Polygon":
-
-		// c === rings (below)
-
-		polygon, err := gjson_coordsToPolygon(c)
-
-		if err != nil {
-			return nil, err
-		}
-
-		polys = append(polys, polygon)
-
-	case "MultiPolygon":
-
-		for _, rings := range coords {
-
-			polygon, err := gjson_coordsToPolygon(rings)
-
-			if err != nil {
-				return nil, err
-			}
-
-			polys = append(polys, polygon)
-		}
-
-	case "Point":
-
-		lat := coords[1].Float()
-		lon := coords[0].Float()
-
-		coord, _ := utils.NewCoordinateFromLatLons(lat, lon)
-
-		coords := []geom.Coord{
-			coord, coord,
-			coord, coord,
-			coord,
-		}
-
-		exterior, err := utils.NewPolygonFromCoords(coords)
-
-		if err != nil {
-			return nil, err
-		}
-
-		interior := make([]geom.Polygon, 0)
-
-		polygon := Polygon{
-			Exterior: exterior,
-			Interior: interior,
-		}
-
-		polys = []geojson.Polygon{polygon}
-		return polys, nil
-
-	case "MultiPoint":
-
-		multi_coords := make([]geom.Coord, len(coords))
-
-		for i, c := range coords {
-
-			pt := c.Array()
-
-			lat := pt[1].Float()
-			lon := pt[0].Float()
-
-			coord, _ := utils.NewCoordinateFromLatLons(lat, lon)
-			multi_coords[i] = coord
-		}
-
-		exterior, err := utils.NewPolygonFromCoords(multi_coords)
-
-		if err != nil {
-			return nil, err
-		}
-
-		polygon := Polygon{
-			Exterior: exterior,
-		}
-
-		polys = []geojson.Polygon{polygon}
-
-	default:
-
-		msg := fmt.Sprintf("Invalid geometry type '%s'", t.String())
-		return nil, errors.New(msg)
-	}
-
-	return polys, nil
+	return poly
 }
 
-func gjson_coordsToPolygon(r gjson.Result) (geojson.Polygon, error) {
+func newPolygon(rings [][][]float64) Polygon {
 
-	rings := r.Array()
+	exterior := newRing(rings[0])
+	interior := make([]geom.Polygon, 0)
 
-	count_rings := len(rings)
-	count_interior := count_rings - 1
+	if len(rings) > 1 {
 
-	exterior, err := gjson_linearRingToGeomPolygon(rings[0])
-
-	if err != nil {
-		return nil, err
-	}
-
-	interior := make([]geom.Polygon, count_interior)
-
-	for i := 1; i <= count_interior; i++ {
-
-		poly, err := gjson_linearRingToGeomPolygon(rings[i])
-
-		if err != nil {
-			return nil, err
+		for _, coords := range rings {
+			interior = append(interior, newRing(coords))
 		}
-
-		interior = append(interior, poly)
 	}
 
 	polygon := Polygon{
@@ -390,54 +161,5 @@ func gjson_coordsToPolygon(r gjson.Result) (geojson.Polygon, error) {
 		Interior: interior,
 	}
 
-	return &polygon, nil
+	return polygon
 }
-
-func gjson_linearRingToGeomPolygon(r gjson.Result) (geom.Polygon, error) {
-
-	coords := make([]geom.Coord, 0)
-
-	for _, pt := range r.Array() {
-
-		lonlat := pt.Array()
-
-		lat := lonlat[1].Float()
-		lon := lonlat[0].Float()
-
-		coord, _ := utils.NewCoordinateFromLatLons(lat, lon)
-		coords = append(coords, coord)
-	}
-
-	return utils.NewPolygonFromCoords(coords)
-}
-
-	func NewRing(coords [][]float64) geom.Polygon {
-
-		poly := geom.Polygon{}
-		
-		for _, pt := range coords {
-			poly.AddVertex(geom.Coord{X: pt[0], Y: pt[1] })
-		}
-
-		return poly
-	}
-
-	func NewPolygon(rings [][][]float64) Polygon {
-
-		exterior := NewRing(rings[0])
-		interior := make([]geom.Polygon, 0)
-
-		if len(rings) > 1 {
-
-			for _, coords := range rings {
-				interior = append(interior, NewRing(coords))
-			}
-		}
-
-		polygon := Polygon{
-			Exterior: exterior,
-			Interior: interior,
-		}
-
-		return polygon
-	}

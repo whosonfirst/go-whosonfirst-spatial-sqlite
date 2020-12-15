@@ -3,8 +3,6 @@ package geometry
 import (
 	"github.com/skelterjohn/geom"
 	"github.com/whosonfirst/go-whosonfirst-geojson-v2"
-	"time"
-	"log"
 )
 
 type Bboxes struct {
@@ -23,12 +21,8 @@ func (b Bboxes) MBR() geom.Rect {
 
 func BoundingBoxesForFeature(f geojson.Feature) (geojson.BoundingBoxes, error) {
 
-	t1 := time.Now()
-	
 	polys, err := PolygonsForFeature(f)
 
-	log.Printf("TIME TO POLYGONS, %v\n", time.Since(t1))
-	
 	if err != nil {
 		return nil, err
 	}
@@ -45,8 +39,6 @@ func BoundingBoxesForFeature(f geojson.Feature) (geojson.BoundingBoxes, error) {
 		bounds = append(bounds, b)
 	}
 
-	log.Printf("TIME TO BOUNDS, %v\n", time.Since(t1))
-	
 	wb := Bboxes{
 		BBoxesBounds: bounds,
 		BBoxesMBR:    mbr,

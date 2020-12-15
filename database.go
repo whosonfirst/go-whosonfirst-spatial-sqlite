@@ -674,7 +674,7 @@ func (r *SQLiteSpatialDatabase) retrieveSPRCacheItem(ctx context.Context, uri_st
 		return nil, err
 	}
 
-	golog.Printf("Time to read body for %d, %v\n", id, time.Since(t2))
+	golog.Printf("Time to load feature for %d, %v\n", id, time.Since(t2))
 
 	cache_item, err := cache.NewSPRCacheItem(f)
 
