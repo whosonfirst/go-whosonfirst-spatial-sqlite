@@ -25,7 +25,7 @@ import (
 	"github.com/whosonfirst/go-whosonfirst-sqlite-features/tables"
 	sqlite_database "github.com/whosonfirst/go-whosonfirst-sqlite/database"
 	"github.com/whosonfirst/go-whosonfirst-uri"
-	golog "log"
+	// golog "log"
 	"net/url"
 	"sync"
 	"time"
@@ -160,11 +160,13 @@ func (r *SQLiteSpatialDatabase) PointInPolygon(ctx context.Context, coord *geom.
 	ctx, cancel := context.WithCancel(ctx)
 	defer cancel()
 
-	t1 := time.Now()
+	/*
+		t1 := time.Now()
 
-	defer func() {
-		golog.Printf("Time to point in polygon, %v\n", time.Since(t1))
-	}()
+		defer func() {
+			golog.Printf("Time to point in polygon, %v\n", time.Since(t1))
+		}()
+	*/
 
 	rsp_ch := make(chan spr.StandardPlacesResult)
 	err_ch := make(chan error)
@@ -337,11 +339,13 @@ func (r *SQLiteSpatialDatabase) getIntersectsByCoord(ctx context.Context, coord 
 
 func (r *SQLiteSpatialDatabase) getIntersectsByRect(ctx context.Context, rect *geom.Rect) ([]*RTreeSpatialIndex, error) {
 
-	t1 := time.Now()
+	/*
+		t1 := time.Now()
 
-	defer func() {
-		golog.Printf("Time to get intersects by rect, %v\n", time.Since(t1))
-	}()
+		defer func() {
+			golog.Printf("Time to get intersects by rect, %v\n", time.Since(t1))
+		}()
+	*/
 
 	conn, err := r.db.Conn()
 
@@ -413,11 +417,13 @@ func (r *SQLiteSpatialDatabase) getIntersectsByRect(ctx context.Context, rect *g
 
 func (r *SQLiteSpatialDatabase) inflateResultsWithChannels(ctx context.Context, rsp_ch chan spr.StandardPlacesResult, err_ch chan error, possible []*RTreeSpatialIndex, c *geom.Coord, filters ...filter.Filter) {
 
-	t1 := time.Now()
+	/*
+		t1 := time.Now()
 
-	defer func() {
-		golog.Printf("Time to inflate results, %v\n", time.Since(t1))
-	}()
+		defer func() {
+			golog.Printf("Time to inflate results, %v\n", time.Since(t1))
+		}()
+	*/
 
 	seen := make(map[string]bool)
 
@@ -430,11 +436,13 @@ func (r *SQLiteSpatialDatabase) inflateResultsWithChannels(ctx context.Context, 
 
 		go func(sp *RTreeSpatialIndex) {
 
-			t2 := time.Now()
+			/*
+				t2 := time.Now()
 
-			defer func() {
-				golog.Printf("Time to inflate %s, %v\n", sp.Id, time.Since(t2))
-			}()
+				defer func() {
+					golog.Printf("Time to inflate %s, %v\n", sp.Id, time.Since(t2))
+				}()
+			*/
 
 			defer wg.Done()
 
@@ -471,22 +479,22 @@ func (r *SQLiteSpatialDatabase) inflateResultsWithChannels(ctx context.Context, 
 
 			*/
 
-			t3 := time.Now()
+			// t3 := time.Now()
 
 			fc, err := r.retrieveSPRCacheItem(ctx, sp.Path())
 
-			golog.Printf("Time to send to retrieve spr %s, %v\n", sp.Id, time.Since(t3))
+			// golog.Printf("Time to send to retrieve spr %s, %v\n", sp.Id, time.Since(t3))
 
 			if err != nil {
 				r.Logger.Error("Failed to retrieve feature cache for %s, %v", str_id, err)
 				return
 			}
 
-			t4 := time.Now()
+			// t4 := time.Now()
 
 			s, err := fc.SPR()
 
-			golog.Printf("Time to send to yield spr %s, %v\n", sp.Id, time.Since(t4))
+			// golog.Printf("Time to send to yield spr %s, %v\n", sp.Id, time.Since(t4))
 
 			if err != nil {
 				r.Logger.Error("Failed to instantiate spr cache for %s, %v", str_id, err)
@@ -503,29 +511,29 @@ func (r *SQLiteSpatialDatabase) inflateResultsWithChannels(ctx context.Context, 
 				}
 			}
 
-			t5 := time.Now()
+			// t5 := time.Now()
 
 			geom, err := fc.Geometry()
 
-			golog.Printf("Time to send to retrieve geometry %s, %v\n", sp.Id, time.Since(t5))
+			// golog.Printf("Time to send to retrieve geometry %s, %v\n", sp.Id, time.Since(t5))
 
 			if err != nil {
 				r.Logger.Error("Failed to instantiate geometry cache for %s, %v", str_id, err)
 				return
 			}
 
-			t6 := time.Now()
+			// t6 := time.Now()
 
 			contains := geo.GeoJSONGeometryContainsCoord(geom, c)
 
-			golog.Printf("Time to send to contains %s, %v\n", sp.Id, time.Since(t6))
+			// golog.Printf("Time to send to contains %s, %v\n", sp.Id, time.Since(t6))
 
 			if !contains {
 				r.Logger.Debug("SKIP %s because does not contain coord (%v)", str_id, c)
 				return
 			}
 
-			golog.Printf("Time to send to channel %s, %v\n", sp.Id, time.Since(t2))
+			// golog.Printf("Time to send to channel %s, %v\n", sp.Id, time.Since(t2))
 
 			rsp_ch <- s
 		}(sp)
@@ -649,7 +657,7 @@ func (r *SQLiteSpatialDatabase) retrieveSPRCacheItem(ctx context.Context, uri_st
 		args = append(args, source)
 	}
 
-	t1 := time.Now()
+	// t1 := time.Now()
 
 	row := conn.QueryRowContext(ctx, q, args...)
 
@@ -661,9 +669,9 @@ func (r *SQLiteSpatialDatabase) retrieveSPRCacheItem(ctx context.Context, uri_st
 		return nil, err
 	}
 
-	golog.Printf("Time to query row for %d, %v\n", id, time.Since(t1))
+	// golog.Printf("Time to query row for %d, %v\n", id, time.Since(t1))
 
-	t2 := time.Now()
+	// t2 := time.Now()
 
 	f, err := wof_feature.LoadFeature([]byte(body))
 
@@ -671,7 +679,7 @@ func (r *SQLiteSpatialDatabase) retrieveSPRCacheItem(ctx context.Context, uri_st
 		return nil, err
 	}
 
-	golog.Printf("Time to load feature for %d, %v\n", id, time.Since(t2))
+	// golog.Printf("Time to load feature for %d, %v\n", id, time.Since(t2))
 
 	cache_item, err := cache.NewSPRCacheItem(f)
 
