@@ -3,6 +3,7 @@ package tables
 // https://www.sqlite.org/rtree.html
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
 	"github.com/whosonfirst/go-whosonfirst-geojson-v2"
@@ -114,6 +115,7 @@ func (t *RTreeTable) Schema() string {
 		+wof_id INTEGER,
 		+is_alt TINYINT,
 		+alt_label TEXT,
+		+geometry BLOB,
 		+lastmodified INTEGER
 	);`
 
@@ -164,10 +166,7 @@ func (t *RTreeTable) IndexFeature(db sqlite.Database, f geojson.Feature) error {
 
 	lastmod := whosonfirst.LastModified(f)
 
-	// TBD: Store polygon alongside bounding box in rtree table
-	// https://github.com/whosonfirst/go-whosonfirst-sqlite-features/issues/11
-	
-	bboxes, err := f.BoundingBoxes()
+	polygons, err := f.Polygons()
 
 	if err != nil {
 		return err
@@ -180,9 +179,9 @@ func (t *RTreeTable) IndexFeature(db sqlite.Database, f geojson.Feature) error {
 	}
 
 	sql := fmt.Sprintf(`INSERT OR REPLACE INTO %s (
-		id, min_x, max_x, min_y, max_y, wof_id, is_alt, alt_label, lastmodified
+		id, min_x, max_x, min_y, max_y, wof_id, is_alt, alt_label, geometry, lastmodified
 	) VALUES (
-		NULL, ?, ?, ?, ?, ?, ?, ?, ?
+		NULL, ?, ?, ?, ?, ?, ?, ?, ?, ?
 	)`, t.Name())
 
 	stmt, err := tx.Prepare(sql)
@@ -193,12 +192,48 @@ func (t *RTreeTable) IndexFeature(db sqlite.Database, f geojson.Feature) error {
 
 	defer stmt.Close()
 
-	for _, bbox := range bboxes.Bounds() {
+	// this should be updated to use go-whosonfirst-geojson-v2/geometry GeometryForFeature
+	// so that we're not translating between [][][]float64 and skleterjohn/geom things
+	// twice (20201214/thisisaaronland)
+
+	for _, poly := range polygons {
+
+		exterior_ring := poly.ExteriorRing()
+		bbox := exterior_ring.Bounds()
 
 		sw := bbox.Min
 		ne := bbox.Max
 
-		_, err = stmt.Exec(sw.X, ne.X, sw.Y, ne.Y, wof_id, is_alt, alt_label, lastmod)
+		points := make([][][]float64, 0)
+
+		exterior_points := make([][]float64, 0)
+
+		for _, c := range exterior_ring.Vertices() {
+			pt := []float64{c.X, c.Y}
+			exterior_points = append(exterior_points, pt)
+		}
+
+		points = append(points, exterior_points)
+
+		for _, interior_ring := range poly.InteriorRings() {
+
+			interior_points := make([][]float64, 0)
+
+			for _, c := range interior_ring.Vertices() {
+				pt := []float64{c.X, c.Y}
+				interior_points = append(interior_points, pt)
+			}
+
+			points = append(points, interior_points)
+		}
+
+		points_enc, err := json.Marshal(points)
+
+		if err != nil {
+			return err
+		}
+
+		_, err = stmt.Exec(sw.X, ne.X, sw.Y, ne.Y, wof_id, is_alt, alt_label, string(points_enc), lastmod)
 
 		if err != nil {
 			return err
