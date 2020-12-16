@@ -11,11 +11,11 @@ import (
 	"github.com/skelterjohn/geom"
 	wof_geojson "github.com/whosonfirst/go-whosonfirst-geojson-v2"
 	"github.com/whosonfirst/go-whosonfirst-log"
-	"github.com/whosonfirst/go-whosonfirst-spatial"	
+	"github.com/whosonfirst/go-whosonfirst-spatial"
 	"github.com/whosonfirst/go-whosonfirst-spatial/database"
 	"github.com/whosonfirst/go-whosonfirst-spatial/filter"
-	"github.com/whosonfirst/go-whosonfirst-spatial/timer"	
 	"github.com/whosonfirst/go-whosonfirst-spatial/geo"
+	"github.com/whosonfirst/go-whosonfirst-spatial/timer"
 	"github.com/whosonfirst/go-whosonfirst-spr"
 	"github.com/whosonfirst/go-whosonfirst-sqlite"
 	"github.com/whosonfirst/go-whosonfirst-sqlite-features/tables"
@@ -34,16 +34,14 @@ func init() {
 
 type SQLiteSpatialDatabase struct {
 	database.SpatialDatabase
-	Logger         *log.WOFLogger
-	mu             *sync.RWMutex
-	db             *sqlite_database.SQLiteDatabase
-	rtree_table    sqlite.Table
-	geometry_table sqlite.Table
-	spr_table      sqlite.Table
-	gocache        *gocache.Cache
-	dsn            string
-	strict         bool
-	timer          *timer.Timer
+	Logger      *log.WOFLogger
+	Timer       *timer.Timer
+	mu          *sync.RWMutex
+	db          *sqlite_database.SQLiteDatabase
+	rtree_table sqlite.Table
+	spr_table   sqlite.Table
+	gocache     *gocache.Cache
+	dsn         string
 }
 
 type RTreeSpatialIndex struct {
@@ -99,12 +97,6 @@ func NewSQLiteSpatialDatabase(ctx context.Context, uri string) (database.Spatial
 		return nil, err
 	}
 
-	geometry_table, err := tables.NewGeometryTableWithDatabase(sqlite_db)
-
-	if err != nil {
-		return nil, err
-	}
-
 	rtree_table, err := tables.NewRTreeTableWithDatabase(sqlite_db)
 
 	if err != nil {
@@ -115,12 +107,6 @@ func NewSQLiteSpatialDatabase(ctx context.Context, uri string) (database.Spatial
 
 	if err != nil {
 		return nil, err
-	}
-
-	strict := true
-
-	if q.Get("strict") == "false" {
-		strict = false
 	}
 
 	logger := log.SimpleWOFLogger("index")
@@ -135,16 +121,14 @@ func NewSQLiteSpatialDatabase(ctx context.Context, uri string) (database.Spatial
 	t := timer.NewTimer()
 
 	spatial_db := &SQLiteSpatialDatabase{
-		Logger:         logger,
-		db:             sqlite_db,
-		rtree_table:    rtree_table,
-		geometry_table: geometry_table,
-		spr_table:      spr_table,
-		gocache:        gc,
-		dsn:            dsn,
-		strict:         strict,
-		mu:             mu,
-		timer:          t,
+		Logger:      logger,
+		Timer:       t,
+		db:          sqlite_db,
+		rtree_table: rtree_table,
+		spr_table:   spr_table,
+		gocache:     gc,
+		dsn:         dsn,
+		mu:          mu,
 	}
 
 	return spatial_db, nil
@@ -165,12 +149,6 @@ func (r *SQLiteSpatialDatabase) IndexFeature(ctx context.Context, f wof_geojson.
 	}
 
 	err = r.spr_table.IndexRecord(r.db, f)
-
-	if err != nil {
-		return err
-	}
-
-	err = r.geometry_table.IndexRecord(r.db, f)
 
 	if err != nil {
 		return err
@@ -218,12 +196,14 @@ func (r *SQLiteSpatialDatabase) PointInPolygon(ctx context.Context, coord *geom.
 		}
 	}
 
-	for label, timings := range r.timer.Timings {
+	/*
+		for label, timings := range r.Timer.Timings {
 
-		for _, tm := range timings {
-			golog.Printf("[%s] %s\n", label, tm)
+			for _, tm := range timings {
+				golog.Printf("[%s] %s\n", label, tm)
+			}
 		}
-	}
+	*/
 
 	spr_results := &SQLiteResults{
 		Places: results,
@@ -301,14 +281,14 @@ func (r *SQLiteSpatialDatabase) PointInPolygonCandidatesWithChannels(ctx context
 	for _, sp := range intersects {
 
 		bounds := sp.Bounds()
-		
+
 		c := &spatial.PointInPolygonCandidate{
-			Id: sp.Id,
-			WOFId: sp.WOFId,
+			Id:       sp.Id,
+			WOFId:    sp.WOFId,
 			AltLabel: sp.AltLabel,
-			Bounds: &bounds,
+			Bounds:   &bounds,
 		}
-		
+
 		rsp_ch <- c
 	}
 
@@ -441,7 +421,7 @@ func (r *SQLiteSpatialDatabase) inflateSpatialIndexWithChannels(ctx context.Cont
 	t1 := time.Now()
 
 	defer func() {
-		r.timer.Add(ctx, sp_id, "time to inflate", time.Since(t1))
+		r.Timer.Add(ctx, sp_id, "time to inflate", time.Since(t1))
 	}()
 
 	// have we already looked up the filters for this ID?
@@ -458,12 +438,12 @@ func (r *SQLiteSpatialDatabase) inflateSpatialIndexWithChannels(ctx context.Cont
 	t2 := time.Now()
 
 	// this needs to be sped up (20201216/thisisaaronland)
-	
+
 	var coords [][][]float64
 
 	err := json.Unmarshal([]byte(sp.geometry), &coords)
 
-	r.timer.Add(ctx, sp_id, "time to unmarshal geometry", time.Since(t2))
+	r.Timer.Add(ctx, sp_id, "time to unmarshal geometry", time.Since(t2))
 
 	if err != nil {
 		err_ch <- err
@@ -481,7 +461,7 @@ func (r *SQLiteSpatialDatabase) inflateSpatialIndexWithChannels(ctx context.Cont
 		return
 	}
 
-	r.timer.Add(ctx, sp_id, "time to perform contains test", time.Since(t3))
+	r.Timer.Add(ctx, sp_id, "time to perform contains test", time.Since(t3))
 
 	// there is at least one ring that contains the coord
 	// now we check the filters - whether or not they pass
@@ -501,7 +481,7 @@ func (r *SQLiteSpatialDatabase) inflateSpatialIndexWithChannels(ctx context.Cont
 		return
 	}
 
-	r.timer.Add(ctx, sp_id, "time to retrieve SPR", time.Since(t4))
+	r.Timer.Add(ctx, sp_id, "time to retrieve SPR", time.Since(t4))
 
 	if err != nil {
 		r.Logger.Error("Failed to retrieve feature cache for %s, %v", sp_id, err)
@@ -520,7 +500,7 @@ func (r *SQLiteSpatialDatabase) inflateSpatialIndexWithChannels(ctx context.Cont
 		}
 	}
 
-	r.timer.Add(ctx, sp_id, "time to filter SPR", time.Since(t5))
+	r.Timer.Add(ctx, sp_id, "time to filter SPR", time.Since(t5))
 
 	rsp_ch <- s
 }
@@ -532,7 +512,7 @@ func (r *SQLiteSpatialDatabase) retrieveSPR(ctx context.Context, uri_str string)
 	if ok {
 		return c.(*SQLiteStandardPlacesResult), nil
 	}
-	
+
 	id, uri_args, err := uri.ParseURI(uri_str)
 
 	if err != nil {

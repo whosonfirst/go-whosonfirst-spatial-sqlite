@@ -1,6 +1,7 @@
 package tables
 
 import (
+	"errors"
 	"fmt"
 	"github.com/whosonfirst/go-whosonfirst-geojson-v2"
 	"github.com/whosonfirst/go-whosonfirst-geojson-v2/properties/whosonfirst"
@@ -165,12 +166,19 @@ func (t *SPRTable) IndexRecord(db sqlite.Database, i interface{}) error {
 
 func (t *SPRTable) IndexFeature(db sqlite.Database, f geojson.Feature) error {
 
-	if !t.options.IndexAltFiles {
-		return nil
-	}
-
 	is_alt := whosonfirst.IsAlt(f)
 	alt_label := whosonfirst.AltLabel(f)
+
+	if is_alt {
+
+		if !t.options.IndexAltFiles {
+			return nil
+		}
+
+		if alt_label == "" {
+			return errors.New("Missing wof:alt_label property")
+		}
+	}
 
 	spr, err := f.SPR()
 

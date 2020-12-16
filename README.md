@@ -6,18 +6,13 @@ This is work in progress. It may change, probably has bugs and isn't properly do
 
 The goal is to have a package that conforms to the [database.SpatialDatabase](https://github.com/whosonfirst/go-whosonfirst-spatial#spatialdatabase) interface using [mattn/go-sqlite3](https://github.com/mattn/go-sqlite3) and SQLite's [RTree](https://www.sqlite.org/rtree.html) extension.
 
-Also, this is not as fast as it should be. This is largely with the way WOF records are inflated and passed around in order to support GeoJSON output. There is [an open ticket](https://github.com/whosonfirst/go-whosonfirst-spatial-sqlite/issues/2) to address this.
-
 ## Databases
 
 This code depends on (4) tables as indexed by the `go-whosonfirst-sqlite-features` package:
 
 * [rtree](https://github.com/whosonfirst/go-whosonfirst-sqlite-features#rtree) - this table is used to perform point-in-polygon spatial queries.
 * [spr](https://github.com/whosonfirst/go-whosonfirst-sqlite-features#spr) - this table is used to generate [standard place response](#) (SPR) results.
-* [geometry](https://github.com/whosonfirst/go-whosonfirst-sqlite-features#geometry) - this table is used to append geometries to GeoJSON-formatted results.
-* [properties](https://github.com/whosonfirst/go-whosonfirst-sqlite-features#properties) - this table is used to append extra properties (to the SPR response) for GeoJSON-formatted results.
-
-The `go-whosonfirst-sqlite-features` package also indexes a `geojson` table  but it turns out that retrieving, and parsing, properties and geometries from their own tables is faster.
+* [properties](https://github.com/whosonfirst/go-whosonfirst-sqlite-features#properties) - this table is used to append extra properties (to the SPR response) for `spatial.PropertiesResponseResults` responses.
 
 Here's an example of the creating a compatible SQLite database for all the [administative data in Canada](https://github.com/whosonfirst-data/whosonfirst-data-admin-ca) using the `wof-sqlite-index-features` tool which is part of the [go-whosonfirst-sqlite-features-index](https://github.com/whosonfirst/go-whosonfirst-sqlite-features-index) package:
 
@@ -61,18 +56,18 @@ $> ./bin/query \
 2020/12/15 15:32:06 Unable to parse placetype (alt) for ID 85633041, because 'Invalid placetype' - skipping placetype filters
 2020/12/15 15:32:06 Unable to parse placetype (alt) for ID 136251273, because 'Invalid placetype' - skipping placetype filters
 2020/12/15 15:32:06 Unable to parse placetype (alt) for ID 85633041, because 'Invalid placetype' - skipping placetype filters
-2020/12/15 15:32:06 Time to point in polygon, 596.579126ms
+2020/12/16 13:25:32 Time to point in polygon, 395.201983ms
+      "wof:id": "85633041",
+      "wof:id": "85874359",
       "wof:id": "1108955735",
       "wof:id": "85874359",
-      "wof:id": "85874359",
+      "wof:id": "85633041",
       "wof:id": "890458661",
-      "wof:id": "85633041",
       "wof:id": "136251273",
-      "wof:id": "85633041",
-      "wof:id": "85633041",
       "wof:id": "136251273",
       "wof:id": "85633041",
       "wof:id": "136251273",
+      "wof:id": "85633041",
 ```
 
 _TBW: Indexing tables on start-up._
@@ -237,7 +232,7 @@ $> ./bin/query \
 Note: This assumes a database that was previously indexed using the [whosonfirst/go-whosonfirst-sqlite-features](https://github.com/whosonfirst/go-whosonfirst-sqlite-features) `wof-sqlite-index-features` tool. For example:
 
 ```
-$> ./bin/wof-sqlite-index-features -rtree -geojson -dsn /tmp/test.db -mode repo:// /usr/local/data/sfomuseum-data-architecture/
+$> ./bin/wof-sqlite-index-features -rtree -spr -properties -dsn /tmp/test.db -mode repo:// /usr/local/data/sfomuseum-data-architecture/
 ```
 
 ## See also
