@@ -150,13 +150,27 @@ func (r *SQLiteSpatialDatabase) Close(ctx context.Context) error {
 
 func (r *SQLiteSpatialDatabase) IndexFeature(ctx context.Context, f wof_geojson.Feature) error {
 
-	err := r.setSPRCacheItem(ctx, f)
+	// do this concurrently
+
+	err := r.rtree_table.IndexRecord(r.db, f)
 
 	if err != nil {
 		return err
 	}
 
-	return r.rtree_table.IndexRecord(r.db, f)
+	err = r.spr_table.IndexRecord(r.db, f)
+
+	if err != nil {
+		return err
+	}
+
+	err = r.geometry_table.IndexRecord(r.db, f)
+
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func (r *SQLiteSpatialDatabase) PointInPolygon(ctx context.Context, coord *geom.Coord, filters ...filter.Filter) (spr.StandardPlacesResults, error) {
@@ -211,7 +225,7 @@ func (r *SQLiteSpatialDatabase) PointInPolygonWithChannels(ctx context.Context, 
 		done_ch <- true
 	}()
 
-	rows, err := r.getIntersectsByCoord(ctx, coord)
+	rows, err := r.getIntersectsByCoord(ctx, coord, filters...)
 
 	if err != nil {
 		err_ch <- err
@@ -222,7 +236,7 @@ func (r *SQLiteSpatialDatabase) PointInPolygonWithChannels(ctx context.Context, 
 	return
 }
 
-func (r *SQLiteSpatialDatabase) PointInPolygonCandidates(ctx context.Context, coord *geom.Coord) (*geojson.FeatureCollection, error) {
+func (r *SQLiteSpatialDatabase) PointInPolygonCandidates(ctx context.Context, coord *geom.Coord, filters ...filter.Filter) (*geojson.FeatureCollection, error) {
 
 	ctx, cancel := context.WithCancel(ctx)
 	defer cancel()
@@ -234,7 +248,7 @@ func (r *SQLiteSpatialDatabase) PointInPolygonCandidates(ctx context.Context, co
 	features := make([]*geojson.Feature, 0)
 	working := true
 
-	go r.PointInPolygonCandidatesWithChannels(ctx, coord, rsp_ch, err_ch, done_ch)
+	go r.PointInPolygonCandidatesWithChannels(ctx, rsp_ch, err_ch, done_ch, coord, filters...)
 
 	for {
 		select {
@@ -263,13 +277,13 @@ func (r *SQLiteSpatialDatabase) PointInPolygonCandidates(ctx context.Context, co
 	return fc, nil
 }
 
-func (r *SQLiteSpatialDatabase) PointInPolygonCandidatesWithChannels(ctx context.Context, coord *geom.Coord, rsp_ch chan *geojson.Feature, err_ch chan error, done_ch chan bool) {
+func (r *SQLiteSpatialDatabase) PointInPolygonCandidatesWithChannels(ctx context.Context, rsp_ch chan *geojson.Feature, err_ch chan error, done_ch chan bool, coord *geom.Coord, filters ...filter.Filter) {
 
 	defer func() {
 		done_ch <- true
 	}()
 
-	intersects, err := r.getIntersectsByCoord(ctx, coord)
+	intersects, err := r.getIntersectsByCoord(ctx, coord, filters...)
 
 	if err != nil {
 		err_ch <- err
@@ -319,7 +333,7 @@ func (r *SQLiteSpatialDatabase) PointInPolygonCandidatesWithChannels(ctx context
 	return
 }
 
-func (r *SQLiteSpatialDatabase) getIntersectsByCoord(ctx context.Context, coord *geom.Coord) ([]*RTreeSpatialIndex, error) {
+func (r *SQLiteSpatialDatabase) getIntersectsByCoord(ctx context.Context, coord *geom.Coord, filters ...filter.Filter) ([]*RTreeSpatialIndex, error) {
 
 	// how small can this be?
 
@@ -336,10 +350,10 @@ func (r *SQLiteSpatialDatabase) getIntersectsByCoord(ctx context.Context, coord 
 		Max: max,
 	}
 
-	return r.getIntersectsByRect(ctx, rect)
+	return r.getIntersectsByRect(ctx, rect, filters...)
 }
 
-func (r *SQLiteSpatialDatabase) getIntersectsByRect(ctx context.Context, rect *geom.Rect) ([]*RTreeSpatialIndex, error) {
+func (r *SQLiteSpatialDatabase) getIntersectsByRect(ctx context.Context, rect *geom.Rect, filters ...filter.Filter) ([]*RTreeSpatialIndex, error) {
 
 	conn, err := r.db.Conn()
 
@@ -567,31 +581,6 @@ func (db *SQLiteSpatialDatabase) StandardPlacesResultsToFeatureCollection(ctx co
 	return &collection, nil
 }
 
-func (r *SQLiteSpatialDatabase) setSPRCacheItem(ctx context.Context, f wof_geojson.Feature) error {
-
-	// do this concurrently
-
-	err := r.rtree_table.IndexRecord(r.db, f)
-
-	if err != nil {
-		return err
-	}
-
-	err = r.spr_table.IndexRecord(r.db, f)
-
-	if err != nil {
-		return err
-	}
-
-	err = r.geometry_table.IndexRecord(r.db, f)
-
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
 func (r *SQLiteSpatialDatabase) retrieveSPRCacheItem(ctx context.Context, uri_str string) (*SQLiteCacheItem, error) {
 
 	// Note to self: I actually tried chunking this out in to separate functions
@@ -719,6 +708,7 @@ func (r *SQLiteSpatialDatabase) retrieveSPRCacheItem(ctx context.Context, uri_st
 		WOFLastModified: lastmodified,
 	}
 
+	/*
 	geom_q := fmt.Sprintf("SELECT body FROM %s WHERE id = ? AND alt_label = ?", r.geometry_table.Name())
 
 	geom_row := conn.QueryRowContext(ctx, geom_q, args...)
@@ -736,6 +726,9 @@ func (r *SQLiteSpatialDatabase) retrieveSPRCacheItem(ctx context.Context, uri_st
 	if err != nil {
 		return nil, err
 	}
+	*/
+
+	var geom *geojson.Geometry
 
 	cache_item, err := NewSQLiteCacheItem(s, geom)
 
