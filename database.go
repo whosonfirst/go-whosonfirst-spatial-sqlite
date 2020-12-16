@@ -8,10 +8,10 @@ import (
 	"errors"
 	"fmt"
 	gocache "github.com/patrickmn/go-cache"
-	"github.com/paulmach/go.geojson"
 	"github.com/skelterjohn/geom"
 	wof_geojson "github.com/whosonfirst/go-whosonfirst-geojson-v2"
 	"github.com/whosonfirst/go-whosonfirst-log"
+	"github.com/whosonfirst/go-whosonfirst-spatial"	
 	"github.com/whosonfirst/go-whosonfirst-spatial/database"
 	"github.com/whosonfirst/go-whosonfirst-spatial/filter"
 	"github.com/whosonfirst/go-whosonfirst-spatial/timer"	
@@ -50,7 +50,7 @@ type RTreeSpatialIndex struct {
 	geometry string
 	bounds   geom.Rect
 	Id       string
-	WOFId    string
+	WOFId    int64
 	IsAlt    bool
 	AltLabel string
 }
@@ -62,10 +62,10 @@ func (sp RTreeSpatialIndex) Bounds() geom.Rect {
 func (sp RTreeSpatialIndex) Path() string {
 
 	if sp.IsAlt {
-		return fmt.Sprintf("%s-alt-%s", sp.WOFId, sp.AltLabel)
+		return fmt.Sprintf("%d-alt-%s", sp.WOFId, sp.AltLabel)
 	}
 
-	return sp.WOFId
+	return fmt.Sprintf("%d", sp.WOFId)
 }
 
 type SQLiteResults struct {
@@ -249,16 +249,16 @@ func (r *SQLiteSpatialDatabase) PointInPolygonWithChannels(ctx context.Context, 
 	return
 }
 
-func (r *SQLiteSpatialDatabase) PointInPolygonCandidates(ctx context.Context, coord *geom.Coord, filters ...filter.Filter) (*geojson.FeatureCollection, error) {
+func (r *SQLiteSpatialDatabase) PointInPolygonCandidates(ctx context.Context, coord *geom.Coord, filters ...filter.Filter) ([]*spatial.PointInPolygonCandidate, error) {
 
 	ctx, cancel := context.WithCancel(ctx)
 	defer cancel()
 
-	rsp_ch := make(chan *geojson.Feature)
+	rsp_ch := make(chan *spatial.PointInPolygonCandidate)
 	err_ch := make(chan error)
 	done_ch := make(chan bool)
 
-	features := make([]*geojson.Feature, 0)
+	candidates := make([]*spatial.PointInPolygonCandidate, 0)
 	working := true
 
 	go r.PointInPolygonCandidatesWithChannels(ctx, rsp_ch, err_ch, done_ch, coord, filters...)
@@ -270,7 +270,7 @@ func (r *SQLiteSpatialDatabase) PointInPolygonCandidates(ctx context.Context, co
 		case <-done_ch:
 			working = false
 		case rsp := <-rsp_ch:
-			features = append(features, rsp)
+			candidates = append(candidates, rsp)
 		case err := <-err_ch:
 			return nil, err
 		default:
@@ -282,15 +282,10 @@ func (r *SQLiteSpatialDatabase) PointInPolygonCandidates(ctx context.Context, co
 		}
 	}
 
-	fc := &geojson.FeatureCollection{
-		Type:     "FeatureCollection",
-		Features: features,
-	}
-
-	return fc, nil
+	return candidates, nil
 }
 
-func (r *SQLiteSpatialDatabase) PointInPolygonCandidatesWithChannels(ctx context.Context, rsp_ch chan *geojson.Feature, err_ch chan error, done_ch chan bool, coord *geom.Coord, filters ...filter.Filter) {
+func (r *SQLiteSpatialDatabase) PointInPolygonCandidatesWithChannels(ctx context.Context, rsp_ch chan *spatial.PointInPolygonCandidate, err_ch chan error, done_ch chan bool, coord *geom.Coord, filters ...filter.Filter) {
 
 	defer func() {
 		done_ch <- true
@@ -305,42 +300,16 @@ func (r *SQLiteSpatialDatabase) PointInPolygonCandidatesWithChannels(ctx context
 
 	for _, sp := range intersects {
 
-		str_id := sp.Id
-
-		props := map[string]interface{}{
-			"id": str_id,
+		bounds := sp.Bounds()
+		
+		c := &spatial.PointInPolygonCandidate{
+			Id: sp.Id,
+			WOFId: sp.WOFId,
+			AltLabel: sp.AltLabel,
+			Bounds: &bounds,
 		}
-
-		b := sp.Bounds()
-
-		swlon := b.Min.X
-		swlat := b.Min.Y
-
-		nelon := b.Max.X
-		nelat := b.Max.Y
-
-		sw := []float64{swlon, swlat}
-		nw := []float64{swlon, nelat}
-		ne := []float64{nelon, nelat}
-		se := []float64{nelon, swlat}
-
-		ring := [][]float64{
-			sw, nw, ne, se, sw,
-		}
-
-		poly := [][][]float64{
-			ring,
-		}
-
-		geom := geojson.NewPolygonGeometry(poly)
-
-		feature := &geojson.Feature{
-			Type:       "Feature",
-			Properties: props,
-			Geometry:   geom,
-		}
-
-		rsp_ch <- feature
+		
+		rsp_ch <- c
 	}
 
 	return
@@ -389,7 +358,7 @@ func (r *SQLiteSpatialDatabase) getIntersectsByRect(ctx context.Context, rect *g
 	for rows.Next() {
 
 		var id string
-		var wof_id string
+		var wof_id int64
 		var is_alt int32
 		var alt_label string
 		var geometry string
@@ -488,6 +457,8 @@ func (r *SQLiteSpatialDatabase) inflateSpatialIndexWithChannels(ctx context.Cont
 
 	t2 := time.Now()
 
+	// this needs to be sped up (20201216/thisisaaronland)
+	
 	var coords [][][]float64
 
 	err := json.Unmarshal([]byte(sp.geometry), &coords)
@@ -506,7 +477,7 @@ func (r *SQLiteSpatialDatabase) inflateSpatialIndexWithChannels(ctx context.Cont
 
 	t3 := time.Now()
 
-	if !geo.GeoJSONPolygonContainsCoord(coords, c) {
+	if !geo.PolygonContainsCoord(coords, c) {
 		return
 	}
 
@@ -523,7 +494,7 @@ func (r *SQLiteSpatialDatabase) inflateSpatialIndexWithChannels(ctx context.Cont
 
 	t4 := time.Now()
 
-	fc, err := r.retrieveSPRCacheItem(ctx, sp.Path())
+	s, err := r.retrieveSPR(ctx, sp.Path())
 
 	if err != nil {
 		r.Logger.Error("Failed to retrieve feature cache for %s, %v", sp_id, err)
@@ -531,8 +502,6 @@ func (r *SQLiteSpatialDatabase) inflateSpatialIndexWithChannels(ctx context.Cont
 	}
 
 	r.timer.Add(ctx, sp_id, "time to retrieve SPR", time.Since(t4))
-
-	s, err := fc.SPR()
 
 	if err != nil {
 		r.Logger.Error("Failed to retrieve feature cache for %s, %v", sp_id, err)
@@ -556,80 +525,14 @@ func (r *SQLiteSpatialDatabase) inflateSpatialIndexWithChannels(ctx context.Cont
 	rsp_ch <- s
 }
 
-func (db *SQLiteSpatialDatabase) StandardPlacesResultsToFeatureCollection(ctx context.Context, results spr.StandardPlacesResults) (*geojson.FeatureCollection, error) {
-
-	features := make([]*geojson.Feature, 0)
-
-	for _, r := range results.Results() {
-
-		select {
-		case <-ctx.Done():
-			return nil, nil
-		default:
-			// pass
-		}
-
-		fc, err := db.retrieveSPRCacheItem(ctx, r.Path())
-
-		if err != nil {
-			return nil, err
-		}
-
-		spr, err := fc.SPR()
-
-		if err != nil {
-			return nil, err
-		}
-
-		spr_enc, err := json.Marshal(spr)
-
-		if err != nil {
-			return nil, err
-		}
-
-		var spr_map map[string]interface{}
-
-		err = json.Unmarshal(spr_enc, &spr_map)
-
-		if err != nil {
-			return nil, err
-		}
-
-		geom, err := fc.Geometry()
-
-		if err != nil {
-			return nil, err
-		}
-
-		f := &geojson.Feature{
-			Type:       "Feature",
-			Properties: spr_map,
-			Geometry:   geom,
-		}
-
-		features = append(features, f)
-	}
-
-	collection := geojson.FeatureCollection{
-		Type:     "FeatureCollection",
-		Features: features,
-	}
-
-	return &collection, nil
-}
-
-func (r *SQLiteSpatialDatabase) retrieveSPRCacheItem(ctx context.Context, uri_str string) (*SQLiteCacheItem, error) {
-
-	// Note to self: I actually tried chunking this out in to separate functions
-	// talking to the database concurrently with channels and stuff and it was
-	// subtly slower than just doing it this way... (20201215/thisisaaronland)
+func (r *SQLiteSpatialDatabase) retrieveSPR(ctx context.Context, uri_str string) (spr.StandardPlacesResult, error) {
 
 	c, ok := r.gocache.Get(uri_str)
 
 	if ok {
-		return c.(*SQLiteCacheItem), nil
+		return c.(*SQLiteStandardPlacesResult), nil
 	}
-
+	
 	id, uri_args, err := uri.ParseURI(uri_str)
 
 	if err != nil {
@@ -745,35 +648,6 @@ func (r *SQLiteSpatialDatabase) retrieveSPRCacheItem(ctx context.Context, uri_st
 		WOFLastModified: lastmodified,
 	}
 
-	/*
-		geom_q := fmt.Sprintf("SELECT body FROM %s WHERE id = ? AND alt_label = ?", r.geometry_table.Name())
-
-		geom_row := conn.QueryRowContext(ctx, geom_q, args...)
-
-		var geom_str string
-
-		err = geom_row.Scan(&geom_str)
-
-		if err != nil {
-			return nil, err
-		}
-
-		geom, err := geojson.UnmarshalGeometry([]byte(geom_str))
-
-		if err != nil {
-			return nil, err
-		}
-	*/
-
-	var geom *geojson.Geometry
-
-	cache_item, err := NewSQLiteCacheItem(s, geom)
-
-	if err != nil {
-		return nil, err
-	}
-
-	r.gocache.Set(uri_str, cache_item, -1)
-
-	return cache_item.(*SQLiteCacheItem), nil
+	r.gocache.Set(uri_str, s, -1)
+	return s, nil
 }

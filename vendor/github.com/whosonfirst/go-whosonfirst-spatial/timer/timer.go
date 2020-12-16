@@ -3,8 +3,8 @@ package timer
 import (
 	"context"
 	"fmt"
-	"time"
 	"sync"
+	"time"
 )
 
 type Timing struct {
