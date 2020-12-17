@@ -8,7 +8,7 @@ The goal is to have a package that conforms to the [database.SpatialDatabase](ht
 
 ## Databases
 
-This code depends on (4) tables as indexed by the `go-whosonfirst-sqlite-features` package:
+This code depends on (3) tables as indexed by the `go-whosonfirst-sqlite-features` package:
 
 * [rtree](https://github.com/whosonfirst/go-whosonfirst-sqlite-features#rtree) - this table is used to perform point-in-polygon spatial queries.
 * [spr](https://github.com/whosonfirst/go-whosonfirst-sqlite-features#spr) - this table is used to generate [standard place response](#) (SPR) results.
