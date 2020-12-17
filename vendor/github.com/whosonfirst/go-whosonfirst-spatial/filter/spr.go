@@ -241,7 +241,7 @@ func NewSPRFilterFromInputs(inputs *SPRInputs) (Filter, error) {
 
 		is_alt := inputs.IsAlternateGeometry[0]
 
-		af, err := geometry.NewIsAlternateGeometryFlag(is_alt)
+		af, err := geometry.NewIsAlternateGeometryFlagWithString(is_alt)
 
 		if err != nil {
 			return nil, err

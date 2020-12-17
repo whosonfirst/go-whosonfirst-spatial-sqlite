@@ -47,7 +47,7 @@ func main() {
 		log.Fatalf("Failed to create SPR filter, %v", err)
 	}
 
-	af, err := geometry.NewIsAlternateGeometryFlag("true")
+	af, err := geometry.NewIsAlternateGeometryFlag(true)
 
 	if err != nil {
 		log.Fatalf("Failed to create alternate geometry flag, %v", err)

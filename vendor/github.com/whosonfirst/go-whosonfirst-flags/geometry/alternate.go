@@ -7,10 +7,13 @@ import (
 	"strconv"
 	"math/rand"
 	"time"
-	"log"	
+	"log"
+	"strings"
 )
 
 const DUMMY_ID int64 = 0
+
+const DUMMY_PREFIX string = "dummy"
 
 const charset = "abcdefghijklmnopqrstuvwxyz" +
   "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
@@ -38,7 +41,8 @@ func DummyAlternateGeometryURIWithLabel(label string) string {
 }
 
 func DummyAlternateURILabel() string {
-	return stringWithCharset(12, charset)
+	rand := stringWithCharset(12, charset)
+	return fmt.Sprintf("%s-%s", DUMMY_PREFIX, rand)
 }
 
 // https://www.calhoun.io/creating-random-strings-in-go/
@@ -55,13 +59,18 @@ func stringWithCharset(length int, charset string) string {
 }
 
 
-func NewIsAlternateGeometryFlag(bool_str string) (flags.AlternateGeometryFlag, error) {
+func NewIsAlternateGeometryFlagWithString(bool_str string) (flags.AlternateGeometryFlag, error) {
 
 	is_alt, err := strconv.ParseBool(bool_str)
 
 	if err != nil {
 		return nil, err
 	}
+
+	return NewIsAlternateGeometryFlag(is_alt)
+}
+
+func NewIsAlternateGeometryFlag(is_alt bool) (flags.AlternateGeometryFlag, error) {
 
 	uri_str := DummyURI()
 
@@ -157,10 +166,13 @@ func (f *AlternateGeometryFlag) isEqual(other flags.AlternateGeometryFlag) bool 
 		return false
 	}
 
+	if !strings.HasPrefix(f.Label(), DUMMY_PREFIX) {
+	
 	if f.Label() != other.Label(){
 		return false
 	}
-
+	}
+	
 	return true
 }
 
