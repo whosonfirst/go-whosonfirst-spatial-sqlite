@@ -12,6 +12,7 @@ import (
 	"github.com/whosonfirst/go-whosonfirst-spatial/geo"
 	"github.com/whosonfirst/go-whosonfirst-spatial/properties"
 	"github.com/whosonfirst/go-whosonfirst-spr"
+	"github.com/whosonfirst/go-whosonfirst-flags/geometry"	
 	"log"
 )
 
@@ -46,6 +47,14 @@ func main() {
 		log.Fatalf("Failed to create SPR filter, %v", err)
 	}
 
+	af, err := geometry.NewIsAlternateGeometryFlag("true")
+
+	if err != nil {
+		log.Fatalf("Failed to create alternate geometry flag, %v", err)
+	}
+	
+	f.AlternateGeometry = af
+	
 	var rsp interface{}
 
 	r, err := db.PointInPolygon(ctx, c, f)
