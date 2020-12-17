@@ -21,7 +21,6 @@ $> ./bin/wof-sqlite-index-features \
 	-index-alt-files \
 	-rtree \
 	-spr \
-	-geometry \
 	-properties \
 	-timings \
 	-dsn /usr/local/ca-alt.db \
