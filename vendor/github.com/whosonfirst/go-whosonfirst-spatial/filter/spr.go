@@ -3,29 +3,34 @@ package filter
 import (
 	"github.com/whosonfirst/go-whosonfirst-flags"
 	"github.com/whosonfirst/go-whosonfirst-flags/existential"
+	"github.com/whosonfirst/go-whosonfirst-flags/geometry"
 	"github.com/whosonfirst/go-whosonfirst-flags/placetypes"
-	_ "log"
+	"log"
 	"strconv"
 	"strings"
 )
 
 type SPRInputs struct {
-	Placetypes    []string
-	IsCurrent     []string
-	IsCeased      []string
-	IsDeprecated  []string
-	IsSuperseded  []string
-	IsSuperseding []string
+	Placetypes           []string
+	IsCurrent            []string
+	IsCeased             []string
+	IsDeprecated         []string
+	IsSuperseded         []string
+	IsSuperseding        []string
+	IsAlternateGeometry  []string
+	HasAlternateGeometry []string
 }
 
 type SPRFilter struct {
 	Filter
-	Placetypes  []flags.PlacetypeFlag
-	Current     []flags.ExistentialFlag
-	Deprecated  []flags.ExistentialFlag
-	Ceased      []flags.ExistentialFlag
-	Superseded  []flags.ExistentialFlag
-	Superseding []flags.ExistentialFlag
+	Placetypes          []flags.PlacetypeFlag
+	Current             []flags.ExistentialFlag
+	Deprecated          []flags.ExistentialFlag
+	Ceased              []flags.ExistentialFlag
+	Superseded          []flags.ExistentialFlag
+	Superseding         []flags.ExistentialFlag
+	AlternateGeometry   flags.AlternateGeometryFlag
+	AlternateGeometries []flags.AlternateGeometryFlag
 }
 
 func (f *SPRFilter) HasPlacetypes(fl flags.PlacetypeFlag) bool {
@@ -100,15 +105,35 @@ func (f *SPRFilter) IsSuperseding(fl flags.ExistentialFlag) bool {
 	return false
 }
 
+func (f *SPRFilter) IsAlternateGeometry(fl flags.AlternateGeometryFlag) bool {
+
+	log.Println("WHAT", f.AlternateGeometry, fl)
+	return f.AlternateGeometry.MatchesAny(fl)
+}
+
+func (f *SPRFilter) HasAlternateGeometry(fl flags.AlternateGeometryFlag) bool {
+
+	for _, a := range f.AlternateGeometries {
+
+		if a.MatchesAny(fl) {
+			return true
+		}
+	}
+
+	return false
+}
+
 func NewSPRInputs() (*SPRInputs, error) {
 
 	i := SPRInputs{
-		Placetypes:    make([]string, 0),
-		IsCurrent:     make([]string, 0),
-		IsDeprecated:  make([]string, 0),
-		IsCeased:      make([]string, 0),
-		IsSuperseded:  make([]string, 0),
-		IsSuperseding: make([]string, 0),
+		Placetypes:           make([]string, 0),
+		IsCurrent:            make([]string, 0),
+		IsDeprecated:         make([]string, 0),
+		IsCeased:             make([]string, 0),
+		IsSuperseded:         make([]string, 0),
+		IsSuperseding:        make([]string, 0),
+		IsAlternateGeometry:  make([]string, 0),
+		HasAlternateGeometry: make([]string, 0),
 	}
 
 	return &i, nil
@@ -118,9 +143,11 @@ func NewSPRFilter() (*SPRFilter, error) {
 
 	null_pt, _ := placetypes.NewNullFlag()
 	null_ex, _ := existential.NewNullFlag()
+	null_alt, _ := geometry.NewNullAlternateGeometryFlag()	
 
 	col_pt := []flags.PlacetypeFlag{null_pt}
 	col_ex := []flags.ExistentialFlag{null_ex}
+	col_alt := []flags.AlternateGeometryFlag{null_alt}	
 
 	f := SPRFilter{
 		Placetypes:  col_pt,
@@ -129,6 +156,8 @@ func NewSPRFilter() (*SPRFilter, error) {
 		Ceased:      col_ex,
 		Superseded:  col_ex,
 		Superseding: col_ex,
+		AlternateGeometry: null_alt,
+		AlternateGeometries: col_alt,		
 	}
 
 	return &f, nil
@@ -208,6 +237,30 @@ func NewSPRFilterFromInputs(inputs *SPRInputs) (Filter, error) {
 		f.Superseding = possible
 	}
 
+	if len(inputs.IsAlternateGeometry) != 0 {
+
+		is_alt := inputs.IsAlternateGeometry[0]
+
+		af, err := geometry.NewIsAlternateGeometryFlag(is_alt)
+
+		if err != nil {
+			return nil, err
+		}
+
+		f.AlternateGeometry = af
+	}
+
+	if len(inputs.HasAlternateGeometry) != 0 {
+
+		possible, err := hasAlternateGeometryFlags(inputs.HasAlternateGeometry)
+
+		if err != nil {
+			return nil, err
+		}
+
+		f.AlternateGeometries = possible
+	}
+
 	return f, nil
 }
 
@@ -258,6 +311,26 @@ func existentialFlags(inputs []string) ([]flags.ExistentialFlag, error) {
 
 			possible = append(possible, fl)
 		}
+	}
+
+	return possible, nil
+}
+
+func hasAlternateGeometryFlags(input []string) ([]flags.AlternateGeometryFlag, error) {
+
+	possible := make([]flags.AlternateGeometryFlag, 0)
+
+	for _, alt_label := range input {
+
+		uri_str := geometry.DummyAlternateGeometryURIWithLabel(alt_label)
+
+		fl, err := geometry.NewAlternateGeometryFlag(uri_str)
+
+		if err != nil {
+			return nil, err
+		}
+
+		possible = append(possible, fl)
 	}
 
 	return possible, nil
