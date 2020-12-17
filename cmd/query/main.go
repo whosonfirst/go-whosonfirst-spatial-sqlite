@@ -44,16 +44,16 @@ func main() {
 	flag.Var(&is_current, "is-current", "One or more existential flags (-1, 0, 1) to filter results by.")
 
 	var is_ceased multi.MultiInt64
-	flag.Var(&is_ceased, "is-current", "One or more existential flags (-1, 0, 1) to filter results by.")
+	flag.Var(&is_ceased, "is-ceased", "One or more existential flags (-1, 0, 1) to filter results by.")
 	
 	var is_deprecated multi.MultiInt64
-	flag.Var(&is_deprecated, "is-current", "One or more existential flags (-1, 0, 1) to filter results by.")
+	flag.Var(&is_deprecated, "is-deprecated", "One or more existential flags (-1, 0, 1) to filter results by.")
 	
 	var is_superseded multi.MultiInt64
-	flag.Var(&is_superseded, "is-current", "One or more existential flags (-1, 0, 1) to filter results by.")
+	flag.Var(&is_superseded, "is-superseded", "One or more existential flags (-1, 0, 1) to filter results by.")
 	
 	var is_superseding multi.MultiInt64
-	flag.Var(&is_superseding, "is-current", "One or more existential flags (-1, 0, 1) to filter results by.")	
+	flag.Var(&is_superseding, "is-superseding", "One or more existential flags (-1, 0, 1) to filter results by.")	
 	
 	flag.Parse()
 

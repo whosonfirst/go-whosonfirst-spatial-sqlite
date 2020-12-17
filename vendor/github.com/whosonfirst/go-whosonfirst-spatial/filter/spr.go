@@ -5,7 +5,7 @@ import (
 	"github.com/whosonfirst/go-whosonfirst-flags/existential"
 	"github.com/whosonfirst/go-whosonfirst-flags/geometry"
 	"github.com/whosonfirst/go-whosonfirst-flags/placetypes"
-	"log"
+	_ "log"
 	"strconv"
 	"strings"
 )
@@ -107,7 +107,6 @@ func (f *SPRFilter) IsSuperseding(fl flags.ExistentialFlag) bool {
 
 func (f *SPRFilter) IsAlternateGeometry(fl flags.AlternateGeometryFlag) bool {
 
-	log.Println("WHAT", f.AlternateGeometry, fl)
 	return f.AlternateGeometry.MatchesAny(fl)
 }
 
