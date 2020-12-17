@@ -12,6 +12,7 @@ import (
 	"github.com/whosonfirst/go-whosonfirst-spatial/geo"
 	"github.com/whosonfirst/go-whosonfirst-spatial/properties"
 	"github.com/whosonfirst/go-whosonfirst-spr"
+	"github.com/whosonfirst/go-whosonfirst-flags"		
 	"github.com/whosonfirst/go-whosonfirst-flags/geometry"	
 	"log"
 )
@@ -26,6 +27,9 @@ func main() {
 	var props multi.MultiString
 	flag.Var(&props, "properties", "...")
 
+	var alt_geoms multi.MultiString
+	flag.Var(&alt_geoms, "alternate-geometry", "...")
+	
 	flag.Parse()
 
 	ctx := context.Background()
@@ -47,13 +51,31 @@ func main() {
 		log.Fatalf("Failed to create SPR filter, %v", err)
 	}
 
+	/*
 	af, err := geometry.NewIsAlternateGeometryFlag(true)
 
 	if err != nil {
 		log.Fatalf("Failed to create alternate geometry flag, %v", err)
 	}
+	*/
 	
-	f.AlternateGeometry = af
+	if len(alt_geoms) > 0 {
+
+		alt_flags := make([]flags.AlternateGeometryFlag, 0)
+
+		for _, label := range alt_geoms {
+			
+			fl, err := geometry.NewAlternateGeometryFlagWithLabel(label)
+
+			if err != nil {
+				log.Fatalf("Failed to ... for '%s', %v", label, err)
+			}
+
+			alt_flags = append(alt_flags, fl)
+		}
+		
+		f.AlternateGeometries = alt_flags
+	}
 	
 	var rsp interface{}
 

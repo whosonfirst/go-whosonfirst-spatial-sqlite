@@ -81,6 +81,12 @@ func NewIsAlternateGeometryFlag(is_alt bool) (flags.AlternateGeometryFlag, error
 	return NewAlternateGeometryFlag(uri_str)
 }
 
+func NewAlternateGeometryFlagWithLabel(label string) (flags.AlternateGeometryFlag, error) {
+
+	uri_str := DummyAlternateGeometryURIWithLabel(label)
+	return NewAlternateGeometryFlag(uri_str)
+}
+
 func NewAlternateGeometryFlag(uri_str string) (flags.AlternateGeometryFlag, error) {
 
 	_, uri_args, err := uri.ParseURI(uri_str)
