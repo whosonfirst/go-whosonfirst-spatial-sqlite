@@ -69,11 +69,7 @@ func FilterSPR(filters Filter, s spr.StandardPlacesResult) error {
 		return errors.New("Failed 'is superseding' test")
 	}
 
-	log.Println("TEST", s.Path())
-		
 	af, err := geometry.NewAlternateGeometryFlag(s.Path())
-
-	log.Println("AF", af, err)
 	
 	if err != nil {
 
@@ -82,16 +78,12 @@ func FilterSPR(filters Filter, s spr.StandardPlacesResult) error {
 
 	} else {
 
-		log.Println("CHECK IF IS ALT")
-		
 		ok = filters.IsAlternateGeometry(af)
 
 		if !ok {
 			return errors.New("Failed 'is alternate geometry' test")
 		}
 
-		log.Println("CHECK IF HAS ALT")
-		
 		ok = filters.HasAlternateGeometry(af)
 
 		if !ok {

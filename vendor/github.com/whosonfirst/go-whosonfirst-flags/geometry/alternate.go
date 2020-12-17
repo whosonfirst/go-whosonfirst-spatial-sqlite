@@ -7,7 +7,7 @@ import (
 	"strconv"
 	"math/rand"
 	"time"
-	"log"
+	_ "log"
 	"strings"
 )
 
@@ -121,9 +121,6 @@ func NewAlternateGeometryFlag(uri_str string) (flags.AlternateGeometryFlag, erro
 
 func (f *AlternateGeometryFlag) MatchesAny(others ...flags.AlternateGeometryFlag) bool {
 
-	log.Println("MATCHES ANY", f)
-	log.Println("MATCHES ANY", others)
-	
 	for _, o := range others {
 
 		if f.isEqual(o){
