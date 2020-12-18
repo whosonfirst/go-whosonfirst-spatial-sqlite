@@ -145,6 +145,10 @@ import (
 pr, err := properties.NewPropertiesReader(ctx, "sqlite://?dsn={DSN}")
 ```
 
+## Filters
+
+_To be written_
+
 ## Tools
 
 ### query
@@ -199,8 +203,8 @@ For example:
 
 ```
 $> ./bin/query \
-	-database-uri 'sqlite://?dsn=/usr/local/data/sfomuseum-data-architecture.db' \
-	-properties-uri 'sqlite://?dsn=/usr/local/data/sfomuseum-data-architecture.db' \
+	-spatial-database-uri 'sqlite://?dsn=/usr/local/data/sfomuseum-data-architecture.db' \
+	-properties-readers-uri 'sqlite://?dsn=/usr/local/data/sfomuseum-data-architecture.db' \
 	-latitude 37.616951 \
 	-longitude -122.383747 \
 	-properties 'wof:hierarchy' \
@@ -259,10 +263,99 @@ $> ./bin/query \
 ]   
 ```
 
-Note: This assumes a database that was previously indexed using the [whosonfirst/go-whosonfirst-sqlite-features](https://github.com/whosonfirst/go-whosonfirst-sqlite-features) `wof-sqlite-index-features` tool. For example:
+#### Filters
+
+##### Existential flags
+
+It is possible to filter results by one or more existential flags (`-is-current`, `-is-ceased`, `-is-deprecated`, `-is-superseded`, `-is-superseding`). For example, this query for a point at SFO airport returns 24 possible candidates:
 
 ```
-$> ./bin/wof-sqlite-index-features -rtree -spr -properties -dsn /tmp/test.db -mode repo:// /usr/local/data/sfomuseum-data-architecture/
+$> ./bin/query \
+	-spatial-database-uri 'sqlite://?dsn=/usr/local/data/sfom-arch.db' \
+	-latitude 37.616951 \
+	-longitude -122.383747
+
+| jq | grep wof:id | wc -l
+
+2020/12/17 17:01:16 Time to point in polygon, 38.131108ms
+      24
+```
+
+But when filtered using the `-is-current 1` flag there is only a single result:
+
+```
+> ./bin/query \
+	-spatial-database-uri 'sqlite://?dsn=/usr/local/data/sfom-arch.db' \
+	-latitude 37.616951 \
+	-longitude -122.383747 \
+	-is-current 1
+
+| jq
+
+2020/12/17 17:00:11 Time to point in polygon, 46.401411ms
+{
+  "places": [
+    {
+      "wof:id": "1477855655",
+      "wof:parent_id": "1477855607",
+      "wof:name": "Terminal 2 Main Hall",
+      "wof:country": "US",
+      "wof:placetype": "concourse",
+      "mz:latitude": 37.617044,
+      "mz:longitude": -122.383533,
+      "mz:min_latitude": 37.61569458544746,
+      "mz:min_longitude": 37.617044,
+      "mz:max_latitude": -122.3849257355292,
+      "mz:max_longitude": -122.38294919235318,
+      "mz:is_current": 1,
+      "mz:is_deprecated": 0,
+      "mz:is_ceased": 1,
+      "mz:is_superseded": 0,
+      "mz:is_superseding": 1,
+      "wof:path": "147/785/565/5/1477855655.geojson",
+      "wof:repo": "sfomuseum-data-architecture",
+      "wof:lastmodified": 1569430965
+    }
+  ]
+}
+```
+
+##### Alternate geometries
+
+You can also filter results to one or more specific alternate geometry labels. For example here are the `quattroshapes` and `whosonfirst-reversegeo` geometries for a point in the city of Montreal, using a SQLite database created from the `whosonfirst-data-admin-ca` database:
+
+```
+$> ./bin/query \
+	-spatial-database-uri 'sqlite://?dsn=/usr/local/data/ca-alt.db' \
+	-latitude 45.572744 \
+	-longitude -73.586295 \
+	-alternate-geometry quattroshapes \
+	-alternate-geometry whosonfirst-reversegeo
+
+| jq | grep wof:name
+
+2020/12/17 16:52:08 Unable to parse placetype (alt) for ID 136251273, because 'Invalid placetype' - skipping placetype filters
+2020/12/17 16:52:08 Unable to parse placetype (alt) for ID 85633041, because 'Invalid placetype' - skipping placetype filters
+2020/12/17 16:52:08 Unable to parse placetype (alt) for ID 136251273, because 'Invalid placetype' - skipping placetype filters
+2020/12/17 16:52:08 Unable to parse placetype (alt) for ID 85633041, because 'Invalid placetype' - skipping placetype filters
+2020/12/17 16:52:08 Unable to parse placetype (alt) for ID 85874359, because 'Invalid placetype' - skipping placetype filters
+2020/12/17 16:52:08 Unable to parse placetype (alt) for ID 85633041, because 'Invalid placetype' - skipping placetype filters
+2020/12/17 16:52:08 Time to point in polygon, 419.727612ms
+      "wof:name": "136251273 alt geometry (quattroshapes)",
+      "wof:name": "85633041 alt geometry (whosonfirst-reversegeo)",
+      "wof:name": "85874359 alt geometry (quattroshapes)",
+```
+
+Note: These examples assumes a database that was previously indexed using the [whosonfirst/go-whosonfirst-sqlite-features](https://github.com/whosonfirst/go-whosonfirst-sqlite-features) `wof-sqlite-index-features` tool. For example:
+
+```
+$> ./bin/wof-sqlite-index-features \
+	-rtree \
+	-spr \
+	-properties \
+	-dsn /tmp/test.db
+	-mode repo:// \
+	/usr/local/data/sfomuseum-data-architecture/
 ```
 
 ## See also
