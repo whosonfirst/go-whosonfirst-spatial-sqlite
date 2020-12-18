@@ -332,6 +332,54 @@ $> ./bin/wof-sqlite-index-features \
 	/usr/local/data/sfomuseum-data-architecture/
 ```
 
+The exclude alternate geometries from query results pass the `-geometries default` flag:
+
+```
+$> ./bin/query \
+	-spatial-database-uri 'sqlite://?dsn=/usr/local/data/ca-alt.db' \
+	-latitude 45.572744 \
+	-longitude -73.586295 \
+	-geometries default
+
+| jq | grep wof:name
+
+2020/12/17 17:07:31 Unable to parse placetype (alt) for ID 85874359, because 'Invalid placetype' - skipping placetype filters
+2020/12/17 17:07:31 Unable to parse placetype (alt) for ID 85633041, because 'Invalid placetype' - skipping placetype filters
+2020/12/17 17:07:31 Unable to parse placetype (alt) for ID 85633041, because 'Invalid placetype' - skipping placetype filters
+2020/12/17 17:07:31 Unable to parse placetype (alt) for ID 85633041, because 'Invalid placetype' - skipping placetype filters
+2020/12/17 17:07:31 Unable to parse placetype (alt) for ID 136251273, because 'Invalid placetype' - skipping placetype filters
+2020/12/17 17:07:31 Unable to parse placetype (alt) for ID 136251273, because 'Invalid placetype' - skipping placetype filters
+2020/12/17 17:07:31 Time to point in polygon, 405.430776ms
+      "wof:name": "Canada",
+      "wof:name": "Saint-Leonard",
+      "wof:name": "Quartier Port-Maurice",
+      "wof:name": "Montreal",
+      "wof:name": "Quebec",
+```
+
+To limit query results to _only_ alternate geometries pass the `-geometries alternate` flag:
+
+```
+$> ./bin/query \
+	-spatial-database-uri 'sqlite://?dsn=/usr/local/data/ca-alt.db' \
+	-latitude 45.572744 \
+	-longitude -73.586295 \
+	-geometries alternate
+
+2020/12/17 17:07:38 Unable to parse placetype (alt) for ID 85874359, because 'Invalid placetype' - skipping placetype filters
+2020/12/17 17:07:38 Unable to parse placetype (alt) for ID 85633041, because 'Invalid placetype' - skipping placetype filters
+2020/12/17 17:07:38 Unable to parse placetype (alt) for ID 85633041, because 'Invalid placetype' - skipping placetype filters
+2020/12/17 17:07:38 Unable to parse placetype (alt) for ID 136251273, because 'Invalid placetype' - skipping placetype filters
+2020/12/17 17:07:38 Unable to parse placetype (alt) for ID 136251273, because 'Invalid placetype' - skipping placetype filters
+2020/12/17 17:07:38 Unable to parse placetype (alt) for ID 85633041, because 'Invalid placetype' - skipping placetype filters
+2020/12/17 17:07:39 Time to point in polygon, 366.347365ms
+      "wof:name": "85874359 alt geometry (quattroshapes)",
+      "wof:name": "85633041 alt geometry (naturalearth)",
+      "wof:name": "85633041 alt geometry (naturalearth-display-terrestrial-zoom6)",
+      "wof:name": "136251273 alt geometry (whosonfirst)",
+      "wof:name": "136251273 alt geometry (quattroshapes)",
+      "wof:name": "85633041 alt geometry (whosonfirst-reversegeo)",
+```
 
 ## Interfaces
 
