@@ -12,10 +12,8 @@ import (
 	"github.com/whosonfirst/go-whosonfirst-spatial/geo"
 	"github.com/whosonfirst/go-whosonfirst-spatial/properties"
 	"github.com/whosonfirst/go-whosonfirst-spr"
-	"github.com/whosonfirst/go-whosonfirst-flags/placetypes"			
-	"github.com/whosonfirst/go-whosonfirst-flags/existential"		
-	"github.com/whosonfirst/go-whosonfirst-flags/geometry"	
 	"log"
+	"net/url"
 )
 
 func main() {
@@ -42,19 +40,19 @@ func main() {
 	var alt_geoms multi.MultiString
 	fs.Var(&alt_geoms, "alternate-geometry", "One or more alternate geometry labels (wof:alt_label) values to filter results by.")
 
-	var is_current multi.MultiInt64
+	var is_current multi.MultiString
 	fs.Var(&is_current, "is-current", "One or more existential flags (-1, 0, 1) to filter results by.")
 
-	var is_ceased multi.MultiInt64
+	var is_ceased multi.MultiString
 	fs.Var(&is_ceased, "is-ceased", "One or more existential flags (-1, 0, 1) to filter results by.")
 	
-	var is_deprecated multi.MultiInt64
+	var is_deprecated multi.MultiString
 	fs.Var(&is_deprecated, "is-deprecated", "One or more existential flags (-1, 0, 1) to filter results by.")
 	
-	var is_superseded multi.MultiInt64
+	var is_superseded multi.MultiString
 	fs.Var(&is_superseded, "is-superseded", "One or more existential flags (-1, 0, 1) to filter results by.")
 	
-	var is_superseding multi.MultiInt64
+	var is_superseding multi.MultiString
 	fs.Var(&is_superseding, "is-superseding", "One or more existential flags (-1, 0, 1) to filter results by.")	
 	
 	flags.Parse(fs)
@@ -84,115 +82,38 @@ func main() {
 	}
 
 	// START OF put me in a WithFlagSet(fs) function
+
+	q := url.Values{}
+	q.Set("geometries", *geometries)
+
+	for _, v := range alt_geoms {
+		q.Add("alternate_geometry", v)
+	}
 	
-	f, err := filter.NewSPRFilter()
+	for _, v := range pts {
+		q.Add("placetype", v)
+	}
+
+	for _, v := range is_ceased {
+		q.Add("is_ceased", v)
+	}
+
+	for _, v := range is_deprecated {
+		q.Add("is_deprecated", v)
+	}
+
+	for _, v := range is_superseded {
+		q.Add("is_superseded", v)
+	}
+
+	for _, v := range is_superseding {
+		q.Add("is_superseding", v)
+	}
+
+	f, err := filter.NewSPRFilterFromQuery(q)
 
 	if err != nil {
 		log.Fatalf("Failed to create SPR filter, %v", err)
-	}
-
-	switch *geometries {
-	case "all":
-		// pass
-	case "alt", "alternate":
-
-		af, err := geometry.NewIsAlternateGeometryFlag(true)
-
-		if err != nil {
-			log.Fatalf("Failed to create alternate geometry flag, %v", err)
-		}
-
-		f.AlternateGeometry = af
-		
-	case "default":
-
-		af, err := geometry.NewIsAlternateGeometryFlag(false)
-
-		if err != nil {
-			log.Fatalf("Failed to create alternate geometry flag, %v", err)
-		}
-
-		f.AlternateGeometry = af
-		
-	default:
-		log.Fatalf("Invalid -geometries flag")
-	}
-			
-	if len(alt_geoms) > 0 {
-
-		alt_flags, err := geometry.NewAlternateGeometryFlagsWithLabelArray(alt_geoms...)
-
-		if err != nil {
-			log.Fatalf("Failed to create alternate geometries flags, %v", err)
-		}
-				
-		f.AlternateGeometries = alt_flags
-	}
-
-	if len(pts) > 0 {
-
-		pt_flags, err := placetypes.NewPlacetypeFlagsArray(pts...)
-
-		if err != nil {
-			log.Fatalf("Failed to create placetype flags, %v", err)
-		}
-		
-		f.Placetypes = pt_flags
-	}
-	
-	if len(is_current) > 0 {
-
-		existential_flags, err := existential.NewKnownUnknownFlagsArray(is_current...)
-
-		if err != nil {
-			log.Fatalf("Failed to create -is-current flags, %v", err)
-		}
-		
-		f.Current = existential_flags
-	}
-
-	if len(is_ceased) > 0 {
-
-		existential_flags, err := existential.NewKnownUnknownFlagsArray(is_ceased...)
-
-		if err != nil {
-			log.Fatalf("Failed to create -is-ceased flags, %v", err)
-		}
-
-		f.Ceased = existential_flags
-	}
-
-	if len(is_deprecated) > 0 {
-
-		existential_flags, err := existential.NewKnownUnknownFlagsArray(is_deprecated...)
-
-		if err != nil {
-			log.Fatalf("Failed to create -is-deprecated flags, %v", err)
-		}
-
-		f.Deprecated = existential_flags
-	}
-
-	if len(is_superseded) > 0 {
-
-		existential_flags, err := existential.NewKnownUnknownFlagsArray(is_superseded...)
-
-		if err != nil {
-			log.Fatalf("Failed to create -is-superseded flags, %v", err)
-		}
-
-		f.Superseded = existential_flags
-	}
-	
-	if len(is_superseding) > 0 {
-
-		existential_flags, err := existential.NewKnownUnknownFlagsArray(is_superseding...)
-
-		if err != nil {
-			log.Fatalf("Failed to create -is-superseding flags, %v", err)
-		}
-
-		f.Superseding = existential_flags
 	}
 
 	// END OF put me in a WithFlagSet(fs) function

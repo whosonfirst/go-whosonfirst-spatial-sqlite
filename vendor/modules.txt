@@ -24,6 +24,8 @@ github.com/twpayne/go-geom/encoding/geojson
 github.com/twpayne/go-geom/encoding/wkt
 # github.com/whosonfirst/go-rfc-5646 v0.1.0
 github.com/whosonfirst/go-rfc-5646
+# github.com/whosonfirst/go-sanitize v0.1.0
+github.com/whosonfirst/go-sanitize
 # github.com/whosonfirst/go-spatialite v0.1.1
 github.com/whosonfirst/go-spatialite
 # github.com/whosonfirst/go-whosonfirst-flags v0.2.0
@@ -51,7 +53,7 @@ github.com/whosonfirst/go-whosonfirst-placetypes/placetypes
 # github.com/whosonfirst/go-whosonfirst-sources v0.1.0
 github.com/whosonfirst/go-whosonfirst-sources
 github.com/whosonfirst/go-whosonfirst-sources/sources
-# github.com/whosonfirst/go-whosonfirst-spatial v0.0.15
+# github.com/whosonfirst/go-whosonfirst-spatial v0.0.16
 github.com/whosonfirst/go-whosonfirst-spatial
 github.com/whosonfirst/go-whosonfirst-spatial/database
 github.com/whosonfirst/go-whosonfirst-spatial/filter
