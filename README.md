@@ -49,12 +49,6 @@ $> ./bin/query \
 | jq \
 | grep wof:id
 
-2020/12/15 15:32:05 Unable to parse placetype (alt) for ID 85874359, because 'Invalid placetype' - skipping placetype filters
-2020/12/15 15:32:06 Unable to parse placetype (alt) for ID 85633041, because 'Invalid placetype' - skipping placetype filters
-2020/12/15 15:32:06 Unable to parse placetype (alt) for ID 136251273, because 'Invalid placetype' - skipping placetype filters
-2020/12/15 15:32:06 Unable to parse placetype (alt) for ID 85633041, because 'Invalid placetype' - skipping placetype filters
-2020/12/15 15:32:06 Unable to parse placetype (alt) for ID 136251273, because 'Invalid placetype' - skipping placetype filters
-2020/12/15 15:32:06 Unable to parse placetype (alt) for ID 85633041, because 'Invalid placetype' - skipping placetype filters
 2020/12/16 13:25:32 Time to point in polygon, 395.201983ms
       "wof:id": "85633041",
       "wof:id": "85874359",
@@ -308,12 +302,6 @@ $> ./bin/query \
 
 | jq | grep wof:name
 
-2020/12/17 16:52:08 Unable to parse placetype (alt) for ID 136251273, because 'Invalid placetype' - skipping placetype filters
-2020/12/17 16:52:08 Unable to parse placetype (alt) for ID 85633041, because 'Invalid placetype' - skipping placetype filters
-2020/12/17 16:52:08 Unable to parse placetype (alt) for ID 136251273, because 'Invalid placetype' - skipping placetype filters
-2020/12/17 16:52:08 Unable to parse placetype (alt) for ID 85633041, because 'Invalid placetype' - skipping placetype filters
-2020/12/17 16:52:08 Unable to parse placetype (alt) for ID 85874359, because 'Invalid placetype' - skipping placetype filters
-2020/12/17 16:52:08 Unable to parse placetype (alt) for ID 85633041, because 'Invalid placetype' - skipping placetype filters
 2020/12/17 16:52:08 Time to point in polygon, 419.727612ms
       "wof:name": "136251273 alt geometry (quattroshapes)",
       "wof:name": "85633041 alt geometry (whosonfirst-reversegeo)",
@@ -343,12 +331,6 @@ $> ./bin/query \
 
 | jq | grep wof:name
 
-2020/12/17 17:07:31 Unable to parse placetype (alt) for ID 85874359, because 'Invalid placetype' - skipping placetype filters
-2020/12/17 17:07:31 Unable to parse placetype (alt) for ID 85633041, because 'Invalid placetype' - skipping placetype filters
-2020/12/17 17:07:31 Unable to parse placetype (alt) for ID 85633041, because 'Invalid placetype' - skipping placetype filters
-2020/12/17 17:07:31 Unable to parse placetype (alt) for ID 85633041, because 'Invalid placetype' - skipping placetype filters
-2020/12/17 17:07:31 Unable to parse placetype (alt) for ID 136251273, because 'Invalid placetype' - skipping placetype filters
-2020/12/17 17:07:31 Unable to parse placetype (alt) for ID 136251273, because 'Invalid placetype' - skipping placetype filters
 2020/12/17 17:07:31 Time to point in polygon, 405.430776ms
       "wof:name": "Canada",
       "wof:name": "Saint-Leonard",
@@ -366,12 +348,6 @@ $> ./bin/query \
 	-longitude -73.586295 \
 	-geometries alternate
 
-2020/12/17 17:07:38 Unable to parse placetype (alt) for ID 85874359, because 'Invalid placetype' - skipping placetype filters
-2020/12/17 17:07:38 Unable to parse placetype (alt) for ID 85633041, because 'Invalid placetype' - skipping placetype filters
-2020/12/17 17:07:38 Unable to parse placetype (alt) for ID 85633041, because 'Invalid placetype' - skipping placetype filters
-2020/12/17 17:07:38 Unable to parse placetype (alt) for ID 136251273, because 'Invalid placetype' - skipping placetype filters
-2020/12/17 17:07:38 Unable to parse placetype (alt) for ID 136251273, because 'Invalid placetype' - skipping placetype filters
-2020/12/17 17:07:38 Unable to parse placetype (alt) for ID 85633041, because 'Invalid placetype' - skipping placetype filters
 2020/12/17 17:07:39 Time to point in polygon, 366.347365ms
       "wof:name": "85874359 alt geometry (quattroshapes)",
       "wof:name": "85633041 alt geometry (naturalearth)",
