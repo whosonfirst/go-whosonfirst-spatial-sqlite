@@ -14,17 +14,17 @@ type KnownUnknownFlag struct {
 }
 
 func NewKnownUnknownFlagsArray(values ...int64) ([]flags.ExistentialFlag, error) {
-	
+
 	existential_flags := make([]flags.ExistentialFlag, 0)
-	
+
 	for _, v := range values {
 
 		fl, err := NewKnownUnknownFlag(v)
-		
+
 		if err != nil {
 			return nil, err
 		}
-		
+
 		existential_flags = append(existential_flags, fl)
 	}
 

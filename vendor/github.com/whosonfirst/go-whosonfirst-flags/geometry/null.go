@@ -5,7 +5,7 @@ import (
 )
 
 type NullAlternateGeometryFlag struct {
-	flags.AlternateGeometryFlag	
+	flags.AlternateGeometryFlag
 }
 
 func NewNullAlternateGeometryFlag() (flags.AlternateGeometryFlag, error) {

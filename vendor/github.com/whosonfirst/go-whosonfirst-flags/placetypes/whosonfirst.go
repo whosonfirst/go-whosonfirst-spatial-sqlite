@@ -13,15 +13,15 @@ type PlacetypeFlag struct {
 func NewPlacetypeFlagsArray(names ...string) ([]flags.PlacetypeFlag, error) {
 
 	pt_flags := make([]flags.PlacetypeFlag, 0)
-	
+
 	for _, name := range names {
-			
+
 		fl, err := NewPlacetypeFlag(name)
-		
+
 		if err != nil {
 			return nil, err
 		}
-		
+
 		pt_flags = append(pt_flags, fl)
 	}
 
