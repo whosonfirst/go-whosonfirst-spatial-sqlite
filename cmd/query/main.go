@@ -3,12 +3,12 @@ package main
 import (
 	"context"
 	"encoding/json"
-	"flag"
 	"fmt"
 	"github.com/sfomuseum/go-flags/multi"
 	_ "github.com/whosonfirst/go-whosonfirst-spatial-sqlite"
 	"github.com/whosonfirst/go-whosonfirst-spatial/database"
 	"github.com/whosonfirst/go-whosonfirst-spatial/filter"
+	"github.com/whosonfirst/go-whosonfirst-spatial/flags"	
 	"github.com/whosonfirst/go-whosonfirst-spatial/geo"
 	"github.com/whosonfirst/go-whosonfirst-spatial/properties"
 	"github.com/whosonfirst/go-whosonfirst-spr"
@@ -20,47 +20,61 @@ import (
 
 func main() {
 
-	// some or all of these should be put in go-whosonfirst-spatials/flags/query.go
-	// or equivalent (20201217/thisisaaronland)
-	
-	database_uri := flag.String("database-uri", "", "A valid whosonfirst/go-whosonfirst-spatial database URI.")
-	properties_uri := flag.String("properties-uri", "", "A valid whosonfirst/go-whosonfirst-spatial properties reader URI.")
-	latitude := flag.Float64("latitude", 0.0, "A valid latitude.")
-	longitude := flag.Float64("longitude", 0.0, "A valid longitude.")
-
-	geometries := flag.String("geometries", "all", "Valid options are: all, alt, default.")
-	
-	var props multi.MultiString
-	flag.Var(&props, "properties", "One or more Who's On First properties to append to each result.")
-
-	var pts multi.MultiString
-	flag.Var(&pts, "placetype", "One or more place types to filter results by.")
-	
-	var alt_geoms multi.MultiString
-	flag.Var(&alt_geoms, "alternate-geometry", "One or more alternate geometry labels (wof:alt_label) values to filter results by.")
-
-	var is_current multi.MultiInt64
-	flag.Var(&is_current, "is-current", "One or more existential flags (-1, 0, 1) to filter results by.")
-
-	var is_ceased multi.MultiInt64
-	flag.Var(&is_ceased, "is-ceased", "One or more existential flags (-1, 0, 1) to filter results by.")
-	
-	var is_deprecated multi.MultiInt64
-	flag.Var(&is_deprecated, "is-deprecated", "One or more existential flags (-1, 0, 1) to filter results by.")
-	
-	var is_superseded multi.MultiInt64
-	flag.Var(&is_superseded, "is-superseded", "One or more existential flags (-1, 0, 1) to filter results by.")
-	
-	var is_superseding multi.MultiInt64
-	flag.Var(&is_superseding, "is-superseding", "One or more existential flags (-1, 0, 1) to filter results by.")	
-	
-	flag.Parse()
-
-	ctx := context.Background()
-	db, err := database.NewSpatialDatabase(ctx, *database_uri)
+	fs, err := flags.CommonFlags()
 
 	if err != nil {
-		log.Fatalf("Failed to create database for '%s', %v", *database_uri, err)
+		log.Fatal(err)
+	}
+	
+	// flags.AppendQueryFlags(fs)
+	
+	latitude := fs.Float64("latitude", 0.0, "A valid latitude.")
+	longitude := fs.Float64("longitude", 0.0, "A valid longitude.")
+
+	geometries := fs.String("geometries", "all", "Valid options are: all, alt, default.")
+	
+	var props multi.MultiString
+	fs.Var(&props, "properties", "One or more Who's On First properties to append to each result.")
+
+	var pts multi.MultiString
+	fs.Var(&pts, "placetype", "One or more place types to filter results by.")
+	
+	var alt_geoms multi.MultiString
+	fs.Var(&alt_geoms, "alternate-geometry", "One or more alternate geometry labels (wof:alt_label) values to filter results by.")
+
+	var is_current multi.MultiInt64
+	fs.Var(&is_current, "is-current", "One or more existential flags (-1, 0, 1) to filter results by.")
+
+	var is_ceased multi.MultiInt64
+	fs.Var(&is_ceased, "is-ceased", "One or more existential flags (-1, 0, 1) to filter results by.")
+	
+	var is_deprecated multi.MultiInt64
+	fs.Var(&is_deprecated, "is-deprecated", "One or more existential flags (-1, 0, 1) to filter results by.")
+	
+	var is_superseded multi.MultiInt64
+	fs.Var(&is_superseded, "is-superseded", "One or more existential flags (-1, 0, 1) to filter results by.")
+	
+	var is_superseding multi.MultiInt64
+	fs.Var(&is_superseding, "is-superseding", "One or more existential flags (-1, 0, 1) to filter results by.")	
+	
+	flags.Parse(fs)
+
+	err = flags.ValidateCommonFlags(fs)
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// flags.ValidateQueryFlags(fs)
+	
+	database_uri, _ := flags.StringVar(fs, "spatial-database-uri")
+	properties_uri, _ := flags.StringVar(fs, "properties-reader-uri")
+
+	ctx := context.Background()
+	db, err := database.NewSpatialDatabase(ctx, database_uri)
+
+	if err != nil {
+		log.Fatalf("Failed to create database for '%s', %v", database_uri, err)
 	}
 
 	c, err := geo.NewCoordinate(*longitude, *latitude)
@@ -195,7 +209,7 @@ func main() {
 
 	if len(props) > 0 {
 
-		pr, err := properties.NewPropertiesReader(ctx, *properties_uri)
+		pr, err := properties.NewPropertiesReader(ctx, properties_uri)
 
 		if err != nil {
 			log.Fatalf("Failed to create properties reader, %v", err)
