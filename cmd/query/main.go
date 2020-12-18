@@ -12,7 +12,6 @@ import (
 	"github.com/whosonfirst/go-whosonfirst-spatial/geo"
 	"github.com/whosonfirst/go-whosonfirst-spatial/properties"
 	"github.com/whosonfirst/go-whosonfirst-spr"
-	"github.com/whosonfirst/go-whosonfirst-flags"
 	"github.com/whosonfirst/go-whosonfirst-flags/placetypes"			
 	"github.com/whosonfirst/go-whosonfirst-flags/existential"		
 	"github.com/whosonfirst/go-whosonfirst-flags/geometry"	
@@ -107,35 +106,21 @@ func main() {
 			
 	if len(alt_geoms) > 0 {
 
-		alt_flags := make([]flags.AlternateGeometryFlag, 0)
+		alt_flags, err := geometry.NewAlternateGeometryFlagsWithLabelArray(alt_geoms...)
 
-		for _, label := range alt_geoms {
-			
-			fl, err := geometry.NewAlternateGeometryFlagWithLabel(label)
-
-			if err != nil {
-				log.Fatalf("Failed to ... for '%s', %v", label, err)
-			}
-
-			alt_flags = append(alt_flags, fl)
+		if err != nil {
+			log.Fatalf("Failed to create alternate geometries flags, %v", err)
 		}
-		
+				
 		f.AlternateGeometries = alt_flags
 	}
 
 	if len(pts) > 0 {
 
-		pt_flags := make([]flags.PlacetypeFlag, 0)
+		pt_flags, err := placetypes.NewPlacetypeFlagsArray(pts...)
 
-		for _, pt := range pts {
-			
-			fl, err := placetypes.NewPlacetypeFlag(pt)
-
-			if err != nil {
-				log.Fatalf("Failed to ... for '%s', %v", pt, err)
-			}
-
-			pt_flags = append(pt_flags, fl)
+		if err != nil {
+			log.Fatalf("Failed to create placetype flags, %v", err)
 		}
 		
 		f.Placetypes = pt_flags
@@ -143,35 +128,21 @@ func main() {
 	
 	if len(is_current) > 0 {
 
-		existential_flags := make([]flags.ExistentialFlag, 0)
+		existential_flags, err := existential.NewKnownUnknownFlagsArray(is_current...)
 
-		for _, v := range is_current {
-
-			fl, err := existential.NewKnownUnknownFlag(v)
-			
-			if err != nil {
-				log.Fatalf("Failed to ... for '%s', %v", v, err)
-			}
-			
-			existential_flags = append(existential_flags, fl)
+		if err != nil {
+			log.Fatalf("Failed to create -is-current flags, %v", err)
 		}
-
+		
 		f.Current = existential_flags
 	}
 
 	if len(is_ceased) > 0 {
 
-		existential_flags := make([]flags.ExistentialFlag, 0)
+		existential_flags, err := existential.NewKnownUnknownFlagsArray(is_ceased...)
 
-		for _, v := range is_ceased {
-
-			fl, err := existential.NewKnownUnknownFlag(v)
-			
-			if err != nil {
-				log.Fatalf("Failed to ... for '%s', %v", v, err)
-			}
-			
-			existential_flags = append(existential_flags, fl)
+		if err != nil {
+			log.Fatalf("Failed to create -is-ceased flags, %v", err)
 		}
 
 		f.Ceased = existential_flags
@@ -179,17 +150,10 @@ func main() {
 
 	if len(is_deprecated) > 0 {
 
-		existential_flags := make([]flags.ExistentialFlag, 0)
+		existential_flags, err := existential.NewKnownUnknownFlagsArray(is_deprecated...)
 
-		for _, v := range is_deprecated {
-
-			fl, err := existential.NewKnownUnknownFlag(v)
-			
-			if err != nil {
-				log.Fatalf("Failed to ... for '%s', %v", v, err)
-			}
-			
-			existential_flags = append(existential_flags, fl)
+		if err != nil {
+			log.Fatalf("Failed to create -is-deprecated flags, %v", err)
 		}
 
 		f.Deprecated = existential_flags
@@ -197,17 +161,10 @@ func main() {
 
 	if len(is_superseded) > 0 {
 
-		existential_flags := make([]flags.ExistentialFlag, 0)
+		existential_flags, err := existential.NewKnownUnknownFlagsArray(is_superseded...)
 
-		for _, v := range is_superseded {
-
-			fl, err := existential.NewKnownUnknownFlag(v)
-			
-			if err != nil {
-				log.Fatalf("Failed to ... for '%s', %v", v, err)
-			}
-			
-			existential_flags = append(existential_flags, fl)
+		if err != nil {
+			log.Fatalf("Failed to create -is-superseded flags, %v", err)
 		}
 
 		f.Superseded = existential_flags
@@ -215,17 +172,10 @@ func main() {
 	
 	if len(is_superseding) > 0 {
 
-		existential_flags := make([]flags.ExistentialFlag, 0)
+		existential_flags, err := existential.NewKnownUnknownFlagsArray(is_superseding...)
 
-		for _, v := range is_superseding {
-
-			fl, err := existential.NewKnownUnknownFlag(v)
-			
-			if err != nil {
-				log.Fatalf("Failed to ... for '%s', %v", v, err)
-			}
-			
-			existential_flags = append(existential_flags, fl)
+		if err != nil {
+			log.Fatalf("Failed to create -is-superseding flags, %v", err)
 		}
 
 		f.Superseding = existential_flags

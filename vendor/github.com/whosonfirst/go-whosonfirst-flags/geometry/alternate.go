@@ -87,6 +87,35 @@ func NewAlternateGeometryFlagWithLabel(label string) (flags.AlternateGeometryFla
 	return NewAlternateGeometryFlag(uri_str)
 }
 
+func NewAlternateGeometryFlagsWithLabelArray(labels ...string) ([]flags.AlternateGeometryFlag, error) {
+
+	uris := make([]string, len(labels))
+
+	for i, label := range labels {
+		uris[i] = DummyAlternateGeometryURIWithLabel(label)
+	}
+
+	return NewAlternateGeometryFlagsArray(uris...)
+}
+
+func NewAlternateGeometryFlagsArray(uris ...string) ([]flags.AlternateGeometryFlag, error) {
+
+	alt_flags := make([]flags.AlternateGeometryFlag, 0)
+
+	for _, uri_str := range uris {
+
+		fl, err := NewAlternateGeometryFlag(uri_str)
+
+		if err != nil {
+			return nil, err
+		}
+
+		alt_flags = append(alt_flags, fl)
+	}
+
+	return alt_flags, nil
+}
+
 func NewAlternateGeometryFlag(uri_str string) (flags.AlternateGeometryFlag, error) {
 
 	_, uri_args, err := uri.ParseURI(uri_str)
