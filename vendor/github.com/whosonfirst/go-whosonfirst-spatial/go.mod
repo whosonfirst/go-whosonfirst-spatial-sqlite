@@ -10,11 +10,10 @@ require (
 	github.com/tidwall/sjson v1.1.2
 	github.com/whosonfirst/go-sanitize v0.1.0
 	github.com/whosonfirst/go-whosonfirst-flags v0.2.0
-	github.com/whosonfirst/go-whosonfirst-geojson-v2 v0.14.0
+	github.com/whosonfirst/go-whosonfirst-geojson-v2 v0.14.1
 	github.com/whosonfirst/go-whosonfirst-index v0.3.2
 	github.com/whosonfirst/go-whosonfirst-log v0.1.0
 	github.com/whosonfirst/go-whosonfirst-placetypes v0.2.4
 	github.com/whosonfirst/go-whosonfirst-spr v0.1.0
-	github.com/whosonfirst/go-whosonfirst-uri v0.2.0
 	github.com/whosonfirst/warning v0.1.1
 )

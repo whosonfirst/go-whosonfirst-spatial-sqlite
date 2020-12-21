@@ -107,7 +107,13 @@ func (pr *SQLitePropertiesReader) PropertiesResponseResultsWithStandardPlacesRes
 
 		source := []byte(body)
 
-		target, err = spatial_properties.AppendPropertiesWithJSON(ctx, source, target, properties, "")
+		append_opts := &spatial_properties.AppendPropertiesOptions{
+			Keys: properties,
+			SourcePrefix: "",
+			TargetPrefix: "",
+		}
+		
+		target, err = spatial_properties.AppendPropertiesWithJSON(ctx, append_opts, source, target)
 
 		if err != nil {
 			return nil, err
