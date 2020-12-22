@@ -140,7 +140,8 @@ func (r *SQLiteSpatialDatabase) Close(ctx context.Context) error {
 
 func (r *SQLiteSpatialDatabase) IndexFeature(ctx context.Context, f wof_geojson.Feature) error {
 
-	// do this concurrently
+	r.mu.Lock()
+	defer r.mu.Unlock()
 
 	err := r.rtree_table.IndexRecord(r.db, f)
 
