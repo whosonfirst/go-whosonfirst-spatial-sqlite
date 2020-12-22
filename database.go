@@ -23,6 +23,7 @@ import (
 	"github.com/whosonfirst/go-whosonfirst-uri"
 	golog "log"
 	"net/url"
+	"strconv"
 	"sync"
 	"time"
 )
@@ -34,14 +35,15 @@ func init() {
 
 type SQLiteSpatialDatabase struct {
 	database.SpatialDatabase
-	Logger      *log.WOFLogger
-	Timer       *timer.Timer
-	mu          *sync.RWMutex
-	db          *sqlite_database.SQLiteDatabase
-	rtree_table sqlite.Table
-	spr_table   sqlite.Table
-	gocache     *gocache.Cache
-	dsn         string
+	Logger        *log.WOFLogger
+	Timer         *timer.Timer
+	mu            *sync.RWMutex
+	db            *sqlite_database.SQLiteDatabase
+	rtree_table   sqlite.Table
+	spr_table     sqlite.Table
+	geojson_table sqlite.Table
+	gocache       *gocache.Cache
+	dsn           string
 }
 
 type RTreeSpatialIndex struct {
@@ -131,6 +133,26 @@ func NewSQLiteSpatialDatabase(ctx context.Context, uri string) (database.Spatial
 		mu:          mu,
 	}
 
+	if q.Get("index-geojson") != "" {
+
+		index_geojson, err := strconv.ParseBool(q.Get("index-geojson"))
+
+		if err != nil {
+			return nil, err
+		}
+
+		if index_geojson {
+
+			geojson_table, err := tables.NewGeoJSONTableWithDatabase(sqlite_db)
+
+			if err != nil {
+				return nil, err
+			}
+
+			spatial_db.geojson_table = geojson_table
+		}
+	}
+
 	return spatial_db, nil
 }
 
@@ -153,6 +175,15 @@ func (r *SQLiteSpatialDatabase) IndexFeature(ctx context.Context, f wof_geojson.
 
 	if err != nil {
 		return err
+	}
+
+	if r.geojson_table != nil {
+
+		err = r.geojson_table.IndexRecord(r.db, f)
+
+		if err != nil {
+			return err
+		}
 	}
 
 	return nil
