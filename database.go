@@ -45,12 +45,12 @@ type SQLiteSpatialDatabase struct {
 }
 
 type RTreeSpatialIndex struct {
-	geometry string
-	bounds   geom.Rect
-	Id       string
-	WOFId    int64
-	IsAlt    bool
-	AltLabel string
+	geometry  string
+	bounds    geom.Rect
+	Id        string
+	FeatureId string
+	IsAlt     bool
+	AltLabel  string
 }
 
 func (sp RTreeSpatialIndex) Bounds() geom.Rect {
@@ -60,10 +60,10 @@ func (sp RTreeSpatialIndex) Bounds() geom.Rect {
 func (sp RTreeSpatialIndex) Path() string {
 
 	if sp.IsAlt {
-		return fmt.Sprintf("%d-alt-%s", sp.WOFId, sp.AltLabel)
+		return fmt.Sprintf("%s-alt-%s", sp.FeatureId, sp.AltLabel)
 	}
 
-	return fmt.Sprintf("%d", sp.WOFId)
+	return sp.FeatureId
 }
 
 type SQLiteResults struct {
@@ -283,10 +283,10 @@ func (r *SQLiteSpatialDatabase) PointInPolygonCandidatesWithChannels(ctx context
 		bounds := sp.Bounds()
 
 		c := &spatial.PointInPolygonCandidate{
-			Id:       sp.Id,
-			WOFId:    sp.WOFId,
-			AltLabel: sp.AltLabel,
-			Bounds:   &bounds,
+			Id:        sp.Id,
+			FeatureId: sp.FeatureId,
+			AltLabel:  sp.AltLabel,
+			Bounds:    &bounds,
 		}
 
 		rsp_ch <- c
@@ -338,7 +338,7 @@ func (r *SQLiteSpatialDatabase) getIntersectsByRect(ctx context.Context, rect *g
 	for rows.Next() {
 
 		var id string
-		var wof_id int64
+		var feature_id string
 		var is_alt int32
 		var alt_label string
 		var geometry string
@@ -347,7 +347,7 @@ func (r *SQLiteSpatialDatabase) getIntersectsByRect(ctx context.Context, rect *g
 		var maxx float64
 		var maxy float64
 
-		err := rows.Scan(&id, &wof_id, &is_alt, &alt_label, &geometry, &minx, &miny, &maxx, &maxy)
+		err := rows.Scan(&id, &feature_id, &is_alt, &alt_label, &geometry, &minx, &miny, &maxx, &maxy)
 
 		if err != nil {
 			return nil, err
@@ -369,10 +369,10 @@ func (r *SQLiteSpatialDatabase) getIntersectsByRect(ctx context.Context, rect *g
 		}
 
 		i := &RTreeSpatialIndex{
-			Id:       fmt.Sprintf("%s#%s", wof_id, id),
-			WOFId:    wof_id,
-			bounds:   rect,
-			geometry: geometry,
+			Id:        fmt.Sprintf("%s#%s", feature_id, id),
+			FeatureId: feature_id,
+			bounds:    rect,
+			geometry:  geometry,
 		}
 
 		if is_alt == 1 {
@@ -416,7 +416,7 @@ func (r *SQLiteSpatialDatabase) inflateSpatialIndexWithChannels(ctx context.Cont
 	}
 
 	sp_id := fmt.Sprintf("%s:%s", sp.Id, sp.AltLabel)
-	wof_id := fmt.Sprintf("%s:%s", sp.WOFId, sp.AltLabel)
+	feature_id := fmt.Sprintf("%s:%s", sp.FeatureId, sp.AltLabel)
 
 	t1 := time.Now()
 
@@ -428,7 +428,7 @@ func (r *SQLiteSpatialDatabase) inflateSpatialIndexWithChannels(ctx context.Cont
 	// see notes below
 
 	mu.RLock()
-	_, ok := seen[wof_id]
+	_, ok := seen[feature_id]
 	mu.RUnlock()
 
 	if ok {
@@ -469,7 +469,7 @@ func (r *SQLiteSpatialDatabase) inflateSpatialIndexWithChannels(ctx context.Cont
 	// ID
 
 	mu.Lock()
-	seen[wof_id] = true
+	seen[feature_id] = true
 	mu.Unlock()
 
 	t4 := time.Now()
