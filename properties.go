@@ -13,6 +13,7 @@ import (
 	"github.com/whosonfirst/go-whosonfirst-sqlite-features/tables"
 	sqlite_database "github.com/whosonfirst/go-whosonfirst-sqlite/database"
 	"net/url"
+	"sync"
 )
 
 type SQLitePropertiesReader struct {
@@ -20,6 +21,7 @@ type SQLitePropertiesReader struct {
 	db               *sqlite_database.SQLiteDatabase
 	properties_table sqlite.Table
 	dsn              string
+	mu               *sync.RWMutex
 }
 
 func init() {
@@ -55,16 +57,22 @@ func NewSQLitePropertiesReader(ctx context.Context, uri string) (spatial_propert
 		return nil, err
 	}
 
+	mu := new(sync.RWMutex)
+
 	pr := &SQLitePropertiesReader{
 		dsn:              dsn,
 		properties_table: properties_table,
 		db:               sqlite_db,
+		mu:               mu,
 	}
 
 	return pr, nil
 }
 
 func (pr *SQLitePropertiesReader) IndexFeature(ctx context.Context, f wof_geojson.Feature) error {
+
+	pr.mu.Lock()
+	defer pr.mu.Unlock()
 
 	return pr.properties_table.IndexRecord(pr.db, f)
 }
