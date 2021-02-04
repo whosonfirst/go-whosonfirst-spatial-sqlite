@@ -99,6 +99,21 @@ func NewSQLiteSpatialDatabase(ctx context.Context, uri string) (database.Spatial
 		return nil, err
 	}
 
+	return NewSQLiteSpatialDatabaseWithDatabase(ctx, uri, sqlite_db)
+}
+
+func NewSQLiteSpatialDatabaseWithDatabase(ctx context.Context, uri string, sqlite_db *sqlite_database.SQLiteDatabase) (database.SpatialDatabase, error) {
+
+	u, err := url.Parse(uri)
+
+	if err != nil {
+		return nil, err
+	}
+
+	q := u.Query()
+
+	dsn := q.Get("dsn")
+
 	rtree_table, err := tables.NewRTreeTableWithDatabase(sqlite_db)
 
 	if err != nil {
