@@ -21,7 +21,7 @@ import (
 	"github.com/whosonfirst/go-whosonfirst-sqlite-features/tables"
 	sqlite_database "github.com/whosonfirst/go-whosonfirst-sqlite/database"
 	"github.com/whosonfirst/go-whosonfirst-uri"
-	golog "log"
+	// golog "log"
 	"net/url"
 	"strconv"
 	"sync"
@@ -209,11 +209,14 @@ func (r *SQLiteSpatialDatabase) PointInPolygon(ctx context.Context, coord *geom.
 	ctx, cancel := context.WithCancel(ctx)
 	defer cancel()
 
-	t1 := time.Now()
+	/*
+		t1 := time.Now()
 
-	defer func() {
-		golog.Printf("Time to point in polygon, %v\n", time.Since(t1))
-	}()
+		defer func() {
+			golog.Printf("Time to point in polygon, %v\n", time.Since(t1))
+		}()
+
+	*/
 
 	rsp_ch := make(chan spr.StandardPlacesResult)
 	err_ch := make(chan error)
