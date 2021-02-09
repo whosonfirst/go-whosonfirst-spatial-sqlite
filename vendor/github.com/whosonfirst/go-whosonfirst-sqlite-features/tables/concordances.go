@@ -93,6 +93,10 @@ func (t *ConcordancesTable) IndexFeature(db sqlite.Database, f geojson.Feature) 
 
 	tx, err := conn.Begin()
 
+	if err != nil {
+		return err
+	}
+
 	id := f.Id()
 
 	sql := fmt.Sprintf(`DELETE FROM %s WHERE id = ?`, t.Name())

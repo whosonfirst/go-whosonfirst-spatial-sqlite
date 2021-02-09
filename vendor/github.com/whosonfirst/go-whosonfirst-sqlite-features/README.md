@@ -234,6 +234,19 @@ CREATE INDEX spr_by_superseding ON spr (is_superseding, lastmodified);
 CREATE INDEX spr_obsolete ON spr (is_deprecated, is_superseded);
 ```
 
+### supersedes
+
+```
+CREATE TABLE %s (
+	id INTEGER NOT NULL,
+	superseded_id INTEGER NOT NULL,
+	superseded_by_id INTEGER NOT NULL,
+	lastmodified INTEGER
+);
+
+CREATE UNIQUE INDEX supersedes_by ON %s (id,superseded_id, superseded_by_id);
+```
+
 ## Custom tables
 
 Sure. You just need to write a per-table package that implements the `Table` interface as described in [go-whosonfirst-sqlite](https://github.com/whosonfirst/go-whosonfirst-sqlite#custom-tables).

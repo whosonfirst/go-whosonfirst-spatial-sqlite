@@ -115,6 +115,10 @@ func (t *NamesTable) IndexFeature(db sqlite.Database, f geojson.Feature) error {
 
 	tx, err := conn.Begin()
 
+	if err != nil {
+		return err
+	}
+
 	id := f.Id()
 
 	sql := fmt.Sprintf(`DELETE FROM %s WHERE id = ?`, t.Name())
