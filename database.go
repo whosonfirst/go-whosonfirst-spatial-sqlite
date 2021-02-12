@@ -677,10 +677,6 @@ func (r *SQLiteSpatialDatabase) retrieveSPR(ctx context.Context, uri_str string)
 
 func (r *SQLiteSpatialDatabase) Read(ctx context.Context, str_uri string) (io.ReadCloser, error) {
 
-	if r.geojson_table == nil {
-		return nil, fmt.Errorf("Database not indexed with ?index-geojson parameter")
-	}
-
 	id, _, err := uri.ParseURI(str_uri)
 
 	if err != nil {
