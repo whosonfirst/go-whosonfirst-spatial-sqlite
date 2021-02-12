@@ -21,8 +21,11 @@ import (
 	"github.com/whosonfirst/go-whosonfirst-sqlite-features/tables"
 	sqlite_database "github.com/whosonfirst/go-whosonfirst-sqlite/database"
 	"github.com/whosonfirst/go-whosonfirst-uri"
+	"io"
+	"io/ioutil"
 	"net/url"
 	"strconv"
+	"strings"
 	"sync"
 	"time"
 )
@@ -679,4 +682,48 @@ func (r *SQLiteSpatialDatabase) retrieveSPR(ctx context.Context, uri_str string)
 
 	r.gocache.Set(uri_str, s, -1)
 	return s, nil
+}
+
+// whosonfirst/go-reader interface
+
+func (r *SQLiteSpatialDatabase) Read(ctx context.Context, str_uri string) (io.ReadCloser, error) {
+
+	if r.geojson_table == nil {
+		return nil, fmt.Errorf("Database not indexed with ?index-geojson parameter")
+	}
+
+	id, _, err := uri.ParseURI(str_uri)
+
+	if err != nil {
+		return nil, err
+	}
+
+	conn, err := r.db.Conn()
+
+	if err != nil {
+		return nil, err
+	}
+
+	// TO DO : ALT STUFF HERE
+
+	q := fmt.Sprintf("SELECT body FROM %s WHERE id = ?", r.geojson_table.Name())
+
+	row := conn.QueryRowContext(ctx, q, id)
+
+	var body string
+
+	err = row.Scan(body)
+
+	if err != nil {
+		return nil, err
+	}
+
+	sr := strings.NewReader(body)
+	fh := ioutil.NopCloser(sr)
+
+	return fh, nil
+}
+
+func (r *SQLiteSpatialDatabase) URI(str_uri string) string {
+	return str_uri
 }
