@@ -712,7 +712,7 @@ func (r *SQLiteSpatialDatabase) Read(ctx context.Context, str_uri string) (io.Re
 
 	var body string
 
-	err = row.Scan(body)
+	err = row.Scan(&body)
 
 	if err != nil {
 		return nil, err

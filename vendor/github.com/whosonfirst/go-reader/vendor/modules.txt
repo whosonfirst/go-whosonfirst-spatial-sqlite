@@ -1,2 +1,0 @@
-# github.com/aaronland/go-roster v0.0.2
-github.com/aaronland/go-roster
