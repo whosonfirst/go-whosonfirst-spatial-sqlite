@@ -8,11 +8,12 @@ The goal is to have a package that conforms to the [database.SpatialDatabase](ht
 
 ## Databases
 
-This code depends on (3) tables as indexed by the `go-whosonfirst-sqlite-features` package:
+This code depends on (4) tables as indexed by the `go-whosonfirst-sqlite-features` package:
 
 * [rtree](https://github.com/whosonfirst/go-whosonfirst-sqlite-features#rtree) - this table is used to perform point-in-polygon spatial queries.
 * [spr](https://github.com/whosonfirst/go-whosonfirst-sqlite-features#spr) - this table is used to generate [standard place response](#) (SPR) results.
 * [properties](https://github.com/whosonfirst/go-whosonfirst-sqlite-features#properties) - this table is used to append extra properties (to the SPR response) for `spatial.PropertiesResponseResults` responses.
+* [geojson](https://github.com/whosonfirst/go-whosonfirst-sqlite-features#geojson) - this table is used to satisfy the `whosonfirst/go-reader.Reader` requirements in the `spatial.SpatialDatabase` interface. It is meant to be a simple ID to bytes (or filehandle) lookup rather than a data structure that is parsed or queried.
 
 Here's an example of the creating a compatible SQLite database for all the [administative data in Canada](https://github.com/whosonfirst-data/whosonfirst-data-admin-ca) using the `wof-sqlite-index-features` tool which is part of the [go-whosonfirst-sqlite-features-index](https://github.com/whosonfirst/go-whosonfirst-sqlite-features-index) package:
 
@@ -389,3 +390,4 @@ pr, err := properties.NewPropertiesReader(ctx, "sqlite://?dsn={DSN}")
 * https://github.com/whosonfirst/go-whosonfirst-spatial
 * https://github.com/whosonfirst/go-whosonfirst-sqlite
 * https://github.com/whosonfirst/go-whosonfirst-sqlite-features
+* https://github.com/whosonfirst/go-reader

@@ -24,7 +24,6 @@ import (
 	"io"
 	"io/ioutil"
 	"net/url"
-	"strconv"
 	"strings"
 	"sync"
 	"time"
@@ -128,6 +127,15 @@ func NewSQLiteSpatialDatabaseWithDatabase(ctx context.Context, uri string, sqlit
 		return nil, err
 	}
 
+	// This is so we can satisfy the reader.Reader requirement
+	// in the spatial.SpatialDatabase interface
+
+	geojson_table, err := tables.NewGeoJSONTableWithDatabase(sqlite_db)
+
+	if err != nil {
+		return nil, err
+	}
+
 	logger := log.SimpleWOFLogger("index")
 
 	expires := 5 * time.Minute
@@ -140,34 +148,15 @@ func NewSQLiteSpatialDatabaseWithDatabase(ctx context.Context, uri string, sqlit
 	t := timer.NewTimer()
 
 	spatial_db := &SQLiteSpatialDatabase{
-		Logger:      logger,
-		Timer:       t,
-		db:          sqlite_db,
-		rtree_table: rtree_table,
-		spr_table:   spr_table,
-		gocache:     gc,
-		dsn:         dsn,
-		mu:          mu,
-	}
-
-	if q.Get("index-geojson") != "" {
-
-		index_geojson, err := strconv.ParseBool(q.Get("index-geojson"))
-
-		if err != nil {
-			return nil, err
-		}
-
-		if index_geojson {
-
-			geojson_table, err := tables.NewGeoJSONTableWithDatabase(sqlite_db)
-
-			if err != nil {
-				return nil, err
-			}
-
-			spatial_db.geojson_table = geojson_table
-		}
+		Logger:        logger,
+		Timer:         t,
+		db:            sqlite_db,
+		rtree_table:   rtree_table,
+		spr_table:     spr_table,
+		geojson_table: geojson_table,
+		gocache:       gc,
+		dsn:           dsn,
+		mu:            mu,
 	}
 
 	return spatial_db, nil
