@@ -9,6 +9,7 @@ import (
 	"fmt"
 	gocache "github.com/patrickmn/go-cache"
 	"github.com/skelterjohn/geom"
+	"github.com/whosonfirst/go-reader/ioutil"
 	wof_geojson "github.com/whosonfirst/go-whosonfirst-geojson-v2"
 	"github.com/whosonfirst/go-whosonfirst-log"
 	"github.com/whosonfirst/go-whosonfirst-spatial"
@@ -22,7 +23,6 @@ import (
 	sqlite_database "github.com/whosonfirst/go-whosonfirst-sqlite/database"
 	"github.com/whosonfirst/go-whosonfirst-uri"
 	"io"
-	"io/ioutil"
 	"net/url"
 	"strings"
 	"sync"
@@ -162,7 +162,7 @@ func NewSQLiteSpatialDatabaseWithDatabase(ctx context.Context, uri string, sqlit
 	return spatial_db, nil
 }
 
-func (r *SQLiteSpatialDatabase) Close(ctx context.Context) error {
+func (r *SQLiteSpatialDatabase) Disconnect(ctx context.Context) error {
 	return r.db.Close()
 }
 
@@ -675,7 +675,7 @@ func (r *SQLiteSpatialDatabase) retrieveSPR(ctx context.Context, uri_str string)
 
 // whosonfirst/go-reader interface
 
-func (r *SQLiteSpatialDatabase) Read(ctx context.Context, str_uri string) (io.ReadCloser, error) {
+func (r *SQLiteSpatialDatabase) Read(ctx context.Context, str_uri string) (io.ReadSeekCloser, error) {
 
 	id, _, err := uri.ParseURI(str_uri)
 
@@ -704,11 +704,29 @@ func (r *SQLiteSpatialDatabase) Read(ctx context.Context, str_uri string) (io.Re
 	}
 
 	sr := strings.NewReader(body)
-	fh := ioutil.NopCloser(sr)
+	fh, err := ioutil.NewReadSeekCloser(sr)
+
+	if err != nil {
+		return nil, err
+	}
 
 	return fh, nil
 }
 
-func (r *SQLiteSpatialDatabase) URI(str_uri string) string {
+func (r *SQLiteSpatialDatabase) ReaderURI(str_uri string) string {
 	return str_uri
+}
+
+// whosonfirst/go-writer interface
+
+func (r *SQLiteSpatialDatabase) Write(ctx context.Context, key string, fh io.ReadSeeker) (int64, error) {
+	return 0, fmt.Errorf("Not implemented")
+}
+
+func (r *SQLiteSpatialDatabase) WriterURI(str_uri string) string {
+	return str_uri
+}
+
+func (r *SQLiteSpatialDatabase) Close() error {
+	return nil
 }
