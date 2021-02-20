@@ -66,13 +66,13 @@ github.com/whosonfirst/go-whosonfirst-log
 # github.com/whosonfirst/go-whosonfirst-names v0.1.0
 github.com/whosonfirst/go-whosonfirst-names
 github.com/whosonfirst/go-whosonfirst-names/tags
-# github.com/whosonfirst/go-whosonfirst-placetypes v0.2.4
+# github.com/whosonfirst/go-whosonfirst-placetypes v0.3.0
 github.com/whosonfirst/go-whosonfirst-placetypes
 github.com/whosonfirst/go-whosonfirst-placetypes/placetypes
 # github.com/whosonfirst/go-whosonfirst-sources v0.1.0
 github.com/whosonfirst/go-whosonfirst-sources
 github.com/whosonfirst/go-whosonfirst-sources/sources
-# github.com/whosonfirst/go-whosonfirst-spatial v0.0.32
+# github.com/whosonfirst/go-whosonfirst-spatial v0.0.33
 ## explicit
 github.com/whosonfirst/go-whosonfirst-spatial
 github.com/whosonfirst/go-whosonfirst-spatial/database
