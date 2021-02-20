@@ -713,7 +713,7 @@ func (r *SQLiteSpatialDatabase) Read(ctx context.Context, str_uri string) (io.Re
 	return fh, nil
 }
 
-func (r *SQLiteSpatialDatabase) ReaderURI(str_uri string) string {
+func (r *SQLiteSpatialDatabase) ReaderURI(ctx context.Context, str_uri string) string {
 	return str_uri
 }
 
@@ -723,10 +723,10 @@ func (r *SQLiteSpatialDatabase) Write(ctx context.Context, key string, fh io.Rea
 	return 0, fmt.Errorf("Not implemented")
 }
 
-func (r *SQLiteSpatialDatabase) WriterURI(str_uri string) string {
+func (r *SQLiteSpatialDatabase) WriterURI(ctx context.Context, str_uri string) string {
 	return str_uri
 }
 
-func (r *SQLiteSpatialDatabase) Close() error {
+func (r *SQLiteSpatialDatabase) Close(ctx context.Context) error {
 	return nil
 }
