@@ -9,7 +9,7 @@ import (
 	"fmt"
 	gocache "github.com/patrickmn/go-cache"
 	"github.com/skelterjohn/geom"
-	"github.com/whosonfirst/go-reader/ioutil"
+	"github.com/whosonfirst/go-ioutil"
 	wof_geojson "github.com/whosonfirst/go-whosonfirst-geojson-v2"
 	"github.com/whosonfirst/go-whosonfirst-log"
 	"github.com/whosonfirst/go-whosonfirst-spatial"
