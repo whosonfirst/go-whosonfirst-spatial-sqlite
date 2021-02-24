@@ -9,7 +9,7 @@ require (
 	github.com/whosonfirst/go-whosonfirst-flags v0.2.0
 	github.com/whosonfirst/go-whosonfirst-geojson-v2 v0.15.1
 	github.com/whosonfirst/go-whosonfirst-log v0.1.0
-	github.com/whosonfirst/go-whosonfirst-spatial v0.0.34
+	github.com/whosonfirst/go-whosonfirst-spatial v0.0.35
 	github.com/whosonfirst/go-whosonfirst-spr v0.1.0
 	github.com/whosonfirst/go-whosonfirst-sqlite v0.1.7
 	github.com/whosonfirst/go-whosonfirst-sqlite-features v0.6.6
