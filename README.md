@@ -1,5 +1,7 @@
 # go-whosonfirst-spatial-sqlite
 
+SQLite-backed implementation of the go-whosonfirst-spatial interfaces.
+
 ## Important
 
 This is work in progress. It may change, probably has bugs and isn't properly documented yet.
