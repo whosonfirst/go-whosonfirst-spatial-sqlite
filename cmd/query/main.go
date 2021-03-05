@@ -10,7 +10,8 @@ import (
 	"github.com/whosonfirst/go-whosonfirst-spatial/geo"
 	"github.com/whosonfirst/go-whosonfirst-spatial/properties"
 	"github.com/whosonfirst/go-whosonfirst-spr"
-	"github.com/aws/aws-lambda-go/lambda"	
+	"github.com/aws/aws-lambda-go/lambda"
+	"github.com/sfomuseum/go-flags/flagset"
 	"log"
 )
 
@@ -32,6 +33,12 @@ func main() {
 	
 	flags.Parse(fs)
 
+	err = flagset.SetFlagsFromEnvVars(fs, "PIP")
+
+	if err != nil {
+		log.Fatalf("Failed to assign flags from environment variables, %v", err)
+	}
+	
 	err = flags.ValidateCommonFlags(fs)
 
 	if err != nil {
@@ -51,12 +58,13 @@ func main() {
 	
 	ctx := context.Background()
 	db, err := database.NewSpatialDatabase(ctx, database_uri)
-
+	
 	if err != nil {
 		log.Fatalf("Failed to create database for '%s', %v", database_uri, err)
 	}
-
-	//
+	
+	// This is the meat of it which we're putting in its own function that
+	// can be invoked in both a CLI and a Lambda context
 	
 	query := func(ctx context.Context, latitude float64, longitude float64, props ...string) (interface{}, error) {
 
@@ -81,7 +89,7 @@ func main() {
 		if err != nil {
 			return nil, fmt.Errorf("Failed to query database with coord %v, %v", c, err)
 		}
-		
+
 		rsp = r
 		
 		if len(props) > 0 {

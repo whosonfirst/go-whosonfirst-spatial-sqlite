@@ -5,6 +5,7 @@ go 1.16
 require (
 	github.com/aws/aws-lambda-go v1.23.0
 	github.com/patrickmn/go-cache v2.1.0+incompatible
+	github.com/sfomuseum/go-flags v0.7.0
 	github.com/skelterjohn/geom v0.0.0-20180103142417-96f3e8a219c5
 	github.com/whosonfirst/go-ioutil v0.0.1
 	github.com/whosonfirst/go-whosonfirst-flags v0.2.0

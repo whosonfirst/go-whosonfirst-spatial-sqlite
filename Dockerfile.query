@@ -11,7 +11,7 @@ RUN apk update && apk upgrade \
     && cd && rm -rf /build
 
 RUN mkdir /usr/local/data
-COPY arch.db /usr/local/data.arch.db
+COPY arch.db /usr/local/data/arch.db
 
 # (Optional) Add Lambda Runtime Interface Emulator and use a script in the ENTRYPOINT for simpler local runs
 # # https://docs.aws.amazon.com/lambda/latest/dg/go-image.html#go-image-clients
