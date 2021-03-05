@@ -1,0 +1,24 @@
+FROM golang:1.16-alpine
+
+RUN mkdir /build
+
+COPY . /build/go-whosonfirst-spatial-sqlite
+
+RUN apk update && apk upgrade \
+    && apk add libc-dev gcc \
+    && cd /build/go-whosonfirst-spatial-sqlite \
+    && go build -mod vendor -o /main cmd/query/main.go \    
+    && cd && rm -rf /build
+
+RUN mkdir /usr/local/data
+COPY arch.db /usr/local/data.arch.db
+
+# (Optional) Add Lambda Runtime Interface Emulator and use a script in the ENTRYPOINT for simpler local runs
+# # https://docs.aws.amazon.com/lambda/latest/dg/go-image.html#go-image-clients
+
+ADD https://github.com/aws/aws-lambda-runtime-interface-emulator/releases/latest/download/aws-lambda-rie /usr/bin/aws-lambda-rie
+RUN chmod 755 /usr/bin/aws-lambda-rie
+COPY Dockerfile.entry.sh /entry.sh
+RUN chmod 755 /entry.sh
+
+ENTRYPOINT [ "/entry.sh" ] 

@@ -10,6 +10,7 @@ import (
 	"github.com/whosonfirst/go-whosonfirst-spatial/geo"
 	"github.com/whosonfirst/go-whosonfirst-spatial/properties"
 	"github.com/whosonfirst/go-whosonfirst-spr"
+	"github.com/aws/aws-lambda-go/lambda"	
 	"log"
 )
 
@@ -27,6 +28,8 @@ func main() {
 		log.Fatal(err)
 	}
 
+	mode := fs.String("mode", "cli", "...")
+	
 	flags.Parse(fs)
 
 	err = flags.ValidateCommonFlags(fs)
@@ -44,11 +47,8 @@ func main() {
 	database_uri, _ := flags.StringVar(fs, "spatial-database-uri")
 	properties_uri, _ := flags.StringVar(fs, "properties-reader-uri")
 
-	props, _ := flags.MultiStringVar(fs, "properties")
-
-	latitude, _ := flags.Float64Var(fs, "latitude")
-	longitude, _ := flags.Float64Var(fs, "longitude")
-
+	// props, _ := flags.MultiStringVar(fs, "properties")
+	
 	ctx := context.Background()
 	db, err := database.NewSpatialDatabase(ctx, database_uri)
 
@@ -56,50 +56,92 @@ func main() {
 		log.Fatalf("Failed to create database for '%s', %v", database_uri, err)
 	}
 
-	c, err := geo.NewCoordinate(longitude, latitude)
+	//
+	
+	query := func(ctx context.Context, latitude float64, longitude float64, props ...string) (interface{}, error) {
 
-	if err != nil {
-		log.Fatalf("Failed to create new coordinate, %v", err)
-	}
-
-	f, err := flags.NewSPRFilterFromFlagSet(fs)
-
-	if err != nil {
-		log.Fatalf("Failed to create SPR filter, %v", err)
-	}
-
-	var rsp interface{}
-
-	r, err := db.PointInPolygon(ctx, c, f)
-
-	if err != nil {
-		log.Fatalf("Failed to query database with coord %v, %v", c, err)
-	}
-
-	rsp = r
-
-	if len(props) > 0 {
-
-		pr, err := properties.NewPropertiesReader(ctx, properties_uri)
-
+		c, err := geo.NewCoordinate(longitude, latitude)
+		
 		if err != nil {
-			log.Fatalf("Failed to create properties reader, %v", err)
+			return nil, fmt.Errorf("Failed to create new coordinate, %v", err)
 		}
 
-		r, err := pr.PropertiesResponseResultsWithStandardPlacesResults(ctx, rsp.(spr.StandardPlacesResults), props)
+		// HOW TO FROM LAMBDA...
+		
+		f, err := flags.NewSPRFilterFromFlagSet(fs)
+		
+		if err != nil {
+			return nil, fmt.Errorf("Failed to create SPR filter, %v", err)
+		}
+		
+		var rsp interface{}
+
+		r, err := db.PointInPolygon(ctx, c, f)
 
 		if err != nil {
-			log.Fatalf("Failed to generate properties response, %v", err)
+			return nil, fmt.Errorf("Failed to query database with coord %v, %v", c, err)
 		}
-
+		
 		rsp = r
+		
+		if len(props) > 0 {
+			
+			pr, err := properties.NewPropertiesReader(ctx, properties_uri)
+			
+			if err != nil {
+				return nil, fmt.Errorf("Failed to create properties reader, %v", err)
+			}
+			
+			r, err := pr.PropertiesResponseResultsWithStandardPlacesResults(ctx, rsp.(spr.StandardPlacesResults), props)
+			
+			if err != nil {
+				return nil, fmt.Errorf("Failed to generate properties response, %v", err)
+			}
+
+			rsp = r
+		}
+
+		return r, nil
 	}
+	
+	switch *mode {
 
-	enc, err := json.Marshal(rsp)
+	case "cli":
+		
+		latitude, _ := flags.Float64Var(fs, "latitude")
+		longitude, _ := flags.Float64Var(fs, "longitude")
 
-	if err != nil {
-		log.Fatalf("Failed to marshal results, %v", err)
+		props, _ := flags.MultiStringVar(fs, "properties")
+
+		rsp, err := query(ctx, latitude, longitude, props...)
+
+		if err != nil {
+			log.Fatalf("Failed to query, %v", err)
+		}
+		
+		enc, err := json.Marshal(rsp)
+		
+		if err != nil {
+			log.Fatalf("Failed to marshal results, %v", err)
+		}
+		
+		fmt.Println(string(enc))
+		
+	case "lambda":
+
+		type PointInPolygonEvent struct {
+			Latitude float64 `json:"latitude"`
+			Longitude float64 `json:"longitude"`
+			Properties []string `json:"properties"`
+		}
+
+		handler := func(ctx context.Context, ev PointInPolygonEvent) (interface{}, error) {
+			return query(ctx, ev.Latitude, ev.Longitude, ev.Properties...)
+		}
+
+		lambda.Start(handler)
+		
+	default:
+		log.Fatalf("Invalid or unsupported mode '%s'", *mode)
 	}
-
-	fmt.Println(string(enc))
 }
