@@ -69,6 +69,8 @@ func main() {
 	// can be invoked in both a CLI and a Lambda context
 
 	// TBD - update this to expect a *api.PointInPolygonRequest ?
+	// Probably but the CLI flags/filter code needs to be updated
+	// accordingly (20210309/thisisaaronland)
 
 	query := func(ctx context.Context, latitude float64, longitude float64, f filter.Filter, props ...string) (interface{}, error) {
 
@@ -117,6 +119,18 @@ func main() {
 
 		props, _ := flags.MultiStringVar(fs, "properties")
 
+		/*
+
+			req := &api.PointInPolygonRequest{
+				Latitude: latitude,
+				Longitude: longitude,
+				Properties: props,
+			}
+
+		*/
+
+		// this needs to be updated to work with *api.PointInPolygonRequest (above)
+
 		f, err := flags.NewSPRFilterFromFlagSet(fs)
 
 		if err != nil {
@@ -149,6 +163,10 @@ func main() {
 
 			return query(ctx, req.Latitude, req.Longitude, f, req.Properties...)
 		}
+
+		// This will be simplified to be lambda.Start(query) once
+		// the CLI flags/filter code has been updated (above)
+		// (20210309/thisisaaronland)
 
 		lambda.Start(handler)
 
