@@ -9,7 +9,6 @@ import (
 	_ "github.com/whosonfirst/go-whosonfirst-spatial-sqlite"
 	"github.com/whosonfirst/go-whosonfirst-spatial/api"
 	"github.com/whosonfirst/go-whosonfirst-spatial/database"
-	"github.com/whosonfirst/go-whosonfirst-spatial/filter"
 	"github.com/whosonfirst/go-whosonfirst-spatial/flags"
 	"github.com/whosonfirst/go-whosonfirst-spatial/geo"
 	"github.com/whosonfirst/go-whosonfirst-spatial/properties"
@@ -33,7 +32,7 @@ func main() {
 
 	mode := fs.String("mode", "cli", "...")
 
-	flags.Parse(fs)
+	flagset.Parse(fs)
 
 	err = flagset.SetFlagsFromEnvVars(fs, "PIP")
 
@@ -65,19 +64,18 @@ func main() {
 		log.Fatalf("Failed to create database for '%s', %v", database_uri, err)
 	}
 
-	// This is the meat of it which we're putting in its own function that
-	// can be invoked in both a CLI and a Lambda context
+	query := func(ctx context.Context, req *api.PointInPolygonRequest) (interface{}, error) {
 
-	// TBD - update this to expect a *api.PointInPolygonRequest ?
-	// Probably but the CLI flags/filter code needs to be updated
-	// accordingly (20210309/thisisaaronland)
-
-	query := func(ctx context.Context, latitude float64, longitude float64, f filter.Filter, props ...string) (interface{}, error) {
-
-		c, err := geo.NewCoordinate(longitude, latitude)
+		c, err := geo.NewCoordinate(req.Longitude, req.Latitude)
 
 		if err != nil {
 			return nil, fmt.Errorf("Failed to create new coordinate, %v", err)
+		}
+
+		f, err := api.NewSPRFilterFromPointInPolygonRequest(req)
+
+		if err != nil {
+			return nil, err
 		}
 
 		var rsp interface{}
@@ -90,7 +88,7 @@ func main() {
 
 		rsp = r
 
-		if len(props) > 0 {
+		if len(req.Properties) > 0 {
 
 			pr, err := properties.NewPropertiesReader(ctx, properties_uri)
 
@@ -98,7 +96,7 @@ func main() {
 				return nil, fmt.Errorf("Failed to create properties reader, %v", err)
 			}
 
-			r, err := pr.PropertiesResponseResultsWithStandardPlacesResults(ctx, rsp.(spr.StandardPlacesResults), props)
+			r, err := pr.PropertiesResponseResultsWithStandardPlacesResults(ctx, rsp.(spr.StandardPlacesResults), req.Properties)
 
 			if err != nil {
 				return nil, fmt.Errorf("Failed to generate properties response, %v", err)
@@ -114,30 +112,13 @@ func main() {
 
 	case "cli":
 
-		latitude, _ := flags.Float64Var(fs, "latitude")
-		longitude, _ := flags.Float64Var(fs, "longitude")
-
-		props, _ := flags.MultiStringVar(fs, "properties")
-
-		/*
-
-			req := &api.PointInPolygonRequest{
-				Latitude: latitude,
-				Longitude: longitude,
-				Properties: props,
-			}
-
-		*/
-
-		// this needs to be updated to work with *api.PointInPolygonRequest (above)
-
-		f, err := flags.NewSPRFilterFromFlagSet(fs)
+		req, err := api.NewPointInPolygonRequestFromFlagSet(fs)
 
 		if err != nil {
 			log.Fatalf("Failed to create SPR filter, %v", err)
 		}
 
-		rsp, err := query(ctx, latitude, longitude, f, props...)
+		rsp, err := query(ctx, req)
 
 		if err != nil {
 			log.Fatalf("Failed to query, %v", err)
@@ -153,22 +134,7 @@ func main() {
 
 	case "lambda":
 
-		handler := func(ctx context.Context, req *api.PointInPolygonRequest) (interface{}, error) {
-
-			f, err := api.NewSPRFilterFromPointInPolygonRequest(req)
-
-			if err != nil {
-				return nil, err
-			}
-
-			return query(ctx, req.Latitude, req.Longitude, f, req.Properties...)
-		}
-
-		// This will be simplified to be lambda.Start(query) once
-		// the CLI flags/filter code has been updated (above)
-		// (20210309/thisisaaronland)
-
-		lambda.Start(handler)
+		lambda.Start(query)
 
 	default:
 		log.Fatalf("Invalid or unsupported mode '%s'", *mode)
