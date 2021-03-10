@@ -16,6 +16,3 @@ local:
 
 local-query:
 	docker run -e PIP_MODE=lambda -e PIP_SPATIAL_DATABASE_URI=sqlite://?dsn=/usr/local/data/arch.db -p 9000:8080 point-in-polygon:latest /main
-
-local-server:
-	docker run -e PIP_MODE=server -e PIP_SERVER_URI=http://0.0.0.0:8080 -e PIP_SPATIAL_DATABASE_URI=sqlite://?dsn=/usr/local/data/arch.db -p 8080:8080 -it point-in-polygon
