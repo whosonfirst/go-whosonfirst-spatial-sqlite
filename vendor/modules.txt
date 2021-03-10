@@ -1,9 +1,13 @@
+# github.com/aaronland/go-http-server v0.0.5
+## explicit
+github.com/aaronland/go-http-server
 # github.com/aaronland/go-json-query v0.0.2
 github.com/aaronland/go-json-query
 # github.com/aaronland/go-roster v0.0.2
 github.com/aaronland/go-roster
 # github.com/aws/aws-lambda-go v1.23.0
 ## explicit
+github.com/aws/aws-lambda-go/events
 github.com/aws/aws-lambda-go/lambda
 github.com/aws/aws-lambda-go/lambda/handlertrace
 github.com/aws/aws-lambda-go/lambda/messages
@@ -38,6 +42,8 @@ github.com/tidwall/sjson
 github.com/twpayne/go-geom
 github.com/twpayne/go-geom/encoding/geojson
 github.com/twpayne/go-geom/encoding/wkt
+# github.com/whosonfirst/algnhsa v0.1.0
+github.com/whosonfirst/algnhsa
 # github.com/whosonfirst/go-ioutil v0.0.1
 ## explicit
 github.com/whosonfirst/go-ioutil

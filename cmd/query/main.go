@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/aaronland/go-http-server"
 	"github.com/aws/aws-lambda-go/lambda"
 	"github.com/sfomuseum/go-flags/flagset"
 	_ "github.com/whosonfirst/go-whosonfirst-spatial-sqlite"
@@ -14,6 +15,7 @@ import (
 	"github.com/whosonfirst/go-whosonfirst-spatial/properties"
 	"github.com/whosonfirst/go-whosonfirst-spr"
 	"log"
+	gohttp "net/http"
 )
 
 func main() {
@@ -31,6 +33,8 @@ func main() {
 	}
 
 	mode := fs.String("mode", "cli", "...")
+
+	server_uri := fs.String("server-uri", "http://localhost:8080", "...")
 
 	flagset.Parse(fs)
 
@@ -54,8 +58,6 @@ func main() {
 
 	database_uri, _ := flags.StringVar(fs, "spatial-database-uri")
 	properties_uri, _ := flags.StringVar(fs, "properties-reader-uri")
-
-	// props, _ := flags.MultiStringVar(fs, "properties")
 
 	ctx := context.Background()
 	db, err := database.NewSpatialDatabase(ctx, database_uri)
@@ -135,6 +137,56 @@ func main() {
 	case "lambda":
 
 		lambda.Start(query)
+
+	case "server":
+
+		fn := func(rsp gohttp.ResponseWriter, req *gohttp.Request) {
+
+			ctx := req.Context()
+
+			var pip_req *api.PointInPolygonRequest
+
+			dec := json.NewDecoder(req.Body)
+			err := dec.Decode(&pip_req)
+
+			if err != nil {
+				gohttp.Error(rsp, err.Error(), gohttp.StatusInternalServerError)
+			}
+
+			pip_rsp, err := query(ctx, pip_req)
+
+			if err != nil {
+				gohttp.Error(rsp, err.Error(), gohttp.StatusInternalServerError)
+			}
+
+			enc := json.NewEncoder(rsp)
+			err = enc.Encode(pip_rsp)
+
+			if err != nil {
+				gohttp.Error(rsp, err.Error(), gohttp.StatusInternalServerError)
+			}
+
+			return
+		}
+
+		pip_handler := gohttp.HandlerFunc(fn)
+
+		mux := gohttp.NewServeMux()
+		mux.Handle("/", pip_handler)
+
+		s, err := server.NewServer(ctx, *server_uri)
+
+		if err != nil {
+			log.Fatalf("Failed to create server for '%s', %v", *server_uri, err)
+		}
+
+		log.Printf("Listening for requests at %s\n", s.Address())
+		
+		err = s.ListenAndServe(ctx, mux)
+
+		if err != nil {
+			log.Fatalf("Failed to serve requests for '%s', %v", *server_uri, err)
+		}
 
 	default:
 		log.Fatalf("Invalid or unsupported mode '%s'", *mode)
