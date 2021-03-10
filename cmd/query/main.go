@@ -10,6 +10,7 @@ import (
 	"github.com/whosonfirst/go-whosonfirst-spatial/geo"
 	"github.com/whosonfirst/go-whosonfirst-spatial/properties"
 	"github.com/whosonfirst/go-whosonfirst-spr"
+	"github.com/sfomuseum/go-flags/flagset"	
 	"log"
 )
 
@@ -27,7 +28,7 @@ func main() {
 		log.Fatal(err)
 	}
 
-	flags.Parse(fs)
+	flagset.Parse(fs)
 
 	err = flags.ValidateCommonFlags(fs)
 
