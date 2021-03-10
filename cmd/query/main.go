@@ -7,6 +7,7 @@ import (
 	"github.com/aws/aws-lambda-go/lambda"
 	"github.com/sfomuseum/go-flags/flagset"
 	_ "github.com/whosonfirst/go-whosonfirst-spatial-sqlite"
+	"github.com/whosonfirst/go-whosonfirst-spatial/api"
 	"github.com/whosonfirst/go-whosonfirst-spatial/database"
 	"github.com/whosonfirst/go-whosonfirst-spatial/filter"
 	"github.com/whosonfirst/go-whosonfirst-spatial/flags"
@@ -14,8 +15,6 @@ import (
 	"github.com/whosonfirst/go-whosonfirst-spatial/properties"
 	"github.com/whosonfirst/go-whosonfirst-spr"
 	"log"
-	"net/url"
-	"strconv"
 )
 
 func main() {
@@ -68,6 +67,8 @@ func main() {
 
 	// This is the meat of it which we're putting in its own function that
 	// can be invoked in both a CLI and a Lambda context
+
+	// TBD - update this to expect a *api.PointInPolygonRequest ?
 
 	query := func(ctx context.Context, latitude float64, longitude float64, f filter.Filter, props ...string) (interface{}, error) {
 
@@ -138,70 +139,15 @@ func main() {
 
 	case "lambda":
 
-		// TODO: move this in to go-whosonfirst-spatial
-		// maybe an /aws/events or aws/lambda directory
-		// TBD: consider whether this is just aws specific
-		// or the ground work for a general purpose API
-		// (20210305/thisisaaronland)
+		handler := func(ctx context.Context, req *api.PointInPolygonRequest) (interface{}, error) {
 
-		type PointInPolygonEvent struct {
-			Latitude            float64  `json:"latitude"`
-			Longitude           float64  `json:"longitude"`
-			Properties          []string `json:"properties"`
-			Placetypes          []string `json:"placetypes,omitempty"`
-			Geometries          string   `json:"geometries,omitempty"`
-			AlternateGeometries []string `json:"alternate_geometries,omitempty"`
-			IsCurrent           []int    `json:"is_current,omitempty"`
-			IsCeased            []int    `json:"is_ceased,omitempty"`
-			IsDeprecated        []int    `json:"is_deprecated,omitempty"`
-			IsSuperseded        []int    `json:"is_superseded,omitempty"`
-			IsSuperseding       []int    `json:"is_superseding,omitempty"`
-		}
-
-		handler := func(ctx context.Context, ev PointInPolygonEvent) (interface{}, error) {
-
-			// TODO: move this in to go-whosonfirst-spatial
-			// as in a filter.NewSPRFilterFromPointInPolygonEvent
-			// method (20210305/thisisaaronland)
-
-			q := url.Values{}
-			q.Set("geometries", ev.Geometries)
-
-			for _, v := range ev.AlternateGeometries {
-				q.Add("alternate_geometry", v)
-			}
-
-			for _, v := range ev.Placetypes {
-				q.Add("placetype", v)
-			}
-
-			for _, v := range ev.IsCurrent {
-				q.Add("is_current", strconv.Itoa(v))
-			}
-
-			for _, v := range ev.IsCeased {
-				q.Add("is_ceased", strconv.Itoa(v))
-			}
-
-			for _, v := range ev.IsDeprecated {
-				q.Add("is_deprecated", strconv.Itoa(v))
-			}
-
-			for _, v := range ev.IsSuperseded {
-				q.Add("is_superseded", strconv.Itoa(v))
-			}
-
-			for _, v := range ev.IsSuperseding {
-				q.Add("is_superseding", strconv.Itoa(v))
-			}
-
-			f, err := filter.NewSPRFilterFromQuery(q)
+			f, err := api.NewSPRFilterFromPointInPolygonRequest(req)
 
 			if err != nil {
 				return nil, err
 			}
 
-			return query(ctx, ev.Latitude, ev.Longitude, f, ev.Properties...)
+			return query(ctx, req.Latitude, req.Longitude, f, req.Properties...)
 		}
 
 		lambda.Start(handler)
