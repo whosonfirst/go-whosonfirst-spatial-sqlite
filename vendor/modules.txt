@@ -65,7 +65,7 @@ github.com/whosonfirst/go-sanitize
 github.com/whosonfirst/go-spatialite
 # github.com/whosonfirst/go-whosonfirst-crawl v0.2.1
 github.com/whosonfirst/go-whosonfirst-crawl
-# github.com/whosonfirst/go-whosonfirst-flags v0.4.0
+# github.com/whosonfirst/go-whosonfirst-flags v0.4.1
 ## explicit
 github.com/whosonfirst/go-whosonfirst-flags
 github.com/whosonfirst/go-whosonfirst-flags/date
@@ -95,7 +95,7 @@ github.com/whosonfirst/go-whosonfirst-placetypes/placetypes
 # github.com/whosonfirst/go-whosonfirst-sources v0.1.0
 github.com/whosonfirst/go-whosonfirst-sources
 github.com/whosonfirst/go-whosonfirst-sources/sources
-# github.com/whosonfirst/go-whosonfirst-spatial v0.0.40
+# github.com/whosonfirst/go-whosonfirst-spatial v0.0.41
 ## explicit
 github.com/whosonfirst/go-whosonfirst-spatial
 github.com/whosonfirst/go-whosonfirst-spatial/api

@@ -51,7 +51,7 @@ func FilterSPR(filters Filter, s spr.StandardPlacesResult) error {
 	} else {
 
 		log.Println("INC", inc_fl)
-		
+
 		ok := filters.MatchesInception(inc_fl)
 
 		if !ok {
