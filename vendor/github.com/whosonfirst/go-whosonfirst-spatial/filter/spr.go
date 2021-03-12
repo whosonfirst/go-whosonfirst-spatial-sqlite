@@ -41,6 +41,19 @@ type SPRFilter struct {
 	AlternateGeometries []flags.AlternateGeometryFlag
 }
 
+func (f *SPRFilter) MatchesInception(fl flags.DateFlag) bool {
+
+	// TBD...
+
+	return false
+}
+
+func (f *SPRFilter) MatchesCessation(fl flags.DateFlag) bool {
+
+	// TBD...
+	return false
+}
+
 func (f *SPRFilter) HasPlacetypes(fl flags.PlacetypeFlag) bool {
 
 	for _, p := range f.Placetypes {
