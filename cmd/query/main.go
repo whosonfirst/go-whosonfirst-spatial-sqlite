@@ -181,7 +181,7 @@ func main() {
 		}
 
 		log.Printf("Listening for requests at %s\n", s.Address())
-		
+
 		err = s.ListenAndServe(ctx, mux)
 
 		if err != nil {

@@ -20,6 +20,7 @@ import (
 	"github.com/whosonfirst/go-whosonfirst-spr/v2"
 	"github.com/whosonfirst/go-whosonfirst-sqlite"
 	"github.com/whosonfirst/go-whosonfirst-sqlite-features/tables"
+	sqlite_spr "github.com/whosonfirst/go-whosonfirst-sqlite-spr"
 	sqlite_database "github.com/whosonfirst/go-whosonfirst-sqlite/database"
 	"github.com/whosonfirst/go-whosonfirst-uri"
 	"io"
@@ -551,16 +552,10 @@ func (r *SQLiteSpatialDatabase) retrieveSPR(ctx context.Context, uri_str string)
 	c, ok := r.gocache.Get(uri_str)
 
 	if ok {
-		return c.(*SQLiteStandardPlacesResult), nil
+		return c.(*sqlite_spr.SQLiteStandardPlacesResult), nil
 	}
 
 	id, uri_args, err := uri.ParseURI(uri_str)
-
-	if err != nil {
-		return nil, err
-	}
-
-	conn, err := r.db.Conn()
 
 	if err != nil {
 		return nil, err
@@ -579,94 +574,10 @@ func (r *SQLiteSpatialDatabase) retrieveSPR(ctx context.Context, uri_str string)
 		alt_label = source
 	}
 
-	args := []interface{}{
-		id,
-		alt_label,
-	}
-
-	// supersedes and superseding need to be added here pending
-	// https://github.com/whosonfirst/go-whosonfirst-sqlite-features/issues/14
-
-	spr_q := fmt.Sprintf(`SELECT 
-		id, parent_id, name, placetype,
-		country, repo,
-		latitude, longitude,
-		min_latitude, min_longitude,
-		max_latitude, max_longitude,
-		is_current, is_deprecated, is_ceased,
-		is_superseded, is_superseding,
-		lastmodified
-	FROM %s WHERE id = ? AND alt_label = ?`, r.spr_table.Name())
-
-	row := conn.QueryRowContext(ctx, spr_q, args...)
-
-	var spr_id string
-	var parent_id string
-	var name string
-	var placetype string
-	var country string
-	var repo string
-
-	var latitude float64
-	var longitude float64
-	var min_latitude float64
-	var max_latitude float64
-	var min_longitude float64
-	var max_longitude float64
-
-	var is_current int64
-	var is_deprecated int64
-	var is_ceased int64
-	var is_superseded int64
-	var is_superseding int64
-
-	// supersedes and superseding need to be added here pending
-	// https://github.com/whosonfirst/go-whosonfirst-sqlite-features/issues/14
-
-	var lastmodified int64
-
-	// supersedes and superseding need to be added here pending
-	// https://github.com/whosonfirst/go-whosonfirst-sqlite-features/issues/14
-
-	err = row.Scan(
-		&spr_id, &parent_id, &name, &placetype, &country, &repo,
-		&latitude, &longitude, &min_latitude, &max_latitude, &min_longitude, &max_longitude,
-		&is_current, &is_deprecated, &is_ceased, &is_superseded, &is_superseding,
-		&lastmodified,
-	)
+	s, err := sqlite_spr.RetrieveSPR(ctx, r.db, r.spr_table, id, alt_label)
 
 	if err != nil {
 		return nil, err
-	}
-
-	path, err := uri.Id2RelPath(id, uri_args)
-
-	if err != nil {
-		return nil, err
-	}
-
-	s := &SQLiteStandardPlacesResult{
-		WOFId:           spr_id,
-		WOFParentId:     parent_id,
-		WOFName:         name,
-		WOFCountry:      country,
-		WOFPlacetype:    placetype,
-		MZLatitude:      latitude,
-		MZLongitude:     longitude,
-		MZMinLatitude:   min_latitude,
-		MZMaxLatitude:   max_latitude,
-		MZMinLongitude:  min_longitude,
-		MZMaxLongitude:  max_longitude,
-		MZIsCurrent:     is_current,
-		MZIsDeprecated:  is_deprecated,
-		MZIsCeased:      is_ceased,
-		MZIsSuperseded:  is_superseded,
-		MZIsSuperseding: is_superseding,
-		// supersedes and superseding go here pending
-		// https://github.com/whosonfirst/go-whosonfirst-sqlite-features/issues/14
-		WOFPath:         path,
-		WOFRepo:         repo,
-		WOFLastModified: lastmodified,
 	}
 
 	r.gocache.Set(uri_str, s, -1)
