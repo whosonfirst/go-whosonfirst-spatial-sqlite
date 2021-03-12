@@ -14,7 +14,7 @@ github.com/aws/aws-lambda-go/lambda/messages
 github.com/aws/aws-lambda-go/lambdacontext
 # github.com/mattn/go-sqlite3 v2.0.2+incompatible
 github.com/mattn/go-sqlite3
-# github.com/mmcloughlin/geohash v0.9.0
+# github.com/mmcloughlin/geohash v0.10.0
 github.com/mmcloughlin/geohash
 # github.com/natefinch/atomic v0.0.0-20200526193002-18c0533a5b09
 github.com/natefinch/atomic
@@ -72,7 +72,7 @@ github.com/whosonfirst/go-whosonfirst-flags/date
 github.com/whosonfirst/go-whosonfirst-flags/existential
 github.com/whosonfirst/go-whosonfirst-flags/geometry
 github.com/whosonfirst/go-whosonfirst-flags/placetypes
-# github.com/whosonfirst/go-whosonfirst-geojson-v2 v0.15.1
+# github.com/whosonfirst/go-whosonfirst-geojson-v2 v0.16.0
 ## explicit
 github.com/whosonfirst/go-whosonfirst-geojson-v2
 github.com/whosonfirst/go-whosonfirst-geojson-v2/properties/geometry
@@ -95,7 +95,7 @@ github.com/whosonfirst/go-whosonfirst-placetypes/placetypes
 # github.com/whosonfirst/go-whosonfirst-sources v0.1.0
 github.com/whosonfirst/go-whosonfirst-sources
 github.com/whosonfirst/go-whosonfirst-sources/sources
-# github.com/whosonfirst/go-whosonfirst-spatial v0.0.39
+# github.com/whosonfirst/go-whosonfirst-spatial v0.0.40
 ## explicit
 github.com/whosonfirst/go-whosonfirst-spatial
 github.com/whosonfirst/go-whosonfirst-spatial/api
@@ -105,8 +105,6 @@ github.com/whosonfirst/go-whosonfirst-spatial/flags
 github.com/whosonfirst/go-whosonfirst-spatial/geo
 github.com/whosonfirst/go-whosonfirst-spatial/properties
 github.com/whosonfirst/go-whosonfirst-spatial/timer
-# github.com/whosonfirst/go-whosonfirst-spr v0.1.0
-github.com/whosonfirst/go-whosonfirst-spr
 # github.com/whosonfirst/go-whosonfirst-spr/v2 v2.0.0
 ## explicit
 github.com/whosonfirst/go-whosonfirst-spr/v2
@@ -115,7 +113,7 @@ github.com/whosonfirst/go-whosonfirst-spr/v2
 github.com/whosonfirst/go-whosonfirst-sqlite
 github.com/whosonfirst/go-whosonfirst-sqlite/database
 github.com/whosonfirst/go-whosonfirst-sqlite/utils
-# github.com/whosonfirst/go-whosonfirst-sqlite-features v0.6.6
+# github.com/whosonfirst/go-whosonfirst-sqlite-features v0.7.0
 ## explicit
 github.com/whosonfirst/go-whosonfirst-sqlite-features
 github.com/whosonfirst/go-whosonfirst-sqlite-features/tables
