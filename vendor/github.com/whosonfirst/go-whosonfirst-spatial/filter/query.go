@@ -22,5 +22,8 @@ func NewSPRFilterFromQuery(query url.Values) (Filter, error) {
 	inputs.Geometries = query["geometries"]
 	inputs.AlternateGeometries = query["alternate_geometry"]
 
+	inputs.InceptionDate = query.Get("inception_date")
+	inputs.CessationDate = query.Get("cessation_date")
+	
 	return NewSPRFilterFromInputs(inputs)
 }
