@@ -19,8 +19,8 @@ func NewSPRFilterFromQuery(query url.Values) (spatial.Filter, error) {
 	inputs.AlternateGeometries = query["alternate_geometry"]
 
 	inputs.InceptionDate = query.Get("inception_date")
-	inputs.CessationDate = query.Get("cessation_date")	
-	
+	inputs.CessationDate = query.Get("cessation_date")
+
 	is_current, err := atoi(query["is_current"])
 
 	if err != nil {

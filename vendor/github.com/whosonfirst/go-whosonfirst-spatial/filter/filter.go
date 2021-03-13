@@ -29,8 +29,6 @@ func FilterSPR(filters spatial.Filter, s spr.StandardPlacesResult) error {
 		}
 	}
 
-	// START OF still not sure how this should work
-
 	inc_fl, err := date.NewEDTFDateFlagWithDate(s.Inception())
 
 	if err != nil {
@@ -56,8 +54,6 @@ func FilterSPR(filters spatial.Filter, s spr.StandardPlacesResult) error {
 			return fmt.Errorf("Failed cessation test")
 		}
 	}
-
-	// END OF still not sure how this should work
 
 	ok = filters.IsCurrent(s.IsCurrent())
 
