@@ -8,6 +8,7 @@ import (
 	"github.com/whosonfirst/go-whosonfirst-spatial/flags"
 	"net/url"
 	"strconv"
+	_ "log"
 )
 
 type PointInPolygonRequest struct {
