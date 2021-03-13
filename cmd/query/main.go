@@ -4,13 +4,15 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/sfomuseum/go-flags/flagset"
+	"github.com/sfomuseum/go-flags/lookup"	
 	_ "github.com/whosonfirst/go-whosonfirst-spatial-sqlite"
+	"github.com/whosonfirst/go-whosonfirst-spatial/api"
 	"github.com/whosonfirst/go-whosonfirst-spatial/database"
 	"github.com/whosonfirst/go-whosonfirst-spatial/flags"
 	"github.com/whosonfirst/go-whosonfirst-spatial/geo"
 	"github.com/whosonfirst/go-whosonfirst-spatial/properties"
-	"github.com/whosonfirst/go-whosonfirst-spr"
-	"github.com/sfomuseum/go-flags/flagset"	
+	"github.com/whosonfirst/go-whosonfirst-spr/v2"
 	"log"
 )
 
@@ -42,13 +44,8 @@ func main() {
 		log.Fatal(err)
 	}
 
-	database_uri, _ := flags.StringVar(fs, "spatial-database-uri")
-	properties_uri, _ := flags.StringVar(fs, "properties-reader-uri")
-
-	props, _ := flags.MultiStringVar(fs, "properties")
-
-	latitude, _ := flags.Float64Var(fs, "latitude")
-	longitude, _ := flags.Float64Var(fs, "longitude")
+	database_uri, _ := lookup.StringVar(fs, flags.SPATIAL_DATABASE_URI)
+	properties_uri, _ := lookup.StringVar(fs, flags.PROPERTIES_READER_URI)
 
 	ctx := context.Background()
 	db, err := database.NewSpatialDatabase(ctx, database_uri)
@@ -57,50 +54,68 @@ func main() {
 		log.Fatalf("Failed to create database for '%s', %v", database_uri, err)
 	}
 
-	c, err := geo.NewCoordinate(longitude, latitude)
+	query := func(ctx context.Context, req *api.PointInPolygonRequest) (interface{}, error) {
 
-	if err != nil {
-		log.Fatalf("Failed to create new coordinate, %v", err)
-	}
-
-	f, err := flags.NewSPRFilterFromFlagSet(fs)
-
-	if err != nil {
-		log.Fatalf("Failed to create SPR filter, %v", err)
-	}
-
-	var rsp interface{}
-
-	r, err := db.PointInPolygon(ctx, c, f)
-
-	if err != nil {
-		log.Fatalf("Failed to query database with coord %v, %v", c, err)
-	}
-
-	rsp = r
-
-	if len(props) > 0 {
-
-		pr, err := properties.NewPropertiesReader(ctx, properties_uri)
+		c, err := geo.NewCoordinate(req.Longitude, req.Latitude)
 
 		if err != nil {
-			log.Fatalf("Failed to create properties reader, %v", err)
+			return nil, fmt.Errorf("Failed to create new coordinate, %v", err)
 		}
 
-		r, err := pr.PropertiesResponseResultsWithStandardPlacesResults(ctx, rsp.(spr.StandardPlacesResults), props)
+		f, err := api.NewSPRFilterFromPointInPolygonRequest(req)
 
 		if err != nil {
-			log.Fatalf("Failed to generate properties response, %v", err)
+			return nil, err
+		}
+
+		var rsp interface{}
+
+		r, err := db.PointInPolygon(ctx, c, f)
+
+		if err != nil {
+			return nil, fmt.Errorf("Failed to query database with coord %v, %v", c, err)
 		}
 
 		rsp = r
+
+		if len(req.Properties) > 0 {
+
+			pr, err := properties.NewPropertiesReader(ctx, properties_uri)
+
+			if err != nil {
+				return nil, fmt.Errorf("Failed to create properties reader, %v", err)
+			}
+
+			r, err := pr.PropertiesResponseResultsWithStandardPlacesResults(ctx, rsp.(spr.StandardPlacesResults), req.Properties)
+
+			if err != nil {
+				return nil, fmt.Errorf("Failed to generate properties response, %v", err)
+			}
+
+			rsp = r
+		}
+
+		return r, nil
 	}
 
-	enc, err := json.Marshal(rsp)
+		req, err := api.NewPointInPolygonRequestFromFlagSet(fs)
 
-	if err != nil {
-		log.Fatalf("Failed to marshal results, %v", err)
-	}
+		if err != nil {
+			log.Fatalf("Failed to create SPR filter, %v", err)
+		}
 
-	fmt.Println(string(enc))
+		rsp, err := query(ctx, req)
+
+		if err != nil {
+			log.Fatalf("Failed to query, %v", err)
+		}
+
+		enc, err := json.Marshal(rsp)
+
+		if err != nil {
+			log.Fatalf("Failed to marshal results, %v", err)
+		}
+
+		fmt.Println(string(enc))
+
 }

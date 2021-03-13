@@ -30,31 +30,6 @@ type SPRTable struct {
 	options *SPRTableOptions
 }
 
-type SPRRow struct {
-	Id            int64   // properties.wof:id	INTEGER
-	ParentId      int64   // properties.wof:parent_id	INTEGER
-	Name          string  // properties.wof:name  TEXT
-	Placetype     string  // properties.wof:placetype TEXT
-	Country       string  // properties.wof:country TEXT
-	Repo          string  // properties.wof:repo TEXT
-	Path          string  // derived TEXT
-	URI           string  // derived TEXT
-	Latitude      float64 // derived REAL
-	Longitude     float64 // derived REAL
-	MinLatitude   float64 // properties.geom:bbox.1 REAL
-	MinLongitude  float64 // properties.geom:bbox.0 REAL
-	MaxLatitude   float64 // properties.geom:bbox.3 REAL
-	MaxLongitude  float64 // properties.geom.bbox.2 REAL
-	IsCurrent     int64   // properies.mz:is_current INTEGER
-	IsCeased      int64   // derived INTEGER
-	IsDeprecated  int64   // derived INTEGER
-	IsSuperseded  int64   // derived INTEGER
-	IsSuperseding int64   // derived INTEGER
-	SupersededBy  []int64 // ...
-	Supersedes    []int64 // ...
-	LastModified  int64   // properties.wof:lastmodified INTEGER
-}
-
 func NewSPRTable() (sqlite.Table, error) {
 
 	opts, err := DefaultSPRTableOptions()
@@ -120,6 +95,8 @@ func (t *SPRTable) Schema() string {
 			parent_id INTEGER,
 			name TEXT,
 			placetype TEXT,
+			inception TEXT,
+			cessation TEXT,
 			country TEXT,
 			repo TEXT,
 			latitude REAL,
@@ -188,6 +165,7 @@ func (t *SPRTable) IndexFeature(db sqlite.Database, f geojson.Feature) error {
 
 	sql := fmt.Sprintf(`INSERT OR REPLACE INTO %s (
 		id, parent_id, name, placetype,
+		inception, cessation,
 		country, repo,
 		latitude, longitude,
 		min_latitude, min_longitude,
@@ -203,6 +181,7 @@ func (t *SPRTable) IndexFeature(db sqlite.Database, f geojson.Feature) error {
 		?, ?,
 		?, ?,
 		?, ?,
+		?, ?,
 		?, ?, ?,
 		?, ?,
 		?, ?,
@@ -212,6 +191,7 @@ func (t *SPRTable) IndexFeature(db sqlite.Database, f geojson.Feature) error {
 
 	args := []interface{}{
 		spr.Id(), spr.ParentId(), spr.Name(), spr.Placetype(),
+		spr.Inception().String(), spr.Cessation().String(),
 		spr.Country(), spr.Repo(),
 		spr.Latitude(), spr.Longitude(),
 		spr.MinLatitude(), spr.MinLongitude(),
