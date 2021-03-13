@@ -7,6 +7,7 @@ import (
 	"github.com/aaronland/go-http-server"
 	"github.com/aws/aws-lambda-go/lambda"
 	"github.com/sfomuseum/go-flags/flagset"
+	"github.com/sfomuseum/go-flags/lookup"	
 	_ "github.com/whosonfirst/go-whosonfirst-spatial-sqlite"
 	"github.com/whosonfirst/go-whosonfirst-spatial/api"
 	"github.com/whosonfirst/go-whosonfirst-spatial/database"
@@ -56,8 +57,8 @@ func main() {
 		log.Fatal(err)
 	}
 
-	database_uri, _ := flags.StringVar(fs, "spatial-database-uri")
-	properties_uri, _ := flags.StringVar(fs, "properties-reader-uri")
+	database_uri, _ := lookup.StringVar(fs, flags.SPATIAL_DATABASE_URI)
+	properties_uri, _ := lookup.StringVar(fs, flags.PROPERTIES_READER_URI)
 
 	ctx := context.Background()
 	db, err := database.NewSpatialDatabase(ctx, database_uri)
