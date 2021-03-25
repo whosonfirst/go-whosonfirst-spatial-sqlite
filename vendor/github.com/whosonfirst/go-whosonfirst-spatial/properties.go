@@ -1,18 +1,89 @@
-package properties
+package spatial
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"github.com/tidwall/gjson"
 	"github.com/tidwall/sjson"
+	"github.com/whosonfirst/go-reader"
+	"github.com/whosonfirst/go-whosonfirst-spr/v2"
+	"github.com/whosonfirst/go-whosonfirst-uri"
+	"io"
 	_ "log"
 	"strings"
 )
 
 type AppendPropertiesOptions struct {
+	Reader       reader.Reader
 	SourcePrefix string
 	TargetPrefix string
 	Keys         []string
+}
+
+func PropertiesResponseResultsWithStandardPlacesResults(ctx context.Context, opts *AppendPropertiesOptions, results spr.StandardPlacesResults) (*PropertiesResponseResults, error) {
+
+	previous_results := results.Results()
+
+	new_results := make([]*PropertiesResponse, len(previous_results))
+
+	for idx, r := range previous_results {
+
+		spr_id := r.Id()
+
+		id, uri_args, err := uri.ParseURI(spr_id)
+
+		if err != nil {
+			return nil, err
+		}
+
+		rel_path, err := uri.Id2RelPath(id, uri_args)
+
+		if err != nil {
+			return nil, err
+		}
+
+		fh, err := opts.Reader.Read(ctx, rel_path)
+
+		if err != nil {
+			return nil, err
+		}
+
+		defer fh.Close()
+
+		source, err := io.ReadAll(fh)
+
+		if err != nil {
+			return nil, err
+		}
+
+		target, err := json.Marshal(r)
+
+		if err != nil {
+			return nil, err
+		}
+
+		target, err = AppendPropertiesWithJSON(ctx, opts, source, target)
+
+		if err != nil {
+			return nil, err
+		}
+
+		var props *PropertiesResponse
+		err = json.Unmarshal(target, &props)
+
+		if err != nil {
+			return nil, err
+		}
+
+		new_results[idx] = props
+	}
+
+	props_rsp := &PropertiesResponseResults{
+		Properties: new_results,
+	}
+
+	return props_rsp, nil
 }
 
 func AppendPropertiesWithJSON(ctx context.Context, opts *AppendPropertiesOptions, source []byte, target []byte) ([]byte, error) {
