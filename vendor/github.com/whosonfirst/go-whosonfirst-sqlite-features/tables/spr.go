@@ -9,6 +9,8 @@ import (
 	"github.com/whosonfirst/go-whosonfirst-sqlite-features"
 	"github.com/whosonfirst/go-whosonfirst-sqlite/utils"
 	_ "log"
+	"strconv"
+	"strings"
 )
 
 type SPRTableOptions struct {
@@ -91,7 +93,7 @@ func (t *SPRTable) Name() string {
 func (t *SPRTable) Schema() string {
 
 	sql := `CREATE TABLE %[1]s (
-			id INTEGER NOT NULL,
+			id TEXT NOT NULL,
 			parent_id INTEGER,
 			name TEXT,
 			placetype TEXT,
@@ -112,6 +114,7 @@ func (t *SPRTable) Schema() string {
 			is_superseding INTEGER,
 			superseded_by TEXT,
 			supersedes TEXT,
+			belongsto TEXT,
 			is_alt TINYINT,
 			alt_label TEXT,
 			lastmodified INTEGER
@@ -172,7 +175,7 @@ func (t *SPRTable) IndexFeature(db sqlite.Database, f geojson.Feature) error {
 		max_latitude, max_longitude,
 		is_current, is_deprecated, is_ceased,
 		is_superseded, is_superseding,
-		superseded_by, supersedes,
+		superseded_by, supersedes, belongsto,
 		is_alt, alt_label,
 		lastmodified
 		) VALUES (
@@ -183,12 +186,16 @@ func (t *SPRTable) IndexFeature(db sqlite.Database, f geojson.Feature) error {
 		?, ?,
 		?, ?,
 		?, ?, ?,
-		?, ?,
+		?, ?, ?,
 		?, ?,
 		?, ?,
 		?
 		)`, t.Name()) // ON CONFLICT DO BLAH BLAH BLAH
-
+	
+	superseded_by := int64ToString(spr.SupersededBy())	
+	supersedes := int64ToString(spr.Supersedes())
+	belongs_to := int64ToString(spr.BelongsTo())		
+	
 	args := []interface{}{
 		spr.Id(), spr.ParentId(), spr.Name(), spr.Placetype(),
 		spr.Inception().String(), spr.Cessation().String(),
@@ -198,7 +205,7 @@ func (t *SPRTable) IndexFeature(db sqlite.Database, f geojson.Feature) error {
 		spr.MaxLatitude(), spr.MaxLongitude(),
 		spr.IsCurrent().Flag(), spr.IsDeprecated().Flag(), spr.IsCeased().Flag(),
 		spr.IsSuperseded().Flag(), spr.IsSuperseding().Flag(),
-		"", "",
+		superseded_by, supersedes, belongs_to,
 		is_alt, alt_label,
 		spr.LastModified(),
 	}
@@ -230,4 +237,15 @@ func (t *SPRTable) IndexFeature(db sqlite.Database, f geojson.Feature) error {
 	}
 
 	return tx.Commit()
+}
+
+func int64ToString(ints []int64) string {
+	
+	str_ints := make([]string, len(ints))
+
+	for idx, i := range ints {
+		str_ints[idx] = strconv.FormatInt(i, 10)
+	}
+
+	return strings.Join(str_ints, ",")
 }

@@ -110,6 +110,8 @@ github.com/tidwall/gjson v1.6.8 h1:CTmXMClGYPAmln7652e69B7OLXfTi5ABcPPwjIWUv7w=
 github.com/tidwall/gjson v1.6.8/go.mod h1:zeFuBCIqD4sN/gmqBzZ4j7Jd6UcA2Fc56x7QFsv+8fI=
 github.com/tidwall/gjson v1.7.1 h1:hwkZ6V1/EF8FxNhKJrIXQwSscyl2yWCZ1SkOCQYHSHA=
 github.com/tidwall/gjson v1.7.1/go.mod h1:5/xDoumyyDNerp2U36lyolv46b3uF/9Bu6OfyQ9GImk=
+github.com/tidwall/gjson v1.7.2 h1:Mlc6J3RVIjBPiXounGdbdsk3WFwB195CLunMD/BtrOs=
+github.com/tidwall/gjson v1.7.2/go.mod h1:5/xDoumyyDNerp2U36lyolv46b3uF/9Bu6OfyQ9GImk=
 github.com/tidwall/match v1.0.1/go.mod h1:LujAq0jyVjBy028G1WhWfIzbpQfMO8bBZ6Tyb0+pL9E=
 github.com/tidwall/match v1.0.3 h1:FQUVvBImDutD8wJLN6c5eMzWtjgONK9MwIBCOrUJKeE=
 github.com/tidwall/match v1.0.3/go.mod h1:eRSPERbgtNPcGhD8UCthc6PmLEQXEWd3PRB5JTxsfmM=
@@ -175,6 +177,8 @@ github.com/whosonfirst/go-whosonfirst-sqlite v0.1.7 h1:WZOGRgD2UmQWYOITWNpTWcccd
 github.com/whosonfirst/go-whosonfirst-sqlite v0.1.7/go.mod h1:Vz7VscOjc7oS99GFGLJMyQj++nWuAQ/F/dCFzEzyYg0=
 github.com/whosonfirst/go-whosonfirst-sqlite-features v0.7.0 h1:tPNRXNBKQTs4/D2xcVpSbE+eTfNybM2kYlnj7Y8yMIo=
 github.com/whosonfirst/go-whosonfirst-sqlite-features v0.7.0/go.mod h1:8/vuryTxsLsPEpVgpy0n+phpIMLXFd1PiFOm395/BXg=
+github.com/whosonfirst/go-whosonfirst-sqlite-features v0.8.0 h1:Vjf1DxHmJtXzCmV6qzhh8fa8pMM2Cxl3eH0Sq09MnjM=
+github.com/whosonfirst/go-whosonfirst-sqlite-features v0.8.0/go.mod h1:UvQibPWuscAPqaltGOCsR6YaPwKKG/sREbOQ9+/xuuk=
 github.com/whosonfirst/go-whosonfirst-sqlite-spr v0.0.3 h1:YZhoJM5fvGtmKDbDDphUooMjxRqR8jGudu7laXU4hJE=
 github.com/whosonfirst/go-whosonfirst-sqlite-spr v0.0.3/go.mod h1:iBbWuL/QsdX5xnfaL3HDEOJNC6gbGUgKSaQvFrWdPVE=
 github.com/whosonfirst/go-whosonfirst-sqlite-spr v0.0.4 h1:4qsAOkO9XAre8hmQkNDmln1dbbW9FhR6WT0tL0f0bF8=

@@ -12,7 +12,7 @@ require (
 	github.com/whosonfirst/go-whosonfirst-spatial v0.0.55
 	github.com/whosonfirst/go-whosonfirst-spr/v2 v2.0.0
 	github.com/whosonfirst/go-whosonfirst-sqlite v0.1.7
-	github.com/whosonfirst/go-whosonfirst-sqlite-features v0.7.0
+	github.com/whosonfirst/go-whosonfirst-sqlite-features v0.8.0
 	github.com/whosonfirst/go-whosonfirst-sqlite-spr v0.0.4
 	github.com/whosonfirst/go-whosonfirst-uri v0.2.0
 )
