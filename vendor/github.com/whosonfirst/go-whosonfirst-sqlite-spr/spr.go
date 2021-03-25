@@ -11,6 +11,7 @@ import (
 	wof_sqlite "github.com/whosonfirst/go-whosonfirst-sqlite"
 	wof_database "github.com/whosonfirst/go-whosonfirst-sqlite/database"
 	"github.com/whosonfirst/go-whosonfirst-uri"
+	_ "log"
 	"strconv"
 	"strings"
 )
@@ -323,6 +324,12 @@ func existentialFlag(i int64) flags.ExistentialFlag {
 }
 
 func stringToInt64(str string) ([]int64, error) {
+
+	str = strings.Trim(str, " ")
+
+	if str == "" {
+		return []int64{}, nil
+	}
 
 	parts := strings.Split(str, ",")
 	ints := make([]int64, len(parts))
