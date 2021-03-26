@@ -151,22 +151,16 @@ func (spr *SQLiteStandardPlacesResult) IsSuperseding() flags.ExistentialFlag {
 	return existentialFlag(spr.MZIsSuperseding)
 }
 
-// https://github.com/whosonfirst/go-whosonfirst-sqlite-features/issues/14
-
 func (spr *SQLiteStandardPlacesResult) SupersededBy() []int64 {
-	return []int64{}
+	return spr.WOFSupersededBy
 }
-
-// https://github.com/whosonfirst/go-whosonfirst-sqlite-features/issues/14
 
 func (spr *SQLiteStandardPlacesResult) Supersedes() []int64 {
-	return []int64{}
+	return spr.WOFSupersedes
 }
 
-// https://github.com/whosonfirst/go-whosonfirst-sqlite-features/issues/14
-
 func (spr *SQLiteStandardPlacesResult) BelongsTo() []int64 {
-	return []int64{}
+	return spr.WOFBelongsTo
 }
 
 func (spr *SQLiteStandardPlacesResult) LastModified() int64 {
