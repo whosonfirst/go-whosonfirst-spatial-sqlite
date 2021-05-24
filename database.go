@@ -11,6 +11,7 @@ import (
 	"github.com/skelterjohn/geom"
 	"github.com/whosonfirst/go-ioutil"
 	wof_geojson "github.com/whosonfirst/go-whosonfirst-geojson-v2"
+	wof_feature "github.com/whosonfirst/go-whosonfirst-geojson-v2/feature"	
 	"github.com/whosonfirst/go-whosonfirst-log"
 	"github.com/whosonfirst/go-whosonfirst-spatial"
 	"github.com/whosonfirst/go-whosonfirst-spatial/database"
@@ -631,7 +632,26 @@ func (r *SQLiteSpatialDatabase) ReaderURI(ctx context.Context, str_uri string) s
 // whosonfirst/go-writer interface
 
 func (r *SQLiteSpatialDatabase) Write(ctx context.Context, key string, fh io.ReadSeeker) (int64, error) {
-	return 0, fmt.Errorf("Not implemented")
+
+	body, err := io.ReadAll(fh)
+
+	if err != nil {
+		return 0, err
+	}
+	
+	f, err := wof_feature.LoadFeature(body)
+
+	if err != nil {
+		return 0, err
+	}
+
+	err = r.IndexFeature(ctx, f)
+
+	if err != nil {
+		return 0, err
+	}
+
+	return int64(len(body)), nil
 }
 
 func (r *SQLiteSpatialDatabase) WriterURI(ctx context.Context, str_uri string) string {
