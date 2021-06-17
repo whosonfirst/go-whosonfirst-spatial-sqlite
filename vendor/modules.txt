@@ -112,7 +112,7 @@ github.com/whosonfirst/go-whosonfirst-sqlite/utils
 ## explicit
 github.com/whosonfirst/go-whosonfirst-sqlite-features
 github.com/whosonfirst/go-whosonfirst-sqlite-features/tables
-# github.com/whosonfirst/go-whosonfirst-sqlite-spr v0.0.10
+# github.com/whosonfirst/go-whosonfirst-sqlite-spr v0.0.11
 ## explicit
 github.com/whosonfirst/go-whosonfirst-sqlite-spr
 # github.com/whosonfirst/go-whosonfirst-uri v1.0.1

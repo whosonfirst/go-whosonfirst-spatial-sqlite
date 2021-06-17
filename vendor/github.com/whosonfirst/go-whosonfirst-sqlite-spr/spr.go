@@ -186,14 +186,14 @@ func RetrieveSPR(ctx context.Context, spr_db *wof_database.SQLiteDatabase, spr_t
 
 	spr_q := fmt.Sprintf(`SELECT 
 		id, parent_id, name, placetype,
-		country, repo,
 		inception, cessation,
+		country, repo,
 		latitude, longitude,
 		min_latitude, min_longitude,
 		max_latitude, max_longitude,
-		is_current, is_deprecated, is_ceased,
-		is_superseded, is_superseding,
+		is_current, is_deprecated, is_ceased,is_superseded, is_superseding,
 		supersedes, superseded_by, belongsto,
+		is_alt, alt_label,
 		lastmodified
 	FROM %s WHERE id = ? AND alt_label = ?`, spr_table.Name())
 
