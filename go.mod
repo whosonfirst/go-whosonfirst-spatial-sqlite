@@ -13,6 +13,6 @@ require (
 	github.com/whosonfirst/go-whosonfirst-spr/v2 v2.0.0
 	github.com/whosonfirst/go-whosonfirst-sqlite v0.1.7
 	github.com/whosonfirst/go-whosonfirst-sqlite-features v0.8.0
-	github.com/whosonfirst/go-whosonfirst-sqlite-spr v0.0.6
+	github.com/whosonfirst/go-whosonfirst-sqlite-spr v0.0.10
 	github.com/whosonfirst/go-whosonfirst-uri v1.0.1
 )

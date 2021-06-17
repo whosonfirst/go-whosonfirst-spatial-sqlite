@@ -60,7 +60,7 @@ github.com/whosonfirst/go-sanitize
 github.com/whosonfirst/go-spatialite
 # github.com/whosonfirst/go-whosonfirst-crawl v0.2.1
 github.com/whosonfirst/go-whosonfirst-crawl
-# github.com/whosonfirst/go-whosonfirst-flags v0.4.2
+# github.com/whosonfirst/go-whosonfirst-flags v0.4.3
 github.com/whosonfirst/go-whosonfirst-flags
 github.com/whosonfirst/go-whosonfirst-flags/date
 github.com/whosonfirst/go-whosonfirst-flags/existential
@@ -112,7 +112,7 @@ github.com/whosonfirst/go-whosonfirst-sqlite/utils
 ## explicit
 github.com/whosonfirst/go-whosonfirst-sqlite-features
 github.com/whosonfirst/go-whosonfirst-sqlite-features/tables
-# github.com/whosonfirst/go-whosonfirst-sqlite-spr v0.0.6
+# github.com/whosonfirst/go-whosonfirst-sqlite-spr v0.0.10
 ## explicit
 github.com/whosonfirst/go-whosonfirst-sqlite-spr
 # github.com/whosonfirst/go-whosonfirst-uri v1.0.1

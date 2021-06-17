@@ -2,6 +2,7 @@ package spr
 
 import (
 	"context"
+	"database/sql"
 	"fmt"
 	"github.com/sfomuseum/go-edtf"
 	"github.com/sfomuseum/go-edtf/parser"
@@ -197,6 +198,34 @@ func RetrieveSPR(ctx context.Context, spr_db *wof_database.SQLiteDatabase, spr_t
 	FROM %s WHERE id = ? AND alt_label = ?`, spr_table.Name())
 
 	row := conn.QueryRowContext(ctx, spr_q, args...)
+	return RetrieveSPRWithRow(ctx, row)
+}
+
+// See notes below
+
+func RetrieveSPRWithRow(ctx context.Context, row *sql.Row) (wof_spr.StandardPlacesResult, error) {
+	return retrieveSPRWithScanner(ctx, row)
+}
+
+// See notes below
+
+func RetrieveSPRWithRows(ctx context.Context, rows *sql.Rows) (wof_spr.StandardPlacesResult, error) {
+	return retrieveSPRWithScanner(ctx, rows)
+}
+
+// We go to the trouble of all this indirection because neither *sql.Row or *sql.Rows implement
+// the sql.Scanner interface.
+// The latter expects: Scan(src interface{}) error
+// But the former pxpect: Scan(src ...interface{}) error
+
+func retrieveSPRWithScanner(ctx context.Context, scanner interface{}) (wof_spr.StandardPlacesResult, error) {
+
+	switch scanner.(type) {
+	case *sql.Row, *sql.Rows:
+		// pass
+	default:
+		return nil, fmt.Errorf("Unsupported scanner")
+	}
 
 	var spr_id string
 	var parent_id string
@@ -228,19 +257,51 @@ func RetrieveSPR(ctx context.Context, spr_db *wof_database.SQLiteDatabase, spr_t
 	var str_superseded_by string
 	var str_belongs_to string
 
+	var is_alt int64
+	var alt_label string
+
 	var lastmodified int64
 
 	// supersedes and superseding need to be added here pending
 	// https://github.com/whosonfirst/go-whosonfirst-sqlite-features/issues/14
 
-	err = row.Scan(
-		&spr_id, &parent_id, &name, &placetype, &country, &repo,
-		&inception, &cessation,
-		&latitude, &longitude, &min_latitude, &max_latitude, &min_longitude, &max_longitude,
-		&is_current, &is_deprecated, &is_ceased, &is_superseded, &is_superseding,
-		&str_supersedes, &str_superseded_by, &str_belongs_to,
-		&lastmodified,
-	)
+	var scanner_err error
+
+	switch scanner.(type) {
+	case *sql.Rows:
+
+		scanner_err = scanner.(*sql.Rows).Scan(
+			&spr_id, &parent_id, &name, &placetype,
+			&inception, &cessation,
+			&country, &repo,
+			&latitude, &longitude,
+			&min_latitude, &max_latitude, &min_longitude, &max_longitude,
+			&is_current, &is_deprecated, &is_ceased, &is_superseded, &is_superseding,
+			&str_supersedes, &str_superseded_by, &str_belongs_to,
+			&is_alt, &alt_label,
+			&lastmodified,
+		)
+
+	default:
+
+		scanner_err = scanner.(*sql.Row).Scan(
+			&spr_id, &parent_id, &name, &placetype,
+			&inception, &cessation,
+			&country, &repo,
+			&latitude, &longitude,
+			&min_latitude, &max_latitude, &min_longitude, &max_longitude,
+			&is_current, &is_deprecated, &is_ceased, &is_superseded, &is_superseding,
+			&str_supersedes, &str_superseded_by, &str_belongs_to,
+			&is_alt, &alt_label,
+			&lastmodified,
+		)
+	}
+
+	if scanner_err != nil {
+		return nil, scanner_err
+	}
+
+	id, err := strconv.ParseInt(spr_id, 10, 64)
 
 	if err != nil {
 		return nil, err
