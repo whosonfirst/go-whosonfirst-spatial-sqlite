@@ -355,6 +355,28 @@ $> ./bin/query \
       "wof:name": "85633041 alt geometry (whosonfirst-reversegeo)",
 ```
 
+#### Remote databases
+
+If you are running Go 1.17 (or higher) support for remotely-hosted SQLite databases is available. For example:
+
+```
+$> ~/go/bin/go1.17rc2 run cmd/query/main.go \
+	-spatial-database-uri 'sqlite://?dsn=http://localhost:8080/sfomuseum-architecture.db' \
+	-latitude 37.616951 \
+	-longitude -122.383747 \
+	-is-current 1 \
+
+| json_pp | grep "wof:name"
+
+         "wof:name" : "Terminal Two Arrivals",
+         "wof:name" : "Terminal 2",
+         "wof:name" : "SFO Terminal Complex",
+         "wof:name" : "Terminal 2 Main Hall",
+         "wof:name" : "SFO Terminal Complex",
+```
+
+_Big thanks to @psanford 's [sqlitevfshttp](https://github.com/psanford/sqlite3vfshttp) package for making this possible._
+
 ## Interfaces
 
 This package implements the following [go-whosonfirst-spatial](#) interfaces.
