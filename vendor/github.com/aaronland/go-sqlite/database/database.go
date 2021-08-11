@@ -1,10 +1,12 @@
 package database
 
 import (
+	"context"
 	"database/sql"
 	"fmt"
 	_ "github.com/mattn/go-sqlite3"
-	_ "github.com/whosonfirst/go-spatialite"
+	"github.com/psanford/sqlite3vfs"
+	"github.com/psanford/sqlite3vfshttp"
 	_ "log"
 	"strings"
 	"sync"
@@ -16,11 +18,11 @@ type SQLiteDatabase struct {
 	mu   *sync.Mutex
 }
 
-func NewDB(dsn string) (*SQLiteDatabase, error) {
-	return NewDBWithDriver("sqlite3", dsn)
+func NewDB(ctx context.Context, dsn string) (*SQLiteDatabase, error) {
+	return NewDBWithDriver(ctx, "sqlite3", dsn)
 }
 
-func NewDBWithDriver(driver string, dsn string) (*SQLiteDatabase, error) {
+func NewDBWithDriver(ctx context.Context, driver string, dsn string) (*SQLiteDatabase, error) {
 
 	if !strings.HasPrefix(dsn, "file:") {
 
@@ -32,6 +34,21 @@ func NewDBWithDriver(driver string, dsn string) (*SQLiteDatabase, error) {
 			// https://github.com/mattn/go-sqlite3/issues/204
 
 			dsn = "file::memory:?mode=memory&cache=shared"
+
+		} else if strings.HasPrefix(dsn, "http") {
+
+			vfs := sqlite3vfshttp.HttpVFS{
+				URL: dsn,
+				// RoundTripper: &roundTripper{}
+			}
+
+			err := sqlite3vfs.RegisterVFS("httpvfs", &vfs)
+
+			if err != nil {
+				return nil, err
+			}
+
+			dsn = "not_a_real_name.db?vfs=httpvfs&mode=ro"
 
 		} else {
 

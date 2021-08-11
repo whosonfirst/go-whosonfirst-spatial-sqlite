@@ -19,10 +19,10 @@ import (
 	"github.com/whosonfirst/go-whosonfirst-spatial/geo"
 	"github.com/whosonfirst/go-whosonfirst-spatial/timer"
 	"github.com/whosonfirst/go-whosonfirst-spr/v2"
-	"github.com/whosonfirst/go-whosonfirst-sqlite"
+	"github.com/aaronland/go-sqlite"
 	"github.com/whosonfirst/go-whosonfirst-sqlite-features/tables"
 	sqlite_spr "github.com/whosonfirst/go-whosonfirst-sqlite-spr"
-	sqlite_database "github.com/whosonfirst/go-whosonfirst-sqlite/database"
+	sqlite_database "github.com/aaronland/go-sqlite/database"
 	"github.com/whosonfirst/go-whosonfirst-uri"
 	"io"
 	"net/url"
@@ -96,7 +96,7 @@ func NewSQLiteSpatialDatabase(ctx context.Context, uri string) (database.Spatial
 		return nil, errors.New("Missing 'dsn' parameter")
 	}
 
-	sqlite_db, err := sqlite_database.NewDB(dsn)
+	sqlite_db, err := sqlite_database.NewDB(ctx, dsn)
 
 	if err != nil {
 		return nil, err
@@ -117,13 +117,13 @@ func NewSQLiteSpatialDatabaseWithDatabase(ctx context.Context, uri string, sqlit
 
 	dsn := q.Get("dsn")
 
-	rtree_table, err := tables.NewRTreeTableWithDatabase(sqlite_db)
+	rtree_table, err := tables.NewRTreeTableWithDatabase(ctx, sqlite_db)
 
 	if err != nil {
 		return nil, err
 	}
 
-	spr_table, err := tables.NewSPRTableWithDatabase(sqlite_db)
+	spr_table, err := tables.NewSPRTableWithDatabase(ctx, sqlite_db)
 
 	if err != nil {
 		return nil, err
@@ -132,7 +132,7 @@ func NewSQLiteSpatialDatabaseWithDatabase(ctx context.Context, uri string, sqlit
 	// This is so we can satisfy the reader.Reader requirement
 	// in the spatial.SpatialDatabase interface
 
-	geojson_table, err := tables.NewGeoJSONTableWithDatabase(sqlite_db)
+	geojson_table, err := tables.NewGeoJSONTableWithDatabase(ctx, sqlite_db)
 
 	if err != nil {
 		return nil, err
@@ -173,13 +173,13 @@ func (r *SQLiteSpatialDatabase) IndexFeature(ctx context.Context, f wof_geojson.
 	r.mu.Lock()
 	defer r.mu.Unlock()
 
-	err := r.rtree_table.IndexRecord(r.db, f)
+	err := r.rtree_table.IndexRecord(ctx, r.db, f)
 
 	if err != nil {
 		return err
 	}
 
-	err = r.spr_table.IndexRecord(r.db, f)
+	err = r.spr_table.IndexRecord(ctx, r.db, f)
 
 	if err != nil {
 		return err
@@ -187,7 +187,7 @@ func (r *SQLiteSpatialDatabase) IndexFeature(ctx context.Context, f wof_geojson.
 
 	if r.geojson_table != nil {
 
-		err = r.geojson_table.IndexRecord(r.db, f)
+		err = r.geojson_table.IndexRecord(ctx, r.db, f)
 
 		if err != nil {
 			return err

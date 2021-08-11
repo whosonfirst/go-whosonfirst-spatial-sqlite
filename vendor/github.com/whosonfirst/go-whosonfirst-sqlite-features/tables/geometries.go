@@ -1,16 +1,16 @@
 package tables
 
 import (
+	"context"
 	"fmt"
+	"github.com/aaronland/go-sqlite"
 	"github.com/twpayne/go-geom"
 	gogeom_geojson "github.com/twpayne/go-geom/encoding/geojson"
 	"github.com/twpayne/go-geom/encoding/wkt"
 	"github.com/whosonfirst/go-whosonfirst-geojson-v2"
 	"github.com/whosonfirst/go-whosonfirst-geojson-v2/properties/geometry"
 	"github.com/whosonfirst/go-whosonfirst-geojson-v2/properties/whosonfirst"
-	"github.com/whosonfirst/go-whosonfirst-sqlite"
 	"github.com/whosonfirst/go-whosonfirst-sqlite-features"
-	"github.com/whosonfirst/go-whosonfirst-sqlite/utils"
 	_ "log"
 )
 
@@ -39,7 +39,7 @@ type GeometriesRow struct {
 	LastModified int64
 }
 
-func NewGeometriesTable() (sqlite.Table, error) {
+func NewGeometriesTable(ctx context.Context) (sqlite.Table, error) {
 
 	opts, err := DefaultGeometriesTableOptions()
 
@@ -47,10 +47,10 @@ func NewGeometriesTable() (sqlite.Table, error) {
 		return nil, err
 	}
 
-	return NewGeometriesTableWithOptions(opts)
+	return NewGeometriesTableWithOptions(ctx, opts)
 }
 
-func NewGeometriesTableWithOptions(opts *GeometriesTableOptions) (sqlite.Table, error) {
+func NewGeometriesTableWithOptions(ctx context.Context, opts *GeometriesTableOptions) (sqlite.Table, error) {
 
 	t := GeometriesTable{
 		name:    "geometries",
@@ -60,7 +60,7 @@ func NewGeometriesTableWithOptions(opts *GeometriesTableOptions) (sqlite.Table, 
 	return &t, nil
 }
 
-func NewGeometriesTableWithDatabase(db sqlite.Database) (sqlite.Table, error) {
+func NewGeometriesTableWithDatabase(ctx context.Context, db sqlite.Database) (sqlite.Table, error) {
 
 	opts, err := DefaultGeometriesTableOptions()
 
@@ -68,18 +68,18 @@ func NewGeometriesTableWithDatabase(db sqlite.Database) (sqlite.Table, error) {
 		return nil, err
 	}
 
-	return NewGeometriesTableWithDatabaseAndOptions(db, opts)
+	return NewGeometriesTableWithDatabaseAndOptions(ctx, db, opts)
 }
 
-func NewGeometriesTableWithDatabaseAndOptions(db sqlite.Database, opts *GeometriesTableOptions) (sqlite.Table, error) {
+func NewGeometriesTableWithDatabaseAndOptions(ctx context.Context, db sqlite.Database, opts *GeometriesTableOptions) (sqlite.Table, error) {
 
-	t, err := NewGeometriesTableWithOptions(opts)
+	t, err := NewGeometriesTableWithOptions(ctx, opts)
 
 	if err != nil {
 		return nil, err
 	}
 
-	err = t.InitializeTable(db)
+	err = t.InitializeTable(ctx, db)
 
 	if err != nil {
 		return nil, err
@@ -122,16 +122,16 @@ func (t *GeometriesTable) Schema() string {
 	return fmt.Sprintf(sql, t.Name(), t.Name(), t.Name(), t.Name(), t.Name())
 }
 
-func (t *GeometriesTable) InitializeTable(db sqlite.Database) error {
+func (t *GeometriesTable) InitializeTable(ctx context.Context, db sqlite.Database) error {
 
-	return utils.CreateTableIfNecessary(db, t)
+	return sqlite.CreateTableIfNecessary(ctx, db, t)
 }
 
-func (t *GeometriesTable) IndexRecord(db sqlite.Database, i interface{}) error {
-	return t.IndexFeature(db, i.(geojson.Feature))
+func (t *GeometriesTable) IndexRecord(ctx context.Context, db sqlite.Database, i interface{}) error {
+	return t.IndexFeature(ctx, db, i.(geojson.Feature))
 }
 
-func (t *GeometriesTable) IndexFeature(db sqlite.Database, f geojson.Feature) error {
+func (t *GeometriesTable) IndexFeature(ctx context.Context, db sqlite.Database, f geojson.Feature) error {
 
 	conn, err := db.Conn()
 

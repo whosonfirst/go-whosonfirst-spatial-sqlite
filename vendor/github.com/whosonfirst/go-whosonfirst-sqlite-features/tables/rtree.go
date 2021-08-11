@@ -3,15 +3,15 @@ package tables
 // https://www.sqlite.org/rtree.html
 
 import (
+	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/aaronland/go-sqlite"
 	"github.com/whosonfirst/go-whosonfirst-geojson-v2"
 	"github.com/whosonfirst/go-whosonfirst-geojson-v2/properties/geometry"
 	"github.com/whosonfirst/go-whosonfirst-geojson-v2/properties/whosonfirst"
-	"github.com/whosonfirst/go-whosonfirst-sqlite"
 	"github.com/whosonfirst/go-whosonfirst-sqlite-features"
-	"github.com/whosonfirst/go-whosonfirst-sqlite/utils"
 	_ "log"
 )
 
@@ -34,7 +34,7 @@ type RTreeTable struct {
 	options *RTreeTableOptions
 }
 
-func NewRTreeTable() (sqlite.Table, error) {
+func NewRTreeTable(ctx context.Context) (sqlite.Table, error) {
 
 	opts, err := DefaultRTreeTableOptions()
 
@@ -42,10 +42,10 @@ func NewRTreeTable() (sqlite.Table, error) {
 		return nil, err
 	}
 
-	return NewRTreeTableWithOptions(opts)
+	return NewRTreeTableWithOptions(ctx, opts)
 }
 
-func NewRTreeTableWithOptions(opts *RTreeTableOptions) (sqlite.Table, error) {
+func NewRTreeTableWithOptions(ctx context.Context, opts *RTreeTableOptions) (sqlite.Table, error) {
 
 	t := RTreeTable{
 		name:    "rtree",
@@ -55,7 +55,7 @@ func NewRTreeTableWithOptions(opts *RTreeTableOptions) (sqlite.Table, error) {
 	return &t, nil
 }
 
-func NewRTreeTableWithDatabase(db sqlite.Database) (sqlite.Table, error) {
+func NewRTreeTableWithDatabase(ctx context.Context, db sqlite.Database) (sqlite.Table, error) {
 
 	opts, err := DefaultRTreeTableOptions()
 
@@ -63,18 +63,18 @@ func NewRTreeTableWithDatabase(db sqlite.Database) (sqlite.Table, error) {
 		return nil, err
 	}
 
-	return NewRTreeTableWithDatabaseAndOptions(db, opts)
+	return NewRTreeTableWithDatabaseAndOptions(ctx, db, opts)
 }
 
-func NewRTreeTableWithDatabaseAndOptions(db sqlite.Database, opts *RTreeTableOptions) (sqlite.Table, error) {
+func NewRTreeTableWithDatabaseAndOptions(ctx context.Context, db sqlite.Database, opts *RTreeTableOptions) (sqlite.Table, error) {
 
-	t, err := NewRTreeTableWithOptions(opts)
+	t, err := NewRTreeTableWithOptions(ctx, opts)
 
 	if err != nil {
 		return nil, err
 	}
 
-	err = t.InitializeTable(db)
+	err = t.InitializeTable(ctx, db)
 
 	if err != nil {
 		return nil, err
@@ -122,16 +122,16 @@ func (t *RTreeTable) Schema() string {
 	return fmt.Sprintf(sql, t.Name())
 }
 
-func (t *RTreeTable) InitializeTable(db sqlite.Database) error {
+func (t *RTreeTable) InitializeTable(ctx context.Context, db sqlite.Database) error {
 
-	return utils.CreateTableIfNecessary(db, t)
+	return sqlite.CreateTableIfNecessary(ctx, db, t)
 }
 
-func (t *RTreeTable) IndexRecord(db sqlite.Database, i interface{}) error {
-	return t.IndexFeature(db, i.(geojson.Feature))
+func (t *RTreeTable) IndexRecord(ctx context.Context, db sqlite.Database, i interface{}) error {
+	return t.IndexFeature(ctx, db, i.(geojson.Feature))
 }
 
-func (t *RTreeTable) IndexFeature(db sqlite.Database, f geojson.Feature) error {
+func (t *RTreeTable) IndexFeature(ctx context.Context, db sqlite.Database, f geojson.Feature) error {
 
 	switch geometry.Type(f) {
 	case "Polygon", "MultiPolygon":

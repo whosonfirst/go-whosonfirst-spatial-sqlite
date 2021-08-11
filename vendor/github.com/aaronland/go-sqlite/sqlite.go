@@ -1,8 +1,8 @@
-package utils
+package sqlite
 
 import (
-	"github.com/whosonfirst/go-whosonfirst-sqlite"
-	_ "log"
+	"context"
+	"database/sql"
 	"os"
 	"regexp"
 )
@@ -15,7 +15,35 @@ func init() {
 	re_file = regexp.MustCompile(`^file\:([^\?]+)(?:\?.*)?$`)
 }
 
-func HasTable(db sqlite.Database, table string) (bool, error) {
+type Database interface {
+	Conn() (*sql.DB, error)
+	DSN() string
+	Close() error
+	Lock() error
+	Unlock() error
+}
+
+type Table interface {
+	Name() string
+	Schema() string
+	InitializeTable(context.Context, Database) error
+	IndexRecord(context.Context, Database, interface{}) error
+}
+
+// this is here so we can pass both sql.Row and sql.Rows to the
+// ResultSetFunc below (20170824/thisisaaronland)
+
+type ResultSet interface {
+	Scan(dest ...interface{}) error
+}
+
+type ResultRow interface {
+	Row() interface{}
+}
+
+type ResultSetFunc func(row ResultSet) (ResultRow, error)
+
+func HasTable(ctx context.Context, db Database, table string) (bool, error) {
 
 	// you might be thinking it would be a good idea to cache this lookup
 	// I know I did... and I was wrong (20180713/thisisaaronland)
@@ -84,11 +112,11 @@ func HasTable(db sqlite.Database, table string) (bool, error) {
 	return has_table, nil
 }
 
-func CreateTableIfNecessary(db sqlite.Database, t sqlite.Table) error {
+func CreateTableIfNecessary(ctx context.Context, db Database, t Table) error {
 
 	create := false
 
-	has_table, err := HasTable(db, t.Name())
+	has_table, err := HasTable(ctx, db, t.Name())
 
 	if err != nil {
 		return err

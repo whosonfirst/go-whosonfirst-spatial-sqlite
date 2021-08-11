@@ -1,7 +1,8 @@
 package tables
 
 import (
-	"github.com/whosonfirst/go-whosonfirst-sqlite"
+	"context"
+	"github.com/aaronland/go-sqlite"
 )
 
 type TableOptions struct {
@@ -13,7 +14,7 @@ type CommonTablesOptions struct {
 	IndexAltFiles bool
 }
 
-func CommonTablesWithDatabase(db sqlite.Database) ([]sqlite.Table, error) {
+func CommonTablesWithDatabase(ctx context.Context, db sqlite.Database) ([]sqlite.Table, error) {
 
 	geojson_opts, err := DefaultGeoJSONTableOptions()
 
@@ -26,10 +27,10 @@ func CommonTablesWithDatabase(db sqlite.Database) ([]sqlite.Table, error) {
 		IndexAltFiles: false,
 	}
 
-	return CommonTablesWithDatabaseAndOptions(db, table_opts)
+	return CommonTablesWithDatabaseAndOptions(ctx, db, table_opts)
 }
 
-func CommonTablesWithDatabaseAndOptions(db sqlite.Database, table_opts *CommonTablesOptions) ([]sqlite.Table, error) {
+func CommonTablesWithDatabaseAndOptions(ctx context.Context, db sqlite.Database, table_opts *CommonTablesOptions) ([]sqlite.Table, error) {
 
 	to_index := make([]sqlite.Table, 0)
 
@@ -52,7 +53,7 @@ func CommonTablesWithDatabaseAndOptions(db sqlite.Database, table_opts *CommonTa
 		geojson_opts = opts
 	}
 
-	gt, err := NewGeoJSONTableWithDatabaseAndOptions(db, geojson_opts)
+	gt, err := NewGeoJSONTableWithDatabaseAndOptions(ctx, db, geojson_opts)
 
 	if err != nil {
 		return nil, err
@@ -68,7 +69,7 @@ func CommonTablesWithDatabaseAndOptions(db sqlite.Database, table_opts *CommonTa
 
 	st_opts.IndexAltFiles = table_opts.IndexAltFiles
 
-	st, err := NewSPRTableWithDatabaseAndOptions(db, st_opts)
+	st, err := NewSPRTableWithDatabaseAndOptions(ctx, db, st_opts)
 
 	if err != nil {
 		return nil, err
@@ -76,7 +77,7 @@ func CommonTablesWithDatabaseAndOptions(db sqlite.Database, table_opts *CommonTa
 
 	to_index = append(to_index, st)
 
-	nm, err := NewNamesTableWithDatabase(db)
+	nm, err := NewNamesTableWithDatabase(ctx, db)
 
 	if err != nil {
 		return nil, err
@@ -84,7 +85,7 @@ func CommonTablesWithDatabaseAndOptions(db sqlite.Database, table_opts *CommonTa
 
 	to_index = append(to_index, nm)
 
-	an, err := NewAncestorsTableWithDatabase(db)
+	an, err := NewAncestorsTableWithDatabase(ctx, db)
 
 	if err != nil {
 		return nil, err
@@ -92,7 +93,7 @@ func CommonTablesWithDatabaseAndOptions(db sqlite.Database, table_opts *CommonTa
 
 	to_index = append(to_index, an)
 
-	cn, err := NewConcordancesTableWithDatabase(db)
+	cn, err := NewConcordancesTableWithDatabase(ctx, db)
 
 	if err != nil {
 		return nil, err
@@ -103,11 +104,11 @@ func CommonTablesWithDatabaseAndOptions(db sqlite.Database, table_opts *CommonTa
 	return to_index, nil
 }
 
-func SpatialTablesWithDatabase(db sqlite.Database) ([]sqlite.Table, error) {
+func SpatialTablesWithDatabase(ctx context.Context, db sqlite.Database) ([]sqlite.Table, error) {
 
 	to_index := make([]sqlite.Table, 0)
 
-	st, err := NewGeometriesTableWithDatabase(db)
+	st, err := NewGeometriesTableWithDatabase(ctx, db)
 
 	if err != nil {
 		return nil, err
@@ -117,15 +118,15 @@ func SpatialTablesWithDatabase(db sqlite.Database) ([]sqlite.Table, error) {
 	return to_index, nil
 }
 
-func PointInPolygonTablesWithDatabase(db sqlite.Database) ([]sqlite.Table, error) {
+func PointInPolygonTablesWithDatabase(ctx context.Context, db sqlite.Database) ([]sqlite.Table, error) {
 
-	to_index, err := SpatialTablesWithDatabase(db)
+	to_index, err := SpatialTablesWithDatabase(ctx, db)
 
 	if err != nil {
 		return nil, err
 	}
 
-	gt, err := NewGeoJSONTableWithDatabase(db)
+	gt, err := NewGeoJSONTableWithDatabase(ctx, db)
 
 	if err != nil {
 		return nil, err
@@ -136,20 +137,20 @@ func PointInPolygonTablesWithDatabase(db sqlite.Database) ([]sqlite.Table, error
 	return to_index, nil
 }
 
-func SearchTablesWithDatabase(db sqlite.Database) ([]sqlite.Table, error) {
+func SearchTablesWithDatabase(ctx context.Context, db sqlite.Database) ([]sqlite.Table, error) {
 
 	opts := &TableOptions{
 		IndexAltFiles: false,
 	}
 
-	return SearchTablesWithDatabaseAndOptions(db, opts)
+	return SearchTablesWithDatabaseAndOptions(ctx, db, opts)
 }
 
-func SearchTablesWithDatabaseAndOptions(db sqlite.Database, opts *TableOptions) ([]sqlite.Table, error) {
+func SearchTablesWithDatabaseAndOptions(ctx context.Context, db sqlite.Database, opts *TableOptions) ([]sqlite.Table, error) {
 
 	to_index := make([]sqlite.Table, 0)
 
-	st, err := NewSearchTableWithDatabase(db)
+	st, err := NewSearchTableWithDatabase(ctx, db)
 
 	if err != nil {
 		return nil, err
@@ -159,16 +160,16 @@ func SearchTablesWithDatabaseAndOptions(db sqlite.Database, opts *TableOptions) 
 	return to_index, nil
 }
 
-func RTreeTablesWithDatabase(db sqlite.Database) ([]sqlite.Table, error) {
+func RTreeTablesWithDatabase(ctx context.Context, db sqlite.Database) ([]sqlite.Table, error) {
 
 	opts := &TableOptions{
 		IndexAltFiles: false,
 	}
 
-	return RTreeTablesWithDatabaseAndOptions(db, opts)
+	return RTreeTablesWithDatabaseAndOptions(ctx, db, opts)
 }
 
-func RTreeTablesWithDatabaseAndOptions(db sqlite.Database, opts *TableOptions) ([]sqlite.Table, error) {
+func RTreeTablesWithDatabaseAndOptions(ctx context.Context, db sqlite.Database, opts *TableOptions) ([]sqlite.Table, error) {
 
 	// https://github.com/whosonfirst/go-whosonfirst-spatial-sqlite#databases
 
@@ -182,7 +183,7 @@ func RTreeTablesWithDatabaseAndOptions(db sqlite.Database, opts *TableOptions) (
 
 	rtree_opts.IndexAltFiles = opts.IndexAltFiles
 
-	rt, err := NewRTreeTableWithDatabaseAndOptions(db, rtree_opts)
+	rt, err := NewRTreeTableWithDatabaseAndOptions(ctx, db, rtree_opts)
 
 	if err != nil {
 		return nil, err
@@ -198,7 +199,7 @@ func RTreeTablesWithDatabaseAndOptions(db sqlite.Database, opts *TableOptions) (
 
 	sprt_opts.IndexAltFiles = opts.IndexAltFiles
 
-	sprt, err := NewSPRTableWithDatabaseAndOptions(db, sprt_opts)
+	sprt, err := NewSPRTableWithDatabaseAndOptions(ctx, db, sprt_opts)
 
 	if err != nil {
 		return nil, err
@@ -214,7 +215,7 @@ func RTreeTablesWithDatabaseAndOptions(db sqlite.Database, opts *TableOptions) (
 
 	props_opts.IndexAltFiles = opts.IndexAltFiles
 
-	props, err := NewPropertiesTableWithDatabaseAndOptions(db, props_opts)
+	props, err := NewPropertiesTableWithDatabaseAndOptions(ctx, db, props_opts)
 
 	if err != nil {
 		return nil, err
@@ -230,7 +231,7 @@ func RTreeTablesWithDatabaseAndOptions(db sqlite.Database, opts *TableOptions) (
 
 	geom_opts.IndexAltFiles = opts.IndexAltFiles
 
-	geom, err := NewGeometryTableWithDatabaseAndOptions(db, geom_opts)
+	geom, err := NewGeometryTableWithDatabaseAndOptions(ctx, db, geom_opts)
 
 	if err != nil {
 		return nil, err
