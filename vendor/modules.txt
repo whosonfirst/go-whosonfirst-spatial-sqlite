@@ -115,7 +115,7 @@ github.com/whosonfirst/go-whosonfirst-sqlite-features/tables
 # github.com/whosonfirst/go-whosonfirst-sqlite-spr v0.0.11
 ## explicit
 github.com/whosonfirst/go-whosonfirst-sqlite-spr
-# github.com/whosonfirst/go-whosonfirst-uri v1.0.1
+# github.com/whosonfirst/go-whosonfirst-uri v1.1.0
 ## explicit
 github.com/whosonfirst/go-whosonfirst-uri
 # github.com/whosonfirst/go-writer v0.4.1
