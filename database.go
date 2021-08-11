@@ -26,6 +26,7 @@ import (
 	"github.com/whosonfirst/go-whosonfirst-uri"
 	"io"
 	"net/url"
+	golog "log"
 	"strings"
 	"sync"
 	"time"
@@ -120,6 +121,7 @@ func NewSQLiteSpatialDatabaseWithDatabase(ctx context.Context, uri string, sqlit
 	rtree_table, err := tables.NewRTreeTableWithDatabase(ctx, sqlite_db)
 
 	if err != nil {
+		golog.Println("POO", err)
 		return nil, err
 	}
 

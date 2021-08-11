@@ -48,7 +48,10 @@ func NewDBWithDriver(ctx context.Context, driver string, dsn string) (*SQLiteDat
 				return nil, err
 			}
 
-			dsn = "not_a_real_name.db?vfs=httpvfs&mode=ro"
+			// See the vfs: prefix? We check that in sqlite.go to determine
+			// whether or not to os.Stat the database
+
+			dsn = "vfs:stub.db?vfs=httpvfs&mode=ro"
 
 		} else {
 

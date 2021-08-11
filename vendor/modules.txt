@@ -2,7 +2,7 @@
 github.com/aaronland/go-json-query
 # github.com/aaronland/go-roster v0.0.2
 github.com/aaronland/go-roster
-# github.com/aaronland/go-sqlite v0.0.3
+# github.com/aaronland/go-sqlite v0.0.4
 ## explicit
 github.com/aaronland/go-sqlite
 github.com/aaronland/go-sqlite/database

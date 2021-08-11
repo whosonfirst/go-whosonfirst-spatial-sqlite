@@ -19,6 +19,8 @@ github.com/aaronland/go-roster v0.0.2 h1:2Fu7v4VQLRLRL/Zgr6R9S5JxsW75Ab/K88QtMVX
 github.com/aaronland/go-roster v0.0.2/go.mod h1:AcovpxlG1XxJxX2Fjqlm63fEIBhCjEIBV4lP87FZDmI=
 github.com/aaronland/go-sqlite v0.0.3 h1:pa8L74JdbkmONxqLqMqZFZtHpARHM46JmX1A/hZ44KU=
 github.com/aaronland/go-sqlite v0.0.3/go.mod h1:b/FfLh8xBZ1dhjyehPsFli46VhGqWAz2rKR4udvTHJw=
+github.com/aaronland/go-sqlite v0.0.4 h1:14HA5gxnVLZ0W+h0EkXGy+qRfwCMCq4Ne04ejQYyqG0=
+github.com/aaronland/go-sqlite v0.0.4/go.mod h1:b/FfLh8xBZ1dhjyehPsFli46VhGqWAz2rKR4udvTHJw=
 github.com/akrylysov/algnhsa v0.0.0-20190319020909-05b3d192e9a7/go.mod h1:HhzjNA0EjUWcwHTUMwqrpeAdIF3gRmpH0HpWx1hYJSc=
 github.com/andybalholm/cascadia v1.1.0/go.mod h1:GsXiBklL0woXo1j/WYWtSYYC4ouU9PqHO0sqidkEA4Y=
 github.com/aws/aws-lambda-go v1.9.0/go.mod h1:zUsUQhAUjYzR8AuduJPCfhBuKWUaDbQiPOG+ouzmE1A=

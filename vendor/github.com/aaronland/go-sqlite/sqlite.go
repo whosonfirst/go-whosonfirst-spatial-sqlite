@@ -8,10 +8,12 @@ import (
 )
 
 var re_mem *regexp.Regexp
+var re_vfs *regexp.Regexp
 var re_file *regexp.Regexp
 
 func init() {
 	re_mem = regexp.MustCompile(`^(file\:)?\:memory\:.*`)
+	re_vfs = regexp.MustCompile(`^vfs:\.*`)
 	re_file = regexp.MustCompile(`^file\:([^\?]+)(?:\?.*)?$`)
 }
 
@@ -54,7 +56,7 @@ func HasTable(ctx context.Context, db Database, table string) (bool, error) {
 	check_tables := true
 	has_table := false
 
-	if !re_mem.MatchString(dsn) {
+	if !re_mem.MatchString(dsn) && !re_vfs.MatchString(dsn) {
 
 		test := dsn
 
