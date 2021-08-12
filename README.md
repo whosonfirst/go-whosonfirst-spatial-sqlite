@@ -357,10 +357,10 @@ $> ./bin/query \
 
 #### Remote databases
 
-If you are running Go 1.17 (or higher) support for remotely-hosted SQLite databases is available. For example:
+Support for remotely-hosted SQLite databases is available. For example:
 
 ```
-$> ~/go/bin/go1.17rc2 run cmd/query/main.go \
+$> go run -mod vendor cmd/query/main.go \
 	-spatial-database-uri 'sqlite://?dsn=http://localhost:8080/sfomuseum-architecture.db' \
 	-latitude 37.616951 \
 	-longitude -122.383747 \
