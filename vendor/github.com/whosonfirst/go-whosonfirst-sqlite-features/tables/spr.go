@@ -1,13 +1,13 @@
 package tables
 
 import (
+	"context"
 	"errors"
 	"fmt"
+	"github.com/aaronland/go-sqlite"
 	"github.com/whosonfirst/go-whosonfirst-geojson-v2"
 	"github.com/whosonfirst/go-whosonfirst-geojson-v2/properties/whosonfirst"
-	"github.com/whosonfirst/go-whosonfirst-sqlite"
 	"github.com/whosonfirst/go-whosonfirst-sqlite-features"
-	"github.com/whosonfirst/go-whosonfirst-sqlite/utils"
 	_ "log"
 	"strconv"
 	"strings"
@@ -32,7 +32,7 @@ type SPRTable struct {
 	options *SPRTableOptions
 }
 
-func NewSPRTable() (sqlite.Table, error) {
+func NewSPRTable(ctx context.Context) (sqlite.Table, error) {
 
 	opts, err := DefaultSPRTableOptions()
 
@@ -40,10 +40,10 @@ func NewSPRTable() (sqlite.Table, error) {
 		return nil, err
 	}
 
-	return NewSPRTableWithOptions(opts)
+	return NewSPRTableWithOptions(ctx, opts)
 }
 
-func NewSPRTableWithOptions(opts *SPRTableOptions) (sqlite.Table, error) {
+func NewSPRTableWithOptions(ctx context.Context, opts *SPRTableOptions) (sqlite.Table, error) {
 
 	t := SPRTable{
 		name:    "spr",
@@ -53,7 +53,7 @@ func NewSPRTableWithOptions(opts *SPRTableOptions) (sqlite.Table, error) {
 	return &t, nil
 }
 
-func NewSPRTableWithDatabase(db sqlite.Database) (sqlite.Table, error) {
+func NewSPRTableWithDatabase(ctx context.Context, db sqlite.Database) (sqlite.Table, error) {
 
 	opts, err := DefaultSPRTableOptions()
 
@@ -61,18 +61,18 @@ func NewSPRTableWithDatabase(db sqlite.Database) (sqlite.Table, error) {
 		return nil, err
 	}
 
-	return NewSPRTableWithDatabaseAndOptions(db, opts)
+	return NewSPRTableWithDatabaseAndOptions(ctx, db, opts)
 }
 
-func NewSPRTableWithDatabaseAndOptions(db sqlite.Database, opts *SPRTableOptions) (sqlite.Table, error) {
+func NewSPRTableWithDatabaseAndOptions(ctx context.Context, db sqlite.Database, opts *SPRTableOptions) (sqlite.Table, error) {
 
-	t, err := NewSPRTableWithOptions(opts)
+	t, err := NewSPRTableWithOptions(ctx, opts)
 
 	if err != nil {
 		return nil, err
 	}
 
-	err = t.InitializeTable(db)
+	err = t.InitializeTable(ctx, db)
 
 	if err != nil {
 		return nil, err
@@ -81,9 +81,9 @@ func NewSPRTableWithDatabaseAndOptions(db sqlite.Database, opts *SPRTableOptions
 	return t, nil
 }
 
-func (t *SPRTable) InitializeTable(db sqlite.Database) error {
+func (t *SPRTable) InitializeTable(ctx context.Context, db sqlite.Database) error {
 
-	return utils.CreateTableIfNecessary(db, t)
+	return sqlite.CreateTableIfNecessary(ctx, db, t)
 }
 
 func (t *SPRTable) Name() string {
@@ -140,11 +140,11 @@ func (t *SPRTable) Schema() string {
 	return fmt.Sprintf(sql, t.Name())
 }
 
-func (t *SPRTable) IndexRecord(db sqlite.Database, i interface{}) error {
-	return t.IndexFeature(db, i.(geojson.Feature))
+func (t *SPRTable) IndexRecord(ctx context.Context, db sqlite.Database, i interface{}) error {
+	return t.IndexFeature(ctx, db, i.(geojson.Feature))
 }
 
-func (t *SPRTable) IndexFeature(db sqlite.Database, f geojson.Feature) error {
+func (t *SPRTable) IndexFeature(ctx context.Context, db sqlite.Database, f geojson.Feature) error {
 
 	is_alt := whosonfirst.IsAlt(f)
 	alt_label := whosonfirst.AltLabel(f)
@@ -191,11 +191,11 @@ func (t *SPRTable) IndexFeature(db sqlite.Database, f geojson.Feature) error {
 		?, ?,
 		?
 		)`, t.Name()) // ON CONFLICT DO BLAH BLAH BLAH
-	
-	superseded_by := int64ToString(spr.SupersededBy())	
+
+	superseded_by := int64ToString(spr.SupersededBy())
 	supersedes := int64ToString(spr.Supersedes())
-	belongs_to := int64ToString(spr.BelongsTo())		
-	
+	belongs_to := int64ToString(spr.BelongsTo())
+
 	args := []interface{}{
 		spr.Id(), spr.ParentId(), spr.Name(), spr.Placetype(),
 		spr.Inception().String(), spr.Cessation().String(),
@@ -240,7 +240,7 @@ func (t *SPRTable) IndexFeature(db sqlite.Database, f geojson.Feature) error {
 }
 
 func int64ToString(ints []int64) string {
-	
+
 	str_ints := make([]string, len(ints))
 
 	for idx, i := range ints {

@@ -4,13 +4,13 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	"github.com/aaronland/go-sqlite"
+	sqlite_database "github.com/aaronland/go-sqlite/database"
 	"github.com/sfomuseum/go-edtf"
 	"github.com/sfomuseum/go-edtf/parser"
 	"github.com/whosonfirst/go-whosonfirst-flags"
 	"github.com/whosonfirst/go-whosonfirst-flags/existential"
 	wof_spr "github.com/whosonfirst/go-whosonfirst-spr/v2"
-	wof_sqlite "github.com/whosonfirst/go-whosonfirst-sqlite"
-	wof_database "github.com/whosonfirst/go-whosonfirst-sqlite/database"
 	"github.com/whosonfirst/go-whosonfirst-uri"
 	_ "log"
 	"strconv"
@@ -168,7 +168,7 @@ func (spr *SQLiteStandardPlacesResult) LastModified() int64 {
 	return spr.WOFLastModified
 }
 
-func RetrieveSPR(ctx context.Context, spr_db *wof_database.SQLiteDatabase, spr_table wof_sqlite.Table, id int64, alt_label string) (wof_spr.StandardPlacesResult, error) {
+func RetrieveSPR(ctx context.Context, spr_db *sqlite_database.SQLiteDatabase, spr_table sqlite.Table, id int64, alt_label string) (wof_spr.StandardPlacesResult, error) {
 
 	conn, err := spr_db.Conn()
 

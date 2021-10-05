@@ -10,21 +10,20 @@ import (
 	gocache "github.com/patrickmn/go-cache"
 	"github.com/skelterjohn/geom"
 	"github.com/whosonfirst/go-ioutil"
-	wof_geojson "github.com/whosonfirst/go-whosonfirst-geojson-v2"
-	wof_feature "github.com/whosonfirst/go-whosonfirst-geojson-v2/feature"	
-	"github.com/whosonfirst/go-whosonfirst-log"
+	"github.com/whosonfirst/go-whosonfirst-geojson-v2/feature"	
 	"github.com/whosonfirst/go-whosonfirst-spatial"
 	"github.com/whosonfirst/go-whosonfirst-spatial/database"
 	"github.com/whosonfirst/go-whosonfirst-spatial/filter"
 	"github.com/whosonfirst/go-whosonfirst-spatial/geo"
 	"github.com/whosonfirst/go-whosonfirst-spatial/timer"
 	"github.com/whosonfirst/go-whosonfirst-spr/v2"
-	"github.com/whosonfirst/go-whosonfirst-sqlite"
+	"github.com/aaronland/go-sqlite"
 	"github.com/whosonfirst/go-whosonfirst-sqlite-features/tables"
 	sqlite_spr "github.com/whosonfirst/go-whosonfirst-sqlite-spr"
-	sqlite_database "github.com/whosonfirst/go-whosonfirst-sqlite/database"
+	sqlite_database "github.com/aaronland/go-sqlite/database"
 	"github.com/whosonfirst/go-whosonfirst-uri"
 	"io"
+	"log"
 	"net/url"
 	"strings"
 	"sync"
@@ -38,7 +37,7 @@ func init() {
 
 type SQLiteSpatialDatabase struct {
 	database.SpatialDatabase
-	Logger        *log.WOFLogger
+	Logger        *log.Logger
 	Timer         *timer.Timer
 	mu            *sync.RWMutex
 	db            *sqlite_database.SQLiteDatabase
@@ -96,7 +95,7 @@ func NewSQLiteSpatialDatabase(ctx context.Context, uri string) (database.Spatial
 		return nil, errors.New("Missing 'dsn' parameter")
 	}
 
-	sqlite_db, err := sqlite_database.NewDB(dsn)
+	sqlite_db, err := sqlite_database.NewDB(ctx, dsn)
 
 	if err != nil {
 		return nil, err
@@ -117,13 +116,13 @@ func NewSQLiteSpatialDatabaseWithDatabase(ctx context.Context, uri string, sqlit
 
 	dsn := q.Get("dsn")
 
-	rtree_table, err := tables.NewRTreeTableWithDatabase(sqlite_db)
+	rtree_table, err := tables.NewRTreeTableWithDatabase(ctx, sqlite_db)
 
 	if err != nil {
 		return nil, err
 	}
 
-	spr_table, err := tables.NewSPRTableWithDatabase(sqlite_db)
+	spr_table, err := tables.NewSPRTableWithDatabase(ctx, sqlite_db)
 
 	if err != nil {
 		return nil, err
@@ -132,13 +131,13 @@ func NewSQLiteSpatialDatabaseWithDatabase(ctx context.Context, uri string, sqlit
 	// This is so we can satisfy the reader.Reader requirement
 	// in the spatial.SpatialDatabase interface
 
-	geojson_table, err := tables.NewGeoJSONTableWithDatabase(sqlite_db)
+	geojson_table, err := tables.NewGeoJSONTableWithDatabase(ctx, sqlite_db)
 
 	if err != nil {
 		return nil, err
 	}
 
-	logger := log.SimpleWOFLogger("index")
+	logger := log.Default()
 
 	expires := 5 * time.Minute
 	cleanup := 30 * time.Minute
@@ -168,18 +167,24 @@ func (r *SQLiteSpatialDatabase) Disconnect(ctx context.Context) error {
 	return r.db.Close()
 }
 
-func (r *SQLiteSpatialDatabase) IndexFeature(ctx context.Context, f wof_geojson.Feature) error {
+func (r *SQLiteSpatialDatabase) IndexFeature(ctx context.Context, body []byte) error {
 
+	f, err := feature.LoadFeature(body)
+
+	if err != nil {
+		return fmt.Errorf("Failed to load feature, %w", err)
+	}
+	
 	r.mu.Lock()
 	defer r.mu.Unlock()
 
-	err := r.rtree_table.IndexRecord(r.db, f)
+	err = r.rtree_table.IndexRecord(ctx, r.db, f)
 
 	if err != nil {
 		return err
 	}
 
-	err = r.spr_table.IndexRecord(r.db, f)
+	err = r.spr_table.IndexRecord(ctx, r.db, f)
 
 	if err != nil {
 		return err
@@ -187,7 +192,7 @@ func (r *SQLiteSpatialDatabase) IndexFeature(ctx context.Context, f wof_geojson.
 
 	if r.geojson_table != nil {
 
-		err = r.geojson_table.IndexRecord(r.db, f)
+		err = r.geojson_table.IndexRecord(ctx, r.db, f)
 
 		if err != nil {
 			return err
@@ -195,6 +200,10 @@ func (r *SQLiteSpatialDatabase) IndexFeature(ctx context.Context, f wof_geojson.
 	}
 
 	return nil
+}
+
+func (r *SQLiteSpatialDatabase) RemoveFeature(ctx context.Context, id int64) error {
+	return fmt.Errorf("Not implemented.")
 }
 
 func (r *SQLiteSpatialDatabase) PointInPolygon(ctx context.Context, coord *geom.Coord, filters ...spatial.Filter) (spr.StandardPlacesResults, error) {
@@ -520,14 +529,14 @@ func (r *SQLiteSpatialDatabase) inflateSpatialIndexWithChannels(ctx context.Cont
 	s, err := r.retrieveSPR(ctx, sp.Path())
 
 	if err != nil {
-		r.Logger.Error("Failed to retrieve feature cache for %s, %v", sp_id, err)
+		r.Logger.Printf("Failed to retrieve feature cache for %s, %v", sp_id, err)
 		return
 	}
 
 	r.Timer.Add(ctx, sp_id, "time to retrieve SPR", time.Since(t4))
 
 	if err != nil {
-		r.Logger.Error("Failed to retrieve feature cache for %s, %v", sp_id, err)
+		r.Logger.Printf("Failed to retrieve feature cache for %s, %v", sp_id, err)
 		return
 	}
 
@@ -538,7 +547,7 @@ func (r *SQLiteSpatialDatabase) inflateSpatialIndexWithChannels(ctx context.Cont
 		err = filter.FilterSPR(f, s)
 
 		if err != nil {
-			r.Logger.Debug("SKIP %s because filter error %s", sp_id, err)
+			r.Logger.Printf("SKIP %s because filter error %s", sp_id, err)
 			return
 		}
 	}
@@ -639,13 +648,7 @@ func (r *SQLiteSpatialDatabase) Write(ctx context.Context, key string, fh io.Rea
 		return 0, err
 	}
 	
-	f, err := wof_feature.LoadFeature(body)
-
-	if err != nil {
-		return 0, err
-	}
-
-	err = r.IndexFeature(ctx, f)
+	err = r.IndexFeature(ctx, body)
 
 	if err != nil {
 		return 0, err
