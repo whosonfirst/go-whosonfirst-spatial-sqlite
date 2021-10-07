@@ -5,7 +5,6 @@ package sqlite
 import (
 	"context"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"github.com/aaronland/go-sqlite"
 	sqlite_database "github.com/aaronland/go-sqlite/database"
@@ -84,7 +83,7 @@ func NewSQLiteSpatialDatabase(ctx context.Context, uri string) (database.Spatial
 	u, err := url.Parse(uri)
 
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("Failed to parse URI, %w", err)
 	}
 
 	q := u.Query()
@@ -92,13 +91,13 @@ func NewSQLiteSpatialDatabase(ctx context.Context, uri string) (database.Spatial
 	dsn := q.Get("dsn")
 
 	if dsn == "" {
-		return nil, errors.New("Missing 'dsn' parameter")
+		return nil, fmt.Errorf("Missing 'dsn' parameter")
 	}
 
 	sqlite_db, err := sqlite_database.NewDB(ctx, dsn)
 
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("Failed to create new SQLite database, %w", err)
 	}
 
 	return NewSQLiteSpatialDatabaseWithDatabase(ctx, uri, sqlite_db)
@@ -109,7 +108,7 @@ func NewSQLiteSpatialDatabaseWithDatabase(ctx context.Context, uri string, sqlit
 	u, err := url.Parse(uri)
 
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("Failed to parse URI, %w", err)
 	}
 
 	q := u.Query()
@@ -119,13 +118,13 @@ func NewSQLiteSpatialDatabaseWithDatabase(ctx context.Context, uri string, sqlit
 	rtree_table, err := tables.NewRTreeTableWithDatabase(ctx, sqlite_db)
 
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("Failed to create rtree table, %w", err)
 	}
 
 	spr_table, err := tables.NewSPRTableWithDatabase(ctx, sqlite_db)
 
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("Failed to create spr table, %w", err)
 	}
 
 	// This is so we can satisfy the reader.Reader requirement
@@ -134,7 +133,7 @@ func NewSQLiteSpatialDatabaseWithDatabase(ctx context.Context, uri string, sqlit
 	geojson_table, err := tables.NewGeoJSONTableWithDatabase(ctx, sqlite_db)
 
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("Failed to create geojson table, %w", err)
 	}
 
 	logger := log.Default()
@@ -181,13 +180,13 @@ func (r *SQLiteSpatialDatabase) IndexFeature(ctx context.Context, body []byte) e
 	err = r.rtree_table.IndexRecord(ctx, r.db, f)
 
 	if err != nil {
-		return err
+		return fmt.Errorf("Failed to index record in rtree table, %w", err)
 	}
 
 	err = r.spr_table.IndexRecord(ctx, r.db, f)
 
 	if err != nil {
-		return err
+		return fmt.Errorf("Failed to index record in spr table, %w", err)
 	}
 
 	if r.geojson_table != nil {
@@ -195,7 +194,7 @@ func (r *SQLiteSpatialDatabase) IndexFeature(ctx context.Context, body []byte) e
 		err = r.geojson_table.IndexRecord(ctx, r.db, f)
 
 		if err != nil {
-			return err
+			return fmt.Errorf("Failed to index record in geojson table, %w", err)
 		}
 	}
 
@@ -238,7 +237,7 @@ func (r *SQLiteSpatialDatabase) PointInPolygon(ctx context.Context, coord *orb.P
 		case rsp := <-rsp_ch:
 			results = append(results, rsp)
 		case err := <-err_ch:
-			return nil, err
+			return nil, fmt.Errorf("Point in polygon request failed, %w", err)
 		default:
 			// pass
 		}
@@ -273,7 +272,7 @@ func (r *SQLiteSpatialDatabase) PointInPolygonWithChannels(ctx context.Context, 
 	rows, err := r.getIntersectsByCoord(ctx, coord, filters...)
 
 	if err != nil {
-		err_ch <- err
+		err_ch <- fmt.Errorf("Get intersects failed, %w", err)
 		return
 	}
 
@@ -304,7 +303,7 @@ func (r *SQLiteSpatialDatabase) PointInPolygonCandidates(ctx context.Context, co
 		case rsp := <-rsp_ch:
 			candidates = append(candidates, rsp)
 		case err := <-err_ch:
-			return nil, err
+			return nil, fmt.Errorf("Point in polygon (candidates) query failed, %w", err)
 		default:
 			// pass
 		}
@@ -364,15 +363,25 @@ func (r *SQLiteSpatialDatabase) getIntersectsByRect(ctx context.Context, rect *o
 	conn, err := r.db.Conn()
 
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("Failed to establish database connection, %w", err)
 	}
 
 	q := fmt.Sprintf("SELECT id, wof_id, is_alt, alt_label, geometry, min_x, min_y, max_x, max_y FROM %s  WHERE min_x <= ? AND max_x >= ?  AND min_y <= ? AND max_y >= ?", r.rtree_table.Name())
 
-	rows, err := conn.QueryContext(ctx, q, rect.Min.X, rect.Max.X, rect.Min.Y, rect.Max.Y)
+	// Left returns the left of the bound.
+	// Right returns the right of the bound.
+
+	minx := rect.Left()
+	miny := rect.Bottom()
+	maxx := rect.Right()
+	maxy := rect.Top()
+
+	rows, err := conn.QueryContext(ctx, q, minx, maxx, miny, maxy)
+
+	// fmt.Println(q, minx, miny, maxx, maxy)
 
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("SQL query failed, %w", err)
 	}
 
 	defer rows.Close()
@@ -394,7 +403,7 @@ func (r *SQLiteSpatialDatabase) getIntersectsByRect(ctx context.Context, rect *o
 		err := rows.Scan(&id, &feature_id, &is_alt, &alt_label, &geometry, &minx, &miny, &maxx, &maxy)
 
 		if err != nil {
-			return nil, err
+			return nil, fmt.Errorf("Result row scan failed, %w", err)
 		}
 
 		min := orb.Point{minx, miny}
@@ -483,7 +492,7 @@ func (r *SQLiteSpatialDatabase) inflateSpatialIndexWithChannels(ctx context.Cont
 	r.Timer.Add(ctx, sp_id, "time to unmarshal geometry", time.Since(t2))
 
 	if err != nil {
-		err_ch <- err
+		err_ch <- fmt.Errorf("Failed to unmarshal geometry, %w", err)
 		return
 	}
 
