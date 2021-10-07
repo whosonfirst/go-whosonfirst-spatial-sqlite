@@ -11,12 +11,12 @@ import (
 	sqlite_database "github.com/aaronland/go-sqlite/database"
 	gocache "github.com/patrickmn/go-cache"
 	"github.com/paulmach/orb"
+	"github.com/paulmach/orb/planar"
 	"github.com/whosonfirst/go-ioutil"
 	"github.com/whosonfirst/go-whosonfirst-geojson-v2/feature"
 	"github.com/whosonfirst/go-whosonfirst-spatial"
 	"github.com/whosonfirst/go-whosonfirst-spatial/database"
 	"github.com/whosonfirst/go-whosonfirst-spatial/filter"
-	"github.com/whosonfirst/go-whosonfirst-spatial/geo"
 	"github.com/whosonfirst/go-whosonfirst-spatial/timer"
 	"github.com/whosonfirst/go-whosonfirst-spr/v2"
 	"github.com/whosonfirst/go-whosonfirst-sqlite-features/tables"
@@ -57,7 +57,7 @@ type RTreeSpatialIndex struct {
 	AltLabel  string
 }
 
-func (sp RTreeSpatialIndex) Bounds() geom.Rect {
+func (sp RTreeSpatialIndex) Bounds() orb.Bound {
 	return sp.bounds
 }
 
@@ -338,7 +338,7 @@ func (r *SQLiteSpatialDatabase) PointInPolygonCandidatesWithChannels(ctx context
 			Id:        sp.Id,
 			FeatureId: sp.FeatureId,
 			AltLabel:  sp.AltLabel,
-			Bounds:    &bounds,
+			Bounds:    bounds,
 		}
 
 		rsp_ch <- c
@@ -351,20 +351,12 @@ func (r *SQLiteSpatialDatabase) getIntersectsByCoord(ctx context.Context, coord 
 
 	// how small can this be?
 
-	x := 0.00001
-	y := 0.00001
+	padding := 0.00001
 
-	offset := orb.Point{x, y}
+	b := coord.Bound()
+	rect := b.Pad(padding)
 
-	min := coord.Minus(offset)
-	max := coord.Plus(offset)
-
-	rect := &orb.Bound{
-		Min: min,
-		Max: max,
-	}
-
-	return r.getIntersectsByRect(ctx, rect, filters...)
+	return r.getIntersectsByRect(ctx, &rect, filters...)
 }
 
 func (r *SQLiteSpatialDatabase) getIntersectsByRect(ctx context.Context, rect *orb.Bound, filters ...spatial.Filter) ([]*RTreeSpatialIndex, error) {
@@ -405,17 +397,10 @@ func (r *SQLiteSpatialDatabase) getIntersectsByRect(ctx context.Context, rect *o
 			return nil, err
 		}
 
-		min := orb.Point{
-			X: minx,
-			Y: miny,
-		}
+		min := orb.Point{minx, miny}
+		max := orb.Point{maxx, maxy}
 
-		max := orb.Point{
-			X: maxx,
-			Y: maxy,
-		}
-
-		rect := geom.Rect{
+		rect := orb.Bound{
 			Min: min,
 			Max: max,
 		}
@@ -491,9 +476,9 @@ func (r *SQLiteSpatialDatabase) inflateSpatialIndexWithChannels(ctx context.Cont
 
 	// this needs to be sped up (20201216/thisisaaronland)
 
-	var coords [][][]float64
+	var poly orb.Polygon // [][][]float64
 
-	err := json.Unmarshal([]byte(sp.geometry), &coords)
+	err := json.Unmarshal([]byte(sp.geometry), &poly)
 
 	r.Timer.Add(ctx, sp_id, "time to unmarshal geometry", time.Since(t2))
 
@@ -502,14 +487,16 @@ func (r *SQLiteSpatialDatabase) inflateSpatialIndexWithChannels(ctx context.Cont
 		return
 	}
 
-	if len(coords) == 0 {
-		err_ch <- errors.New("Missing coordinates for polygon")
-		return
-	}
+	/*
+		if len(coords) == 0 {
+			err_ch <- errors.New("Missing coordinates for polygon")
+			return
+		}
+	*/
 
 	t3 := time.Now()
 
-	if !geo.PolygonContainsCoord(coords, c) {
+	if !planar.PolygonContains(poly, *c) {
 		return
 	}
 
