@@ -7,20 +7,20 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/aaronland/go-sqlite"
+	sqlite_database "github.com/aaronland/go-sqlite/database"
 	gocache "github.com/patrickmn/go-cache"
-	"github.com/skelterjohn/geom"
+	"github.com/paulmach/orb"
 	"github.com/whosonfirst/go-ioutil"
-	"github.com/whosonfirst/go-whosonfirst-geojson-v2/feature"	
+	"github.com/whosonfirst/go-whosonfirst-geojson-v2/feature"
 	"github.com/whosonfirst/go-whosonfirst-spatial"
 	"github.com/whosonfirst/go-whosonfirst-spatial/database"
 	"github.com/whosonfirst/go-whosonfirst-spatial/filter"
 	"github.com/whosonfirst/go-whosonfirst-spatial/geo"
 	"github.com/whosonfirst/go-whosonfirst-spatial/timer"
 	"github.com/whosonfirst/go-whosonfirst-spr/v2"
-	"github.com/aaronland/go-sqlite"
 	"github.com/whosonfirst/go-whosonfirst-sqlite-features/tables"
 	sqlite_spr "github.com/whosonfirst/go-whosonfirst-sqlite-spr"
-	sqlite_database "github.com/aaronland/go-sqlite/database"
 	"github.com/whosonfirst/go-whosonfirst-uri"
 	"io"
 	"log"
@@ -50,7 +50,7 @@ type SQLiteSpatialDatabase struct {
 
 type RTreeSpatialIndex struct {
 	geometry  string
-	bounds    geom.Rect
+	bounds    orb.Bound
 	Id        string
 	FeatureId string
 	IsAlt     bool
@@ -174,7 +174,7 @@ func (r *SQLiteSpatialDatabase) IndexFeature(ctx context.Context, body []byte) e
 	if err != nil {
 		return fmt.Errorf("Failed to load feature, %w", err)
 	}
-	
+
 	r.mu.Lock()
 	defer r.mu.Unlock()
 
@@ -202,11 +202,11 @@ func (r *SQLiteSpatialDatabase) IndexFeature(ctx context.Context, body []byte) e
 	return nil
 }
 
-func (r *SQLiteSpatialDatabase) RemoveFeature(ctx context.Context, id int64) error {
+func (r *SQLiteSpatialDatabase) RemoveFeature(ctx context.Context, id string) error {
 	return fmt.Errorf("Not implemented.")
 }
 
-func (r *SQLiteSpatialDatabase) PointInPolygon(ctx context.Context, coord *geom.Coord, filters ...spatial.Filter) (spr.StandardPlacesResults, error) {
+func (r *SQLiteSpatialDatabase) PointInPolygon(ctx context.Context, coord *orb.Point, filters ...spatial.Filter) (spr.StandardPlacesResults, error) {
 
 	ctx, cancel := context.WithCancel(ctx)
 	defer cancel()
@@ -264,7 +264,7 @@ func (r *SQLiteSpatialDatabase) PointInPolygon(ctx context.Context, coord *geom.
 	return spr_results, nil
 }
 
-func (r *SQLiteSpatialDatabase) PointInPolygonWithChannels(ctx context.Context, rsp_ch chan spr.StandardPlacesResult, err_ch chan error, done_ch chan bool, coord *geom.Coord, filters ...spatial.Filter) {
+func (r *SQLiteSpatialDatabase) PointInPolygonWithChannels(ctx context.Context, rsp_ch chan spr.StandardPlacesResult, err_ch chan error, done_ch chan bool, coord *orb.Point, filters ...spatial.Filter) {
 
 	defer func() {
 		done_ch <- true
@@ -281,7 +281,7 @@ func (r *SQLiteSpatialDatabase) PointInPolygonWithChannels(ctx context.Context, 
 	return
 }
 
-func (r *SQLiteSpatialDatabase) PointInPolygonCandidates(ctx context.Context, coord *geom.Coord, filters ...spatial.Filter) ([]*spatial.PointInPolygonCandidate, error) {
+func (r *SQLiteSpatialDatabase) PointInPolygonCandidates(ctx context.Context, coord *orb.Point, filters ...spatial.Filter) ([]*spatial.PointInPolygonCandidate, error) {
 
 	ctx, cancel := context.WithCancel(ctx)
 	defer cancel()
@@ -317,7 +317,7 @@ func (r *SQLiteSpatialDatabase) PointInPolygonCandidates(ctx context.Context, co
 	return candidates, nil
 }
 
-func (r *SQLiteSpatialDatabase) PointInPolygonCandidatesWithChannels(ctx context.Context, rsp_ch chan *spatial.PointInPolygonCandidate, err_ch chan error, done_ch chan bool, coord *geom.Coord, filters ...spatial.Filter) {
+func (r *SQLiteSpatialDatabase) PointInPolygonCandidatesWithChannels(ctx context.Context, rsp_ch chan *spatial.PointInPolygonCandidate, err_ch chan error, done_ch chan bool, coord *orb.Point, filters ...spatial.Filter) {
 
 	defer func() {
 		done_ch <- true
@@ -347,19 +347,19 @@ func (r *SQLiteSpatialDatabase) PointInPolygonCandidatesWithChannels(ctx context
 	return
 }
 
-func (r *SQLiteSpatialDatabase) getIntersectsByCoord(ctx context.Context, coord *geom.Coord, filters ...spatial.Filter) ([]*RTreeSpatialIndex, error) {
+func (r *SQLiteSpatialDatabase) getIntersectsByCoord(ctx context.Context, coord *orb.Point, filters ...spatial.Filter) ([]*RTreeSpatialIndex, error) {
 
 	// how small can this be?
 
-	offset := geom.Coord{
-		X: 0.00001,
-		Y: 0.00001,
-	}
+	x := 0.00001
+	y := 0.00001
+
+	offset := orb.Point{x, y}
 
 	min := coord.Minus(offset)
 	max := coord.Plus(offset)
 
-	rect := &geom.Rect{
+	rect := &orb.Bound{
 		Min: min,
 		Max: max,
 	}
@@ -367,7 +367,7 @@ func (r *SQLiteSpatialDatabase) getIntersectsByCoord(ctx context.Context, coord 
 	return r.getIntersectsByRect(ctx, rect, filters...)
 }
 
-func (r *SQLiteSpatialDatabase) getIntersectsByRect(ctx context.Context, rect *geom.Rect, filters ...spatial.Filter) ([]*RTreeSpatialIndex, error) {
+func (r *SQLiteSpatialDatabase) getIntersectsByRect(ctx context.Context, rect *orb.Bound, filters ...spatial.Filter) ([]*RTreeSpatialIndex, error) {
 
 	conn, err := r.db.Conn()
 
@@ -405,12 +405,12 @@ func (r *SQLiteSpatialDatabase) getIntersectsByRect(ctx context.Context, rect *g
 			return nil, err
 		}
 
-		min := geom.Coord{
+		min := orb.Point{
 			X: minx,
 			Y: miny,
 		}
 
-		max := geom.Coord{
+		max := orb.Point{
 			X: maxx,
 			Y: maxy,
 		}
@@ -438,7 +438,7 @@ func (r *SQLiteSpatialDatabase) getIntersectsByRect(ctx context.Context, rect *g
 	return intersects, nil
 }
 
-func (r *SQLiteSpatialDatabase) inflateResultsWithChannels(ctx context.Context, rsp_ch chan spr.StandardPlacesResult, err_ch chan error, possible []*RTreeSpatialIndex, c *geom.Coord, filters ...spatial.Filter) {
+func (r *SQLiteSpatialDatabase) inflateResultsWithChannels(ctx context.Context, rsp_ch chan spr.StandardPlacesResult, err_ch chan error, possible []*RTreeSpatialIndex, c *orb.Point, filters ...spatial.Filter) {
 
 	seen := make(map[string]bool)
 	mu := new(sync.RWMutex)
@@ -458,7 +458,7 @@ func (r *SQLiteSpatialDatabase) inflateResultsWithChannels(ctx context.Context, 
 	wg.Wait()
 }
 
-func (r *SQLiteSpatialDatabase) inflateSpatialIndexWithChannels(ctx context.Context, rsp_ch chan spr.StandardPlacesResult, err_ch chan error, seen map[string]bool, mu *sync.RWMutex, sp *RTreeSpatialIndex, c *geom.Coord, filters ...spatial.Filter) {
+func (r *SQLiteSpatialDatabase) inflateSpatialIndexWithChannels(ctx context.Context, rsp_ch chan spr.StandardPlacesResult, err_ch chan error, seen map[string]bool, mu *sync.RWMutex, sp *RTreeSpatialIndex, c *orb.Point, filters ...spatial.Filter) {
 
 	select {
 	case <-ctx.Done():
@@ -647,7 +647,7 @@ func (r *SQLiteSpatialDatabase) Write(ctx context.Context, key string, fh io.Rea
 	if err != nil {
 		return 0, err
 	}
-	
+
 	err = r.IndexFeature(ctx, body)
 
 	if err != nil {

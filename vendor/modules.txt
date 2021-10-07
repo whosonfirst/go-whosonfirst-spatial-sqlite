@@ -24,7 +24,9 @@ github.com/patrickmn/go-cache
 # github.com/paulmach/go.geojson v1.4.0
 github.com/paulmach/go.geojson
 # github.com/paulmach/orb v0.2.2
+## explicit
 github.com/paulmach/orb
+github.com/paulmach/orb/geojson
 # github.com/psanford/sqlite3vfs v0.0.0-20210823054414-6197b9fad12f
 github.com/psanford/sqlite3vfs
 # github.com/psanford/sqlite3vfshttp v0.0.0-20210815150654-07be1ade312e
@@ -70,7 +72,8 @@ github.com/whosonfirst/go-rfc-5646
 github.com/whosonfirst/go-sanitize
 # github.com/whosonfirst/go-whosonfirst-crawl v0.2.1
 github.com/whosonfirst/go-whosonfirst-crawl
-# github.com/whosonfirst/go-whosonfirst-feature v0.0.7
+# github.com/whosonfirst/go-whosonfirst-feature v0.0.12
+github.com/whosonfirst/go-whosonfirst-feature/geometry
 github.com/whosonfirst/go-whosonfirst-feature/properties
 # github.com/whosonfirst/go-whosonfirst-flags v0.4.3
 github.com/whosonfirst/go-whosonfirst-flags
@@ -91,6 +94,7 @@ github.com/whosonfirst/go-whosonfirst-hash
 # github.com/whosonfirst/go-whosonfirst-iterate/v2 v2.0.0
 github.com/whosonfirst/go-whosonfirst-iterate/v2/emitter
 github.com/whosonfirst/go-whosonfirst-iterate/v2/filters
+github.com/whosonfirst/go-whosonfirst-iterate/v2/iterator
 # github.com/whosonfirst/go-whosonfirst-names v0.1.0
 github.com/whosonfirst/go-whosonfirst-names
 github.com/whosonfirst/go-whosonfirst-names/tags
@@ -100,7 +104,7 @@ github.com/whosonfirst/go-whosonfirst-placetypes/placetypes
 # github.com/whosonfirst/go-whosonfirst-sources v0.1.0
 github.com/whosonfirst/go-whosonfirst-sources
 github.com/whosonfirst/go-whosonfirst-sources/sources
-# github.com/whosonfirst/go-whosonfirst-spatial v0.1.0
+# github.com/whosonfirst/go-whosonfirst-spatial v0.3.1
 ## explicit
 github.com/whosonfirst/go-whosonfirst-spatial
 github.com/whosonfirst/go-whosonfirst-spatial/api
