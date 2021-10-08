@@ -1,4 +1,4 @@
-# github.com/aaronland/go-json-query v0.1.0
+# github.com/aaronland/go-json-query v0.1.1
 github.com/aaronland/go-json-query
 # github.com/aaronland/go-roster v0.0.2
 github.com/aaronland/go-roster
@@ -50,9 +50,9 @@ github.com/sfomuseum/go-flags/lookup
 github.com/sfomuseum/go-flags/multi
 # github.com/skelterjohn/geom v0.0.0-20180103142417-96f3e8a219c5
 github.com/skelterjohn/geom
-# github.com/tidwall/gjson v1.9.2
+# github.com/tidwall/gjson v1.9.3
 github.com/tidwall/gjson
-# github.com/tidwall/match v1.1.0
+# github.com/tidwall/match v1.1.1
 github.com/tidwall/match
 # github.com/tidwall/pretty v1.2.0
 github.com/tidwall/pretty
@@ -92,7 +92,7 @@ github.com/whosonfirst/go-whosonfirst-geojson-v2/properties/whosonfirst
 github.com/whosonfirst/go-whosonfirst-geojson-v2/utils
 # github.com/whosonfirst/go-whosonfirst-hash v0.1.0
 github.com/whosonfirst/go-whosonfirst-hash
-# github.com/whosonfirst/go-whosonfirst-iterate/v2 v2.0.0
+# github.com/whosonfirst/go-whosonfirst-iterate/v2 v2.0.1
 github.com/whosonfirst/go-whosonfirst-iterate/v2/emitter
 github.com/whosonfirst/go-whosonfirst-iterate/v2/filters
 github.com/whosonfirst/go-whosonfirst-iterate/v2/iterator
@@ -105,7 +105,7 @@ github.com/whosonfirst/go-whosonfirst-placetypes/placetypes
 # github.com/whosonfirst/go-whosonfirst-sources v0.1.0
 github.com/whosonfirst/go-whosonfirst-sources
 github.com/whosonfirst/go-whosonfirst-sources/sources
-# github.com/whosonfirst/go-whosonfirst-spatial v0.3.1
+# github.com/whosonfirst/go-whosonfirst-spatial v0.3.2
 ## explicit
 github.com/whosonfirst/go-whosonfirst-spatial
 github.com/whosonfirst/go-whosonfirst-spatial/api

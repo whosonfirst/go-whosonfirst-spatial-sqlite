@@ -17,6 +17,8 @@ github.com/aaronland/go-json-query v0.0.2 h1:cKw/DnxtGaPsClb78ONgmXPOJkqHhaBMU2R
 github.com/aaronland/go-json-query v0.0.2/go.mod h1:dGc7y824R93ugQMTldL7PFD/SPVGPwKdqrUJFLE/ILU=
 github.com/aaronland/go-json-query v0.1.0 h1:ZHtbpW8jiGYuOXKDEscWDrDjyVXZhU9Qqfi3nkyI9Ho=
 github.com/aaronland/go-json-query v0.1.0/go.mod h1:Mj1i+9hS3cd2Nj7qlnahcUeRC5uydPuJ/3xZGlIgBFU=
+github.com/aaronland/go-json-query v0.1.1 h1:2kwlEvJrH8Vr9gOMtfiVhBAqDtq3z7S0P2zj173mUhs=
+github.com/aaronland/go-json-query v0.1.1/go.mod h1:lZHt3LmcrZ0bovlqvr1jQaQKJKpb2pMLN2er6RGHAIQ=
 github.com/aaronland/go-roster v0.0.2 h1:2Fu7v4VQLRLRL/Zgr6R9S5JxsW75Ab/K88QtMVX532s=
 github.com/aaronland/go-roster v0.0.2/go.mod h1:AcovpxlG1XxJxX2Fjqlm63fEIBhCjEIBV4lP87FZDmI=
 github.com/aaronland/go-sqlite v0.0.3/go.mod h1:b/FfLh8xBZ1dhjyehPsFli46VhGqWAz2rKR4udvTHJw=
@@ -106,9 +108,13 @@ github.com/tidwall/gjson v1.8.1/go.mod h1:5/xDoumyyDNerp2U36lyolv46b3uF/9Bu6OfyQ
 github.com/tidwall/gjson v1.9.1/go.mod h1:jydLKE7s8J0+1/5jC4eXcuFlzKizGrCKvLmBVX/5oXc=
 github.com/tidwall/gjson v1.9.2 h1:SJQc2IgWWKL5V+YGJrr95hjNXFeZzHT2L9Wv1aAb51Q=
 github.com/tidwall/gjson v1.9.2/go.mod h1:2tcKM/KQ/GjiTN7mfTL/HdNmef9Q6AZLaSK2RdfvSjw=
+github.com/tidwall/gjson v1.9.3 h1:hqzS9wAHMO+KVBBkLxYdkEeeFHuqr95GfClRLKlgK0E=
+github.com/tidwall/gjson v1.9.3/go.mod h1:/wbyibRr2FHMks5tjHJ5F8dMZh3AcwJEMf5vlfC0lxk=
 github.com/tidwall/match v1.0.3/go.mod h1:eRSPERbgtNPcGhD8UCthc6PmLEQXEWd3PRB5JTxsfmM=
 github.com/tidwall/match v1.1.0 h1:VfI2e2aXLvytih7WUVyO9uvRC+RcXlaTrMbHuQWnFmk=
 github.com/tidwall/match v1.1.0/go.mod h1:eRSPERbgtNPcGhD8UCthc6PmLEQXEWd3PRB5JTxsfmM=
+github.com/tidwall/match v1.1.1 h1:+Ho715JplO36QYgwN9PGYNhgZvoUSc9X2c80KVTi+GA=
+github.com/tidwall/match v1.1.1/go.mod h1:eRSPERbgtNPcGhD8UCthc6PmLEQXEWd3PRB5JTxsfmM=
 github.com/tidwall/pretty v1.0.2/go.mod h1:XNkn88O1ChpSDQmQeStsy+sBenx6DDtFZJxhVysOjyk=
 github.com/tidwall/pretty v1.1.0/go.mod h1:XNkn88O1ChpSDQmQeStsy+sBenx6DDtFZJxhVysOjyk=
 github.com/tidwall/pretty v1.2.0 h1:RWIZEg2iJ8/g6fDDYzMpobmaoGh5OLl4AXtGUGPcqCs=
@@ -147,6 +153,8 @@ github.com/whosonfirst/go-whosonfirst-hash v0.1.0 h1:FpnclPIb+8M1uhSXfl3z8nYcG/3
 github.com/whosonfirst/go-whosonfirst-hash v0.1.0/go.mod h1:1ZdCFZTnQt5bwnsj2daB9yHilKOKToVh+Tyj/Z8TbUk=
 github.com/whosonfirst/go-whosonfirst-iterate/v2 v2.0.0 h1:w2N2TfsaGcONmQzR4MMxuDvVpt8DuJnlVeS9Eh5Sffk=
 github.com/whosonfirst/go-whosonfirst-iterate/v2 v2.0.0/go.mod h1:NeChKAgakom3sWjPfTnxauSykSzmkfqnEbtuy6nSF6s=
+github.com/whosonfirst/go-whosonfirst-iterate/v2 v2.0.1 h1:YW1Qa9qkhb9NlLGwpEJtcQQYdTa0WoFjrut9lO6jKP4=
+github.com/whosonfirst/go-whosonfirst-iterate/v2 v2.0.1/go.mod h1:oGk1jhZiP1Hfe4QVQAMAVCkTTjxlr5/hrzk/xfxWVss=
 github.com/whosonfirst/go-whosonfirst-names v0.1.0 h1:uXop/DwQqH60uDBZvHCPg1yRSQLScbm6VZyqcaED2KE=
 github.com/whosonfirst/go-whosonfirst-names v0.1.0/go.mod h1:0z86/nedM9T/5C8cAdbCMfRuBrkc33oEQ6vdJ6WybSg=
 github.com/whosonfirst/go-whosonfirst-placetypes v0.2.4/go.mod h1:yl0zZ5tfK80C0kl34pJcPB3mZC5XXR7ybQJ5OJyEcDU=
@@ -158,6 +166,8 @@ github.com/whosonfirst/go-whosonfirst-spatial v0.1.0 h1:hhwpo3bJb9DlNJYyfFCHjcTL
 github.com/whosonfirst/go-whosonfirst-spatial v0.1.0/go.mod h1:KAGHrl3IfmGKuU1OU94uG/y3hVLJXzoNzuuwh0k9LSE=
 github.com/whosonfirst/go-whosonfirst-spatial v0.3.1 h1:afMqZdD6yaQm3szHPoQhnLjQXrwfjLQY7bz8wAkvsEo=
 github.com/whosonfirst/go-whosonfirst-spatial v0.3.1/go.mod h1:+672r9isi4z38+J3F7zJCNL5r0XDvSaNU0QSX05DDhw=
+github.com/whosonfirst/go-whosonfirst-spatial v0.3.2 h1:tUs+bvsRgy6ATgJRbKQZvLp8IAOzCgoNQL9/fM14F5s=
+github.com/whosonfirst/go-whosonfirst-spatial v0.3.2/go.mod h1:iy/BS2poucyvnfVYLUhJcvXT7FFGtU2mKN9nppA5fE0=
 github.com/whosonfirst/go-whosonfirst-spr/v2 v2.0.0 h1:UQ1n/uODS50mckZpXYe5GKm8XwoUUC1jRcNN8oiW2uc=
 github.com/whosonfirst/go-whosonfirst-spr/v2 v2.0.0/go.mod h1:tveSSFDn8XoiCeAMarSCn769lA6e3Y0/Qi8S19Jz7Gw=
 github.com/whosonfirst/go-whosonfirst-sqlite-features v0.9.0 h1:d3vnD38NMsRsDlkQD0cX93k4B+EyUOJkdFcQiJC5nM4=
