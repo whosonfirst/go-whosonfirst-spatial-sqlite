@@ -2,15 +2,17 @@ package sqlite
 
 import (
 	"context"
-	_ "fmt"
+	"fmt"
 	"github.com/whosonfirst/go-whosonfirst-spatial/database"
 	"github.com/whosonfirst/go-whosonfirst-spatial/filter"
 	"github.com/whosonfirst/go-whosonfirst-spatial/geo"
+	"io"
+	"os"
 	"strconv"
 	"testing"
 )
 
-func TestSpatialDatabase(t *testing.T) {
+func TestSpatialDatabaseQuery(t *testing.T) {
 
 	ctx := context.Background()
 
@@ -26,6 +28,8 @@ func TestSpatialDatabase(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Failed to create new spatial database, %v", err)
 	}
+
+	defer db.Close(ctx)
 
 	c, err := geo.NewCoordinate(lon, lat)
 
@@ -67,4 +71,83 @@ func TestSpatialDatabase(t *testing.T) {
 		t.Fatalf("Expected %d but got %s", expected, first.Id())
 	}
 
+}
+
+func TestSpatialDatabaseRemoveFeature(t *testing.T) {
+
+	ctx := context.Background()
+
+	database_uri := "sqlite://?dsn=:memory:"
+
+	db, err := database.NewSpatialDatabase(ctx, database_uri)
+
+	if err != nil {
+		t.Fatalf("Failed to create new spatial database, %v", err)
+	}
+
+	defer db.Close(ctx)
+
+	id := 101737491
+	lat := 46.852675
+	lon := -71.330873
+
+	test_data := fmt.Sprintf("fixtures/%d.geojson", id)
+
+	fh, err := os.Open(test_data)
+
+	if err != nil {
+		t.Fatalf("Failed to open %s, %v", test_data, err)
+	}
+
+	defer fh.Close()
+
+	body, err := io.ReadAll(fh)
+
+	if err != nil {
+		t.Fatalf("Failed to read %s, %v", test_data, err)
+	}
+
+	err = db.IndexFeature(ctx, body)
+
+	if err != nil {
+		t.Fatalf("Failed to index %s, %v", test_data, err)
+	}
+
+	c, err := geo.NewCoordinate(lon, lat)
+
+	if err != nil {
+		t.Fatalf("Failed to create new coordinate, %v", err)
+	}
+
+	spr, err := db.PointInPolygon(ctx, c)
+
+	if err != nil {
+		t.Fatalf("Failed to perform point in polygon query, %v", err)
+	}
+
+	results := spr.Results()
+	count := len(results)
+
+	if count != 1 {
+		t.Fatalf("Expected 1 result but got %d", count)
+	}
+
+	err = db.RemoveFeature(ctx, "101737491")
+
+	if err != nil {
+		t.Fatalf("Failed to remove %s, %v", test_data, err)
+	}
+
+	spr, err = db.PointInPolygon(ctx, c)
+
+	if err != nil {
+		t.Fatalf("Failed to perform point in polygon query, %v", err)
+	}
+
+	results = spr.Results()
+	count = len(results)
+
+	if count != 0 {
+		t.Fatalf("Expected 0 results but got %d", count)
+	}
 }

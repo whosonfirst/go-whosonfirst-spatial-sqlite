@@ -232,7 +232,7 @@ func (r *SQLiteSpatialDatabase) RemoveFeature(ctx context.Context, id string) er
 			return fmt.Errorf("Failed to create query statement for %s, %w", t.Name(), err)
 		}
 
-		_, err = stmt.ExecContext(ctx, stmt, id)
+		_, err = stmt.ExecContext(ctx, id)
 
 		if err != nil {
 			return fmt.Errorf("Failed execute query statement for %s, %w", t.Name(), err)
