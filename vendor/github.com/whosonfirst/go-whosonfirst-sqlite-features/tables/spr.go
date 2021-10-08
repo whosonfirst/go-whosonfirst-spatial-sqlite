@@ -196,9 +196,23 @@ func (t *SPRTable) IndexFeature(ctx context.Context, db sqlite.Database, f geojs
 	supersedes := int64ToString(spr.Supersedes())
 	belongs_to := int64ToString(spr.BelongsTo())
 
+	str_inception := ""
+	str_cessation := ""
+
+	inception := spr.Inception()
+	cessation := spr.Cessation()
+
+	if inception != nil {
+		str_inception = inception.String()
+	}
+
+	if cessation != nil {
+		str_cessation = cessation.String()
+	}
+
 	args := []interface{}{
 		spr.Id(), spr.ParentId(), spr.Name(), spr.Placetype(),
-		spr.Inception().String(), spr.Cessation().String(),
+		str_inception, str_cessation,
 		spr.Country(), spr.Repo(),
 		spr.Latitude(), spr.Longitude(),
 		spr.MinLatitude(), spr.MinLongitude(),

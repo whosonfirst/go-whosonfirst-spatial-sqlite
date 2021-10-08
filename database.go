@@ -202,7 +202,50 @@ func (r *SQLiteSpatialDatabase) IndexFeature(ctx context.Context, body []byte) e
 }
 
 func (r *SQLiteSpatialDatabase) RemoveFeature(ctx context.Context, id string) error {
-	return fmt.Errorf("Not implemented.")
+
+	conn, err := r.db.Conn()
+
+	if err != nil {
+		return fmt.Errorf("Failed to establish database connection, %w", err)
+	}
+
+	tx, err := conn.Begin()
+
+	if err != nil {
+		return fmt.Errorf("Failed to create transaction, %w", err)
+	}
+
+	defer tx.Rollback()
+
+	tables := []sqlite.Table{
+		r.rtree_table,
+		r.spr_table,
+		r.geojson_table,
+	}
+
+	for _, t := range tables {
+
+		q := fmt.Sprintf("DELETE FROM %s WHERE id = ?", t.Name())
+		stmt, err := tx.Prepare(q)
+
+		if err != nil {
+			return fmt.Errorf("Failed to create query statement for %s, %w", t.Name(), err)
+		}
+
+		_, err = stmt.ExecContext(ctx, stmt, id)
+
+		if err != nil {
+			return fmt.Errorf("Failed execute query statement for %s, %w", t.Name(), err)
+		}
+	}
+
+	err = tx.Commit()
+
+	if err != nil {
+		return fmt.Errorf("Failed to commit transaction, %w", err)
+	}
+
+	return nil
 }
 
 func (r *SQLiteSpatialDatabase) PointInPolygon(ctx context.Context, coord *orb.Point, filters ...spatial.Filter) (spr.StandardPlacesResults, error) {
