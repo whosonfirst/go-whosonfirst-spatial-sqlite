@@ -220,12 +220,23 @@ func (r *SQLiteSpatialDatabase) RemoveFeature(ctx context.Context, id string) er
 	tables := []sqlite.Table{
 		r.rtree_table,
 		r.spr_table,
-		r.geojson_table,
+	}
+
+	if r.geojson_table != nil {
+		tables = append(tables, r.geojson_table)
 	}
 
 	for _, t := range tables {
 
-		q := fmt.Sprintf("DELETE FROM %s WHERE id = ?", t.Name())
+		var q string
+
+		switch t.Name() {
+		case "rtree":
+			q = fmt.Sprintf("DELETE FROM %s WHERE wof_id = ?", t.Name())
+		default:
+			q = fmt.Sprintf("DELETE FROM %s WHERE id = ?", t.Name())
+		}
+
 		stmt, err := tx.Prepare(q)
 
 		if err != nil {
@@ -421,8 +432,6 @@ func (r *SQLiteSpatialDatabase) getIntersectsByRect(ctx context.Context, rect *o
 
 	rows, err := conn.QueryContext(ctx, q, minx, maxx, miny, maxy)
 
-	// fmt.Println(q, minx, miny, maxx, maxy)
-
 	if err != nil {
 		return nil, fmt.Errorf("SQL query failed, %w", err)
 	}
@@ -586,7 +595,7 @@ func (r *SQLiteSpatialDatabase) inflateSpatialIndexWithChannels(ctx context.Cont
 		err = filter.FilterSPR(f, s)
 
 		if err != nil {
-			r.Logger.Printf("SKIP %s because filter error %s", sp_id, err)
+			// r.Logger.Printf("SKIP %s because filter error %s", sp_id, err)
 			return
 		}
 	}
