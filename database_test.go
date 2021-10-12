@@ -61,13 +61,19 @@ func TestSpatialDatabaseQuery(t *testing.T) {
 	results := spr.Results()
 	count := len(results)
 
-	if count != 1 {
+	for _, r := range results {
+		fmt.Printf("DEBUG %s %s\n", r.Id(), r.Name())
+	}
+	
+	if count != 1 {		
 		t.Fatalf("Expected 1 result but got %d", count)
 	}
 
 	first := results[0]
 
 	if first.Id() != strconv.FormatInt(expected, 10) {
+
+		
 		t.Fatalf("Expected %d but got %s", expected, first.Id())
 	}
 
