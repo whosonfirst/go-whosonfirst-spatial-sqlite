@@ -569,8 +569,16 @@ func (r *SQLiteSpatialDatabase) inflateSpatialIndexWithChannels(ctx context.Cont
 	// ID
 
 	mu.Lock()
+	defer mu.Unlock()
+
+	// Check to see whether seen[feature_id] has been assigned by another process
+	// while waiting for mu to become available
+
+	if seen[feature_id] {
+		return
+	}
+
 	seen[feature_id] = true
-	mu.Unlock()
 
 	t4 := time.Now()
 

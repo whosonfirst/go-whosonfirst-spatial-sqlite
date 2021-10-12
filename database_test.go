@@ -52,31 +52,28 @@ func TestSpatialDatabaseQuery(t *testing.T) {
 		t.Fatalf("Failed to create SPR filter from inputs, %v", err)
 	}
 
-	spr, err := db.PointInPolygon(ctx, c, f)
+	for i := 0; i < 50; i++ {
+		spr, err := db.PointInPolygon(ctx, c, f)
 
-	if err != nil {
-		t.Fatalf("Failed to perform point in polygon query, %v", err)
+		if err != nil {
+			t.Fatalf("Failed to perform point in polygon query, %v", err)
+		}
+
+		results := spr.Results()
+		count := len(results)
+
+		if count != 1 {
+			t.Fatalf("Expected 1 result but got %d", count)
+		}
+
+		first := results[0]
+
+		if first.Id() != strconv.FormatInt(expected, 10) {
+
+			t.Fatalf("Expected %d but got %s", expected, first.Id())
+		}
+
 	}
-
-	results := spr.Results()
-	count := len(results)
-
-	for _, r := range results {
-		fmt.Printf("DEBUG %s %s\n", r.Id(), r.Name())
-	}
-	
-	if count != 1 {		
-		t.Fatalf("Expected 1 result but got %d", count)
-	}
-
-	first := results[0]
-
-	if first.Id() != strconv.FormatInt(expected, 10) {
-
-		
-		t.Fatalf("Expected %d but got %s", expected, first.Id())
-	}
-
 }
 
 func TestSpatialDatabaseRemoveFeature(t *testing.T) {
