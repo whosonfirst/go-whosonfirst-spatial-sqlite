@@ -27,6 +27,7 @@ github.com/patrickmn/go-cache
 # github.com/paulmach/orb v0.6.0
 ## explicit
 github.com/paulmach/orb
+github.com/paulmach/orb/encoding/wkt
 github.com/paulmach/orb/geojson
 github.com/paulmach/orb/internal/length
 github.com/paulmach/orb/planar
