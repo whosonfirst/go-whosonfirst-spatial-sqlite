@@ -10,7 +10,7 @@ import (
 	sqlite_database "github.com/aaronland/go-sqlite/database"
 	gocache "github.com/patrickmn/go-cache"
 	"github.com/paulmach/orb"
-	"github.com/paulmach/orb/encoding/wkt"	
+	"github.com/paulmach/orb/encoding/wkt"
 	"github.com/paulmach/orb/planar"
 	"github.com/whosonfirst/go-ioutil"
 	"github.com/whosonfirst/go-whosonfirst-spatial"
@@ -24,6 +24,7 @@ import (
 	"io"
 	"log"
 	"net/url"
+	"strconv"
 	"strings"
 	"sync"
 	"time"
@@ -57,9 +58,9 @@ type RTreeSpatialIndex struct {
 	Id        string
 	FeatureId string
 	// A boolean flag indicating whether the feature associated with the index is an alternate geometry.
-	IsAlt     bool
+	IsAlt bool
 	// The label for the feature (associated with the index) if it is an alternate geometry.
-	AltLabel  string
+	AltLabel string
 }
 
 func (sp RTreeSpatialIndex) Bounds() orb.Bound {
@@ -80,7 +81,7 @@ func (sp RTreeSpatialIndex) Path() string {
 type SQLiteResults struct {
 	spr.StandardPlacesResults `json:",omitempty"`
 	// Places is the list of `whosonfirst/go-whosonfirst-spr.StandardPlacesResult` instances returned for a spatial query.
-	Places                    []spr.StandardPlacesResult `json:"places"`
+	Places []spr.StandardPlacesResult `json:"places"`
 }
 
 // Results returns a `whosonfirst/go-whosonfirst-spr.StandardPlacesResults` instance for rows matching a spatial query.
@@ -213,7 +214,13 @@ func (r *SQLiteSpatialDatabase) IndexFeature(ctx context.Context, body []byte) e
 }
 
 // RemoveFeature will remove the database record with ID 'id' from the database.
-func (r *SQLiteSpatialDatabase) RemoveFeature(ctx context.Context, id string) error {
+func (r *SQLiteSpatialDatabase) RemoveFeature(ctx context.Context, str_id string) error {
+
+	id, err := strconv.ParseInt(str_id, 10, 64)
+
+	if err != nil {
+		return fmt.Errorf("Failed to parse string ID '%s', %w", str_id, err)
+	}
 
 	conn, err := r.db.Conn()
 
@@ -227,7 +234,7 @@ func (r *SQLiteSpatialDatabase) RemoveFeature(ctx context.Context, id string) er
 		return fmt.Errorf("Failed to create transaction, %w", err)
 	}
 
-	defer tx.Rollback()
+	// defer tx.Rollback()
 
 	tables := []sqlite.Table{
 		r.rtree_table,
@@ -237,7 +244,7 @@ func (r *SQLiteSpatialDatabase) RemoveFeature(ctx context.Context, id string) er
 	if r.geojson_table != nil {
 		tables = append(tables, r.geojson_table)
 	}
-	
+
 	for _, t := range tables {
 
 		var q string
@@ -249,8 +256,6 @@ func (r *SQLiteSpatialDatabase) RemoveFeature(ctx context.Context, id string) er
 			q = fmt.Sprintf("DELETE FROM %s WHERE id = ?", t.Name())
 		}
 
-		fmt.Println("WHAT", q, id)
-		
 		stmt, err := tx.Prepare(q)
 
 		if err != nil {
@@ -270,7 +275,6 @@ func (r *SQLiteSpatialDatabase) RemoveFeature(ctx context.Context, id string) er
 		return fmt.Errorf("Failed to commit transaction, %w", err)
 	}
 
-	fmt.Println("OK")
 	return nil
 }
 
@@ -451,8 +455,6 @@ func (r *SQLiteSpatialDatabase) getIntersectsByRect(ctx context.Context, rect *o
 
 	defer rows.Close()
 
-	fmt.Println(q)
-	
 	intersects := make([]*RTreeSpatialIndex, 0)
 
 	for rows.Next() {
@@ -473,8 +475,6 @@ func (r *SQLiteSpatialDatabase) getIntersectsByRect(ctx context.Context, rect *o
 			return nil, fmt.Errorf("Result row scan failed, %w", err)
 		}
 
-		fmt.Println("WHAT", id, feature_id)
-		
 		min := orb.Point{minx, miny}
 		max := orb.Point{maxx, maxy}
 
@@ -558,15 +558,15 @@ func (r *SQLiteSpatialDatabase) inflateSpatialIndexWithChannels(ctx context.Cont
 	t2 := time.Now()
 
 	// START OF maybe move all this code in to whosonfirst/go-whosonfirst-sqlite-features/tables/rtree.go
-	
+
 	var poly orb.Polygon
 	var err error
 
 	// This is to account for version of the whosonfirst/go-whosonfirst-sqlite-features
 	// package < 0.10.0 that stored geometries as JSON-encoded strings. Subsequent versions
 	// use WKT encoding.
-	
-	if strings.HasPrefix(sp.geometry, "[[["){
+
+	if strings.HasPrefix(sp.geometry, "[[[") {
 		// Investigate https://github.com/paulmach/orb/tree/master/geojson#performance
 		err = json.Unmarshal([]byte(sp.geometry), &poly)
 	} else {
@@ -574,14 +574,14 @@ func (r *SQLiteSpatialDatabase) inflateSpatialIndexWithChannels(ctx context.Cont
 	}
 
 	// END OF maybe move all this code in to whosonfirst/go-whosonfirst-sqlite-features/tables/rtree.go
-	
+
 	r.Timer.Add(ctx, sp_id, "time to unmarshal geometry", time.Since(t2))
 
 	if err != nil {
 		err_ch <- fmt.Errorf("Failed to unmarshal geometry, %w", err)
 		return
 	}
-	
+
 	t3 := time.Now()
 
 	if !planar.PolygonContains(poly, *c) {

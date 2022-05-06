@@ -80,7 +80,7 @@ func TestSpatialDatabaseRemoveFeature(t *testing.T) {
 
 	ctx := context.Background()
 
-	database_uri := "sqlite://?dsn=test2.db"
+	database_uri := "sqlite://?dsn=:memory:"
 
 	db, err := database.NewSpatialDatabase(ctx, database_uri)
 
@@ -151,11 +151,6 @@ func TestSpatialDatabaseRemoveFeature(t *testing.T) {
 	count = len(results)
 
 	if count != 0 {
-
-		for _, r := range results {
-			fmt.Println(r)
-		}
-		
 		t.Fatalf("Expected 0 results but got %d", count)
 	}
 }
