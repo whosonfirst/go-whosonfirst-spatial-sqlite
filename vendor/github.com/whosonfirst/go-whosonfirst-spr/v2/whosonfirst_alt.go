@@ -1,138 +1,60 @@
-package feature
+package spr
 
 import (
-	"encoding/json"
-	"errors"
 	"fmt"
 	"github.com/sfomuseum/go-edtf"
-	"github.com/skelterjohn/geom"
+	"github.com/whosonfirst/go-whosonfirst-feature/geometry"
+	"github.com/whosonfirst/go-whosonfirst-feature/properties"
 	"github.com/whosonfirst/go-whosonfirst-flags"
-	"github.com/whosonfirst/go-whosonfirst-geojson-v2"
-	"github.com/whosonfirst/go-whosonfirst-geojson-v2/geometry"
-	props_wof "github.com/whosonfirst/go-whosonfirst-geojson-v2/properties/whosonfirst"
-	"github.com/whosonfirst/go-whosonfirst-geojson-v2/utils"
-	"github.com/whosonfirst/go-whosonfirst-spr/v2"
 	"github.com/whosonfirst/go-whosonfirst-uri"
-	"github.com/whosonfirst/warning"
 	"strconv"
 	"strings"
 )
 
-type WOFAltFeature struct {
-	geojson.Feature
-	body []byte
-}
-
+// WOFStandardPlacesResult is a struct that implements the `StandardPlacesResult` for
+// Who's On First GeoJSON Feature alternate geometry records.
 type WOFAltStandardPlacesResult struct {
-	spr.StandardPlacesResult `json:",omitempty"`
-	WOFId                    string  `json:"wof:id"`
-	WOFName                  string  `json:"wof:name"`
-	WOFPlacetype             string  `json:"wof:placetype"`
-	MZLatitude               float64 `json:"mz:latitude"`
-	MZLongitude              float64 `json:"mz:longitude"`
-	MZMinLatitude            float64 `json:"mz:min_latitude"`
-	MZMinLongitude           float64 `json:"mz:min_longitude"`
-	MZMaxLatitude            float64 `json:"mz:max_latitude"`
-	MZMaxLongitude           float64 `json:"mz:max_longitude"`
-	WOFPath                  string  `json:"wof:path"`
-	WOFRepo                  string  `json:"wof:repo"`
+	StandardPlacesResult `json:",omitempty"`
+	WOFId                string  `json:"wof:id"`
+	WOFName              string  `json:"wof:name"`
+	WOFPlacetype         string  `json:"wof:placetype"`
+	MZLatitude           float64 `json:"mz:latitude"`
+	MZLongitude          float64 `json:"mz:longitude"`
+	MZMinLatitude        float64 `json:"mz:min_latitude"`
+	MZMinLongitude       float64 `json:"mz:min_longitude"`
+	MZMaxLatitude        float64 `json:"mz:max_latitude"`
+	MZMaxLongitude       float64 `json:"mz:max_longitude"`
+	WOFPath              string  `json:"wof:path"`
+	WOFRepo              string  `json:"wof:repo"`
 }
 
-func EnsureWOFAltFeature(body []byte) error {
+// WhosOnFirstAltSPR will derive a new `WOFStandardPlacesResult` instance from 'f'.
+func WhosOnFirstAltSPR(f []byte) (StandardPlacesResult, error) {
 
-	required := []string{
-		"properties.wof:id",
-		"properties.wof:repo",
-		"properties.src:alt_label",
-	}
-
-	err := utils.EnsureProperties(body, required)
+	id, err := properties.Id(f)
 
 	if err != nil {
-		return err
+		return nil, fmt.Errorf("Failed to derive ID, %w", err)
 	}
 
-	return nil
-}
-
-func NewWOFAltFeature(body []byte) (geojson.Feature, error) {
-
-	var stub interface{}
-	err := json.Unmarshal(body, &stub)
+	source, err := properties.Source(f)
 
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("Failed to derive source, %w", err)
 	}
 
-	err = EnsureWOFAltFeature(body)
+	name := fmt.Sprintf("%d alt geometry (%s)", id, source)
 
-	if err != nil && !warning.IsWarning(err) {
-		return nil, err
-	}
-
-	f := WOFAltFeature{
-		body: body,
-	}
-
-	return &f, nil
-}
-
-func (f *WOFAltFeature) ContainsCoord(c geom.Coord) (bool, error) {
-
-	return geometry.FeatureContainsCoord(f, c)
-}
-
-func (f *WOFAltFeature) String() string {
-
-	body, err := json.Marshal(f.body)
+	alt_label, err := properties.AltLabel(f)
 
 	if err != nil {
-		return ""
+		return nil, fmt.Errorf("Failed to derive alt label, %w", err)
 	}
 
-	return string(body)
-}
-
-func (f *WOFAltFeature) Bytes() []byte {
-
-	return f.body
-}
-
-func (f *WOFAltFeature) Id() string {
-
-	id := props_wof.Id(f)
-	return strconv.FormatInt(id, 10)
-}
-
-func (f *WOFAltFeature) Name() string {
-
-	id := f.Id()
-
-	src_geom := props_wof.Source(f)
-
-	return fmt.Sprintf("%s alt geometry (%s)", id, src_geom)
-}
-
-func (f *WOFAltFeature) Placetype() string {
-	return "alt"
-}
-
-func (f *WOFAltFeature) BoundingBoxes() (geojson.BoundingBoxes, error) {
-	return geometry.BoundingBoxesForFeature(f)
-}
-
-func (f *WOFAltFeature) Polygons() ([]geojson.Polygon, error) {
-	return geometry.PolygonsForFeature(f)
-}
-
-func (f *WOFAltFeature) SPR() (spr.StandardPlacesResult, error) {
-
-	id := props_wof.Id(f)
-	alt_label := props_wof.AltLabel(f)
 	label_parts := strings.Split(alt_label, "-")
 
 	if len(label_parts) == 0 {
-		return nil, errors.New("Invalid src:alt_label property")
+		return nil, fmt.Errorf("Invalid src:alt_label property")
 	}
 
 	alt_geom := &uri.AltGeom{
@@ -155,32 +77,39 @@ func (f *WOFAltFeature) SPR() (spr.StandardPlacesResult, error) {
 	rel_path, err := uri.Id2RelPath(id, uri_args)
 
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("Failed to derive path for %d, %w", id, err)
 	}
 
-	repo := props_wof.Repo(f)
+	repo, err := properties.Repo(f)
 
-	bboxes, err := f.BoundingBoxes()
+	if err != nil {
+		return nil, fmt.Errorf("Failed to derive repo, %w", err)
+	}
+
+	geojson_geom, err := geometry.Geometry(f)
 
 	if err != nil {
 		return nil, err
 	}
 
-	mbr := bboxes.MBR()
+	orb_geom := geojson_geom.Geometry()
+	mbr := orb_geom.Bound()
 
-	lat := mbr.Min.Y + ((mbr.Max.Y - mbr.Min.Y) / 2.0)
-	lon := mbr.Min.X + ((mbr.Max.X - mbr.Min.X) / 2.0)
+	lat := mbr.Min.Y() + ((mbr.Max.Y() - mbr.Min.Y()) / 2.0)
+	lon := mbr.Min.X() + ((mbr.Max.X() - mbr.Min.X()) / 2.0)
+
+	str_id := strconv.FormatInt(id, 10)
 
 	spr := WOFAltStandardPlacesResult{
-		WOFId:          f.Id(),
-		WOFPlacetype:   f.Placetype(),
-		WOFName:        f.Name(),
+		WOFId:          str_id,
+		WOFPlacetype:   "alt",
+		WOFName:        name,
 		MZLatitude:     lat,
 		MZLongitude:    lon,
-		MZMinLatitude:  mbr.Min.Y,
-		MZMinLongitude: mbr.Min.X,
-		MZMaxLatitude:  mbr.Max.Y,
-		MZMaxLongitude: mbr.Max.X,
+		MZMinLatitude:  mbr.Min.Y(),
+		MZMinLongitude: mbr.Min.X(),
+		MZMaxLatitude:  mbr.Max.Y(),
+		MZMaxLongitude: mbr.Max.X(),
 		WOFPath:        rel_path,
 		WOFRepo:        repo,
 	}

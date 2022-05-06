@@ -12,7 +12,6 @@ import (
 	"github.com/paulmach/orb"
 	"github.com/paulmach/orb/planar"
 	"github.com/whosonfirst/go-ioutil"
-	"github.com/whosonfirst/go-whosonfirst-geojson-v2/feature"
 	"github.com/whosonfirst/go-whosonfirst-spatial"
 	"github.com/whosonfirst/go-whosonfirst-spatial/database"
 	"github.com/whosonfirst/go-whosonfirst-spatial/filter"
@@ -168,22 +167,16 @@ func (r *SQLiteSpatialDatabase) Disconnect(ctx context.Context) error {
 
 func (r *SQLiteSpatialDatabase) IndexFeature(ctx context.Context, body []byte) error {
 
-	f, err := feature.LoadFeature(body)
-
-	if err != nil {
-		return fmt.Errorf("Failed to load feature, %w", err)
-	}
-
 	r.mu.Lock()
 	defer r.mu.Unlock()
 
-	err = r.rtree_table.IndexRecord(ctx, r.db, f)
+	err := r.rtree_table.IndexRecord(ctx, r.db, body)
 
 	if err != nil {
 		return fmt.Errorf("Failed to index record in rtree table, %w", err)
 	}
 
-	err = r.spr_table.IndexRecord(ctx, r.db, f)
+	err = r.spr_table.IndexRecord(ctx, r.db, body)
 
 	if err != nil {
 		return fmt.Errorf("Failed to index record in spr table, %w", err)
@@ -191,7 +184,7 @@ func (r *SQLiteSpatialDatabase) IndexFeature(ctx context.Context, body []byte) e
 
 	if r.geojson_table != nil {
 
-		err = r.geojson_table.IndexRecord(ctx, r.db, f)
+		err = r.geojson_table.IndexRecord(ctx, r.db, body)
 
 		if err != nil {
 			return fmt.Errorf("Failed to index record in geojson table, %w", err)
@@ -535,9 +528,9 @@ func (r *SQLiteSpatialDatabase) inflateSpatialIndexWithChannels(ctx context.Cont
 
 	t2 := time.Now()
 
-	// this needs to be sped up (20201216/thisisaaronland)
+	// Investigate https://github.com/paulmach/orb/tree/master/geojson#performance
 
-	var poly orb.Polygon // [][][]float64
+	var poly orb.Polygon
 
 	err := json.Unmarshal([]byte(sp.geometry), &poly)
 

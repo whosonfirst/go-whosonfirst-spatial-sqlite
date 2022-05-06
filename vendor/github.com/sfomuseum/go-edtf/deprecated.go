@@ -1,8 +1,7 @@
-package feature
+package edtf
 
 import (
 	"fmt"
-	"github.com/sfomuseum/go-edtf"
 )
 
 var deprecated map[string]string
@@ -10,17 +9,18 @@ var deprecated map[string]string
 func init() {
 
 	deprecated = map[string]string{
-		edtf.OPEN_2012:        edtf.OPEN,
-		edtf.UNSPECIFIED_2012: edtf.UNSPECIFIED,
+		OPEN_2012:        OPEN,
+		UNSPECIFIED_2012: UNSPECIFIED,
 	}
 
 }
 
-func isDeprecatedEDTF(edtf_str string) bool {
+// IsDeprecated returns a boolean flag indicating whether 'str' is considered a deprecated EDTF value.
+func IsDeprecated(str string) bool {
 
 	for test, _ := range deprecated {
 
-		if edtf_str == test {
+		if str == test {
 			return true
 		}
 	}
@@ -28,7 +28,8 @@ func isDeprecatedEDTF(edtf_str string) bool {
 	return false
 }
 
-func replaceDeprecatedEDTF(old string) (string, error) {
+// ReplaceDeprecated returns the current value for 'old'.
+func ReplaceDeprecated(old string) (string, error) {
 
 	new, ok := deprecated[old]
 
