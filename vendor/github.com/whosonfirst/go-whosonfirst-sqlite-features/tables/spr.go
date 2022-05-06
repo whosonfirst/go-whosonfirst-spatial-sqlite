@@ -2,11 +2,11 @@ package tables
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"github.com/aaronland/go-sqlite"
-	"github.com/whosonfirst/go-whosonfirst-geojson-v2"
-	"github.com/whosonfirst/go-whosonfirst-geojson-v2/properties/whosonfirst"
+	"github.com/whosonfirst/go-whosonfirst-feature/alt"
+	"github.com/whosonfirst/go-whosonfirst-feature/properties"
+	"github.com/whosonfirst/go-whosonfirst-spr/v2"
 	"github.com/whosonfirst/go-whosonfirst-sqlite-features"
 	_ "log"
 	"strconv"
@@ -141,29 +141,48 @@ func (t *SPRTable) Schema() string {
 }
 
 func (t *SPRTable) IndexRecord(ctx context.Context, db sqlite.Database, i interface{}) error {
-	return t.IndexFeature(ctx, db, i.(geojson.Feature))
+	return t.IndexFeature(ctx, db, i.([]byte))
 }
 
-func (t *SPRTable) IndexFeature(ctx context.Context, db sqlite.Database, f geojson.Feature) error {
+func (t *SPRTable) IndexFeature(ctx context.Context, db sqlite.Database, f []byte) error {
 
-	is_alt := whosonfirst.IsAlt(f)
-	alt_label := whosonfirst.AltLabel(f)
+	is_alt := alt.IsAlt(f)
 
 	if is_alt {
 
 		if !t.options.IndexAltFiles {
 			return nil
 		}
-
-		if alt_label == "" {
-			return errors.New("Missing wof:alt_label property")
-		}
 	}
 
-	spr, err := f.SPR()
+	alt_label, err := properties.AltLabel(f)
 
 	if err != nil {
-		return err
+		return MissingPropertyError(t, "alt label", err)
+	}
+
+	var s spr.StandardPlacesResult
+
+	if is_alt {
+
+		_s, err := spr.WhosOnFirstAltSPR(f)
+
+		if err != nil {
+			return WrapError(t, fmt.Errorf("Failed to generate SPR for alt geom, %w", err))
+		}
+
+		s = _s
+
+	} else {
+
+		_s, err := spr.WhosOnFirstSPR(f)
+
+		if err != nil {
+			return WrapError(t, fmt.Errorf("Failed to SPR, %w", err))
+		}
+
+		s = _s
+
 	}
 
 	sql := fmt.Sprintf(`INSERT OR REPLACE INTO %s (
@@ -192,15 +211,15 @@ func (t *SPRTable) IndexFeature(ctx context.Context, db sqlite.Database, f geojs
 		?
 		)`, t.Name()) // ON CONFLICT DO BLAH BLAH BLAH
 
-	superseded_by := int64ToString(spr.SupersededBy())
-	supersedes := int64ToString(spr.Supersedes())
-	belongs_to := int64ToString(spr.BelongsTo())
+	superseded_by := int64ToString(s.SupersededBy())
+	supersedes := int64ToString(s.Supersedes())
+	belongs_to := int64ToString(s.BelongsTo())
 
 	str_inception := ""
 	str_cessation := ""
 
-	inception := spr.Inception()
-	cessation := spr.Cessation()
+	inception := s.Inception()
+	cessation := s.Cessation()
 
 	if inception != nil {
 		str_inception = inception.String()
@@ -211,35 +230,35 @@ func (t *SPRTable) IndexFeature(ctx context.Context, db sqlite.Database, f geojs
 	}
 
 	args := []interface{}{
-		spr.Id(), spr.ParentId(), spr.Name(), spr.Placetype(),
+		s.Id(), s.ParentId(), s.Name(), s.Placetype(),
 		str_inception, str_cessation,
-		spr.Country(), spr.Repo(),
-		spr.Latitude(), spr.Longitude(),
-		spr.MinLatitude(), spr.MinLongitude(),
-		spr.MaxLatitude(), spr.MaxLongitude(),
-		spr.IsCurrent().Flag(), spr.IsDeprecated().Flag(), spr.IsCeased().Flag(),
-		spr.IsSuperseded().Flag(), spr.IsSuperseding().Flag(),
+		s.Country(), s.Repo(),
+		s.Latitude(), s.Longitude(),
+		s.MinLatitude(), s.MinLongitude(),
+		s.MaxLatitude(), s.MaxLongitude(),
+		s.IsCurrent().Flag(), s.IsDeprecated().Flag(), s.IsCeased().Flag(),
+		s.IsSuperseded().Flag(), s.IsSuperseding().Flag(),
 		superseded_by, supersedes, belongs_to,
 		is_alt, alt_label,
-		spr.LastModified(),
+		s.LastModified(),
 	}
 
 	conn, err := db.Conn()
 
 	if err != nil {
-		return err
+		return DatabaseConnectionError(t, err)
 	}
 
 	tx, err := conn.Begin()
 
 	if err != nil {
-		return err
+		return BeginTransactionError(t, err)
 	}
 
 	stmt, err := tx.Prepare(sql)
 
 	if err != nil {
-		return err
+		return PrepareStatementError(t, err)
 	}
 
 	defer stmt.Close()
@@ -247,10 +266,16 @@ func (t *SPRTable) IndexFeature(ctx context.Context, db sqlite.Database, f geojs
 	_, err = stmt.Exec(args...)
 
 	if err != nil {
-		return err
+		return ExecuteStatementError(t, err)
 	}
 
-	return tx.Commit()
+	err = tx.Commit()
+
+	if err != nil {
+		return CommitTransactionError(t, err)
+	}
+
+	return nil
 }
 
 func int64ToString(ints []int64) string {

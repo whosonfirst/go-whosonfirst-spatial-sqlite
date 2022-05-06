@@ -10,7 +10,7 @@ require (
 	github.com/whosonfirst/go-ioutil v1.0.2
 	github.com/whosonfirst/go-whosonfirst-spatial v0.3.4
 	github.com/whosonfirst/go-whosonfirst-spr/v2 v2.2.0
-	github.com/whosonfirst/go-whosonfirst-sqlite-features v0.9.4
+	github.com/whosonfirst/go-whosonfirst-sqlite-features v0.10.0
 	github.com/whosonfirst/go-whosonfirst-sqlite-spr v0.3.2
 	github.com/whosonfirst/go-whosonfirst-uri v1.2.0
 )

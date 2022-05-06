@@ -4,8 +4,8 @@ import (
 	"context"
 	"fmt"
 	"github.com/aaronland/go-sqlite"
-	"github.com/whosonfirst/go-whosonfirst-geojson-v2"
-	"github.com/whosonfirst/go-whosonfirst-geojson-v2/properties/whosonfirst"
+	"github.com/whosonfirst/go-whosonfirst-feature/alt"
+	"github.com/whosonfirst/go-whosonfirst-feature/properties"
 	"github.com/whosonfirst/go-whosonfirst-sqlite-features"
 )
 
@@ -32,7 +32,7 @@ func NewConcordancesTableWithDatabase(ctx context.Context, db sqlite.Database) (
 	err = t.InitializeTable(ctx, db)
 
 	if err != nil {
-		return nil, err
+		return nil, InitializeTableError(t, err)
 	}
 
 	return t, nil
@@ -74,37 +74,39 @@ func (t *ConcordancesTable) InitializeTable(ctx context.Context, db sqlite.Datab
 }
 
 func (t *ConcordancesTable) IndexRecord(ctx context.Context, db sqlite.Database, i interface{}) error {
-	return t.IndexFeature(ctx, db, i.(geojson.Feature))
+	return t.IndexFeature(ctx, db, i.([]byte))
 }
 
-func (t *ConcordancesTable) IndexFeature(ctx context.Context, db sqlite.Database, f geojson.Feature) error {
+func (t *ConcordancesTable) IndexFeature(ctx context.Context, db sqlite.Database, f []byte) error {
 
-	is_alt := whosonfirst.IsAlt(f)
-
-	if is_alt {
+	if alt.IsAlt(f) {
 		return nil
+	}
+
+	id, err := properties.Id(f)
+
+	if err != nil {
+		return MissingPropertyError(t, "id", err)
 	}
 
 	conn, err := db.Conn()
 
 	if err != nil {
-		return err
+		return DatabaseConnectionError(t, err)
 	}
 
 	tx, err := conn.Begin()
 
 	if err != nil {
-		return err
+		return BeginTransactionError(t, err)
 	}
-
-	id := f.Id()
 
 	sql := fmt.Sprintf(`DELETE FROM %s WHERE id = ?`, t.Name())
 
 	stmt, err := tx.Prepare(sql)
 
 	if err != nil {
-		return err
+		return PrepareStatementError(t, err)
 	}
 
 	defer stmt.Close()
@@ -112,18 +114,11 @@ func (t *ConcordancesTable) IndexFeature(ctx context.Context, db sqlite.Database
 	_, err = stmt.Exec(id)
 
 	if err != nil {
-		return err
+		return ExecuteStatementError(t, err)
 	}
 
-	str_id := f.Id()
-
-	concordances, err := whosonfirst.Concordances(f)
-
-	if err != nil {
-		return err
-	}
-
-	lastmod := whosonfirst.LastModified(f)
+	concordances := properties.Concordances(f)
+	lastmod := properties.LastModified(f)
 
 	for other_source, other_id := range concordances {
 
@@ -136,17 +131,23 @@ func (t *ConcordancesTable) IndexFeature(ctx context.Context, db sqlite.Database
 		stmt, err := tx.Prepare(sql)
 
 		if err != nil {
-			return err
+			return PrepareStatementError(t, err)
 		}
 
 		defer stmt.Close()
 
-		_, err = stmt.Exec(str_id, other_id, other_source, lastmod)
+		_, err = stmt.Exec(id, other_id, other_source, lastmod)
 
 		if err != nil {
-			return err
+			return ExecuteStatementError(t, err)
 		}
 	}
 
-	return tx.Commit()
+	err = tx.Commit()
+
+	if err != nil {
+		return CommitTransactionError(t, err)
+	}
+
+	return nil
 }
