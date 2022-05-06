@@ -237,7 +237,7 @@ func (r *SQLiteSpatialDatabase) RemoveFeature(ctx context.Context, id string) er
 	if r.geojson_table != nil {
 		tables = append(tables, r.geojson_table)
 	}
-
+	
 	for _, t := range tables {
 
 		var q string
@@ -249,6 +249,8 @@ func (r *SQLiteSpatialDatabase) RemoveFeature(ctx context.Context, id string) er
 			q = fmt.Sprintf("DELETE FROM %s WHERE id = ?", t.Name())
 		}
 
+		fmt.Println("WHAT", q, id)
+		
 		stmt, err := tx.Prepare(q)
 
 		if err != nil {
@@ -268,6 +270,7 @@ func (r *SQLiteSpatialDatabase) RemoveFeature(ctx context.Context, id string) er
 		return fmt.Errorf("Failed to commit transaction, %w", err)
 	}
 
+	fmt.Println("OK")
 	return nil
 }
 
@@ -277,15 +280,6 @@ func (r *SQLiteSpatialDatabase) PointInPolygon(ctx context.Context, coord *orb.P
 
 	ctx, cancel := context.WithCancel(ctx)
 	defer cancel()
-
-	/*
-		t1 := time.Now()
-
-		defer func() {
-			golog.Printf("Time to point in polygon, %v\n", time.Since(t1))
-		}()
-
-	*/
 
 	rsp_ch := make(chan spr.StandardPlacesResult)
 	err_ch := make(chan error)
@@ -314,15 +308,6 @@ func (r *SQLiteSpatialDatabase) PointInPolygon(ctx context.Context, coord *orb.P
 			break
 		}
 	}
-
-	/*
-		for label, timings := range r.Timer.Timings {
-
-			for _, tm := range timings {
-				golog.Printf("[%s] %s\n", label, tm)
-			}
-		}
-	*/
 
 	spr_results := &SQLiteResults{
 		Places: results,
@@ -466,6 +451,8 @@ func (r *SQLiteSpatialDatabase) getIntersectsByRect(ctx context.Context, rect *o
 
 	defer rows.Close()
 
+	fmt.Println(q)
+	
 	intersects := make([]*RTreeSpatialIndex, 0)
 
 	for rows.Next() {
@@ -486,6 +473,8 @@ func (r *SQLiteSpatialDatabase) getIntersectsByRect(ctx context.Context, rect *o
 			return nil, fmt.Errorf("Result row scan failed, %w", err)
 		}
 
+		fmt.Println("WHAT", id, feature_id)
+		
 		min := orb.Point{minx, miny}
 		max := orb.Point{maxx, maxy}
 
@@ -568,6 +557,8 @@ func (r *SQLiteSpatialDatabase) inflateSpatialIndexWithChannels(ctx context.Cont
 
 	t2 := time.Now()
 
+	// START OF maybe move all this code in to whosonfirst/go-whosonfirst-sqlite-features/tables/rtree.go
+	
 	var poly orb.Polygon
 	var err error
 
@@ -579,9 +570,10 @@ func (r *SQLiteSpatialDatabase) inflateSpatialIndexWithChannels(ctx context.Cont
 		// Investigate https://github.com/paulmach/orb/tree/master/geojson#performance
 		err = json.Unmarshal([]byte(sp.geometry), &poly)
 	} else {
-
 		poly, err = wkt.UnmarshalPolygon(sp.geometry)
 	}
+
+	// END OF maybe move all this code in to whosonfirst/go-whosonfirst-sqlite-features/tables/rtree.go
 	
 	r.Timer.Add(ctx, sp_id, "time to unmarshal geometry", time.Since(t2))
 
