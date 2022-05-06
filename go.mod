@@ -7,9 +7,8 @@ require (
 	github.com/patrickmn/go-cache v2.1.0+incompatible
 	github.com/paulmach/orb v0.6.0
 	github.com/sfomuseum/go-flags v0.8.2
-	github.com/whosonfirst/go-ioutil v1.0.1
-	github.com/whosonfirst/go-whosonfirst-geojson-v2 v0.16.4
-	github.com/whosonfirst/go-whosonfirst-spatial v0.3.3
+	github.com/whosonfirst/go-ioutil v1.0.2
+	github.com/whosonfirst/go-whosonfirst-spatial v0.3.4
 	github.com/whosonfirst/go-whosonfirst-spr/v2 v2.2.0
 	github.com/whosonfirst/go-whosonfirst-sqlite-features v0.9.4
 	github.com/whosonfirst/go-whosonfirst-sqlite-spr v0.3.2
