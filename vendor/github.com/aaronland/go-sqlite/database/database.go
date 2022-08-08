@@ -37,7 +37,7 @@ func NewDBWithDriver(ctx context.Context, driver string, dsn string) (*SQLiteDat
 
 			// see also: https://github.com/aaronland/go-sqlite-vfs
 			// pass
-			
+
 		} else {
 
 			// https://github.com/mattn/go-sqlite3/issues/39

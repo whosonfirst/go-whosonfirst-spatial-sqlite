@@ -11,3 +11,4 @@ bin/wof-*
 *.db-journal
 inventory.html
 inventory.json
+.DS_Store

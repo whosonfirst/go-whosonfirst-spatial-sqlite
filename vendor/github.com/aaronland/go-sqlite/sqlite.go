@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"os"
+	"fmt"
 	"regexp"
 )
 
@@ -85,29 +86,42 @@ func HasTable(ctx context.Context, db Database, table string) (bool, error) {
 			return false, err
 		}
 
-		sql := "SELECT name FROM sqlite_master WHERE type='table'"
-
-		rows, err := conn.Query(sql)
+		has_table, err = HasTableWithSQLDB(ctx, conn, table)
 
 		if err != nil {
 			return false, err
 		}
+	}
 
-		defer rows.Close()
+	return has_table, nil
+}
 
-		for rows.Next() {
+func HasTableWithSQLDB(ctx context.Context, db *sql.DB, table_name string) (bool, error) {
 
-			var name string
-			err := rows.Scan(&name)
+	has_table := false
 
-			if err != nil {
-				return false, err
-			}
+	sql := "SELECT name FROM sqlite_master WHERE type='table'"
 
-			if name == table {
-				has_table = true
-				break
-			}
+	rows, err := db.QueryContext(ctx, sql)
+
+	if err != nil {
+		return false, fmt.Errorf("Failed to query sqlite_master, %w", err)
+	}
+
+	defer rows.Close()
+
+	for rows.Next() {
+
+		var name string
+		err := rows.Scan(&name)
+
+		if err != nil {
+			return false, fmt.Errorf("Failed scan table name, %w", err)
+		}
+
+		if name == table_name {
+			has_table = true
+			break
 		}
 	}
 
