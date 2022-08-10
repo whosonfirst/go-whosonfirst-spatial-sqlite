@@ -749,8 +749,20 @@ func (r *SQLiteSpatialDatabase) WriterURI(ctx context.Context, str_uri string) s
 	return str_uri
 }
 
+// Flush implements the whosonfirst/go-writer interface so that the database itself can be used as a
+// writer.Writer instance. This method is a no-op and simply returns `nil`.
+func (r *SQLiteSpatialDatabase) Flush(ctx context.Context) error {
+	return nil
+}
+
 // Close implements the whosonfirst/go-writer interface so that the database itself can be used as a
 // writer.Writer instance. This method is a no-op and simply returns `nil`.
 func (r *SQLiteSpatialDatabase) Close(ctx context.Context) error {
+	return nil
+}
+
+// SetLogger implements the whosonfirst/go-writer interface so that the database itself can be used as a
+// writer.Writer instance. This method is a no-op and simply returns `nil`.
+func (r *SQLiteSpatialDatabase) SetLogger(ctx context.Context, logger *log.Logger) error {
 	return nil
 }

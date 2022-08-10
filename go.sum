@@ -74,8 +74,8 @@ github.com/whosonfirst/go-whosonfirst-placetypes v0.3.0 h1:68kuizK8FXjfEIOKlqWem
 github.com/whosonfirst/go-whosonfirst-placetypes v0.3.0/go.mod h1:ez0VFkGFbgT2/z2oi3PIuW6FewsZ2+5glyfDD79XEHk=
 github.com/whosonfirst/go-whosonfirst-sources v0.1.0 h1:JuKLa6KWke22jBfJ1pM9WQHoz1/3pbDv2C+aR+THPPQ=
 github.com/whosonfirst/go-whosonfirst-sources v0.1.0/go.mod h1:EUMHyGzUmqPPxlMmOp+28BFeoBdxxE0HCKRd67lkqGM=
-github.com/whosonfirst/go-whosonfirst-spatial v0.3.5 h1:zhbOMj8Lr5YxpjuYMbMXwH3tXDol+6BDgYr0ORRFoRE=
-github.com/whosonfirst/go-whosonfirst-spatial v0.3.5/go.mod h1:ZtUObowmmbe0DvelWGmN+6aIhU4v+c71QugJauJgqHY=
+github.com/whosonfirst/go-whosonfirst-spatial v0.3.6 h1:CRtxUo9BQ3I4E5pCSM/qR1ZovVKPSsx3HWRGPZirx7A=
+github.com/whosonfirst/go-whosonfirst-spatial v0.3.6/go.mod h1:p46BcoZ4Uc1PU6143tDnWDJBCvhRh9KYufvBaN5MHhk=
 github.com/whosonfirst/go-whosonfirst-spr/v2 v2.2.0/go.mod h1:3P6fiSVGtIbM3UcyaVMs4i1N6Hi88GmTsdouuXzlr78=
 github.com/whosonfirst/go-whosonfirst-spr/v2 v2.2.1 h1:WRL/a9KPyA+MC6/ChIWlRqa/1BtV94Ak9Fh4cZB0yjs=
 github.com/whosonfirst/go-whosonfirst-spr/v2 v2.2.1/go.mod h1:3P6fiSVGtIbM3UcyaVMs4i1N6Hi88GmTsdouuXzlr78=
@@ -86,8 +86,8 @@ github.com/whosonfirst/go-whosonfirst-sqlite-spr v0.3.2/go.mod h1:3gpz9giK3Nkh9O
 github.com/whosonfirst/go-whosonfirst-uri v1.0.1/go.mod h1:8eaDVcc4v+HHHEDaRbApdmhPwM4/JQllw2PktvZcPVs=
 github.com/whosonfirst/go-whosonfirst-uri v1.2.0 h1:lhmRsIhcpTr5HAo+kXKRGsSt76HTh3Ko/oTR2jpCm/o=
 github.com/whosonfirst/go-whosonfirst-uri v1.2.0/go.mod h1:CuVygTCUpMG945MMvqHyqxvc/L5YkDaMrrVpRFr7ZxY=
-github.com/whosonfirst/go-writer v1.0.1 h1:Ew9tkA/rTgF8w7yNc9CrdioVBLltDwWfMM0kDSA6jvc=
-github.com/whosonfirst/go-writer v1.0.1/go.mod h1:pVM562YU8Mu2IHqgT+Rk4o4ITAHM6d5dxeJL5G/r3UU=
+github.com/whosonfirst/go-writer/v2 v2.0.0 h1:BQL9qR3z5yHGuRtbkqf/MYkaqu/p6r5txRTZ/h1w5xA=
+github.com/whosonfirst/go-writer/v2 v2.0.0/go.mod h1:/fiSSOP4uSOTCQOHzin9Ey/G9s55U4iRLdK9MHr2MMo=
 github.com/whosonfirst/walk v0.0.1 h1:t0QrqGwOdPMSeovFZSXfiS0GIGHrRXK3Wb9z5Uhs2bg=
 github.com/whosonfirst/walk v0.0.1/go.mod h1:1KtP/VeooSlFOI61p+THc/C16Ra8Z5MjpjI0tsd3c1M=
 github.com/whosonfirst/warning v0.1.1/go.mod h1:/unEMzhB9YaMeEwTJpzLN3kM5LiSxdJhKEsf/OQhn6s=

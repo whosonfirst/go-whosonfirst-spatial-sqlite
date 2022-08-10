@@ -86,7 +86,7 @@ github.com/whosonfirst/go-whosonfirst-placetypes/placetypes
 # github.com/whosonfirst/go-whosonfirst-sources v0.1.0
 github.com/whosonfirst/go-whosonfirst-sources
 github.com/whosonfirst/go-whosonfirst-sources/sources
-# github.com/whosonfirst/go-whosonfirst-spatial v0.3.5
+# github.com/whosonfirst/go-whosonfirst-spatial v0.3.6
 ## explicit
 github.com/whosonfirst/go-whosonfirst-spatial
 github.com/whosonfirst/go-whosonfirst-spatial/api
@@ -108,7 +108,7 @@ github.com/whosonfirst/go-whosonfirst-sqlite-spr
 # github.com/whosonfirst/go-whosonfirst-uri v1.2.0
 ## explicit
 github.com/whosonfirst/go-whosonfirst-uri
-# github.com/whosonfirst/go-writer v1.0.1
-github.com/whosonfirst/go-writer
+# github.com/whosonfirst/go-writer/v2 v2.0.0
+github.com/whosonfirst/go-writer/v2
 # github.com/whosonfirst/walk v0.0.1
 github.com/whosonfirst/walk
