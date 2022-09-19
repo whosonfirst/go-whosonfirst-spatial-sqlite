@@ -7,8 +7,8 @@ github.com/aaronland/go-pagination-sql v0.2.0/go.mod h1:Thovmz045/sxI0actKFyGLzI
 github.com/aaronland/go-roster v1.0.0 h1:FRDGrTqsYySKjWnAhbBGXyeGlI/o5/t9FZYCbUmyQtI=
 github.com/aaronland/go-roster v1.0.0/go.mod h1:KIsYZgrJlAsyb9LsXSCvlqvbcCBVjCSqcQiZx42i9ro=
 github.com/aaronland/go-sqlite v0.1.1/go.mod h1:EoqGJ9v4WGF9Gwln7g6b0ANsIED2sBit7p4VMtnD/yU=
-github.com/aaronland/go-sqlite v0.2.0 h1:gvFuXA2PQOncVR+6AoLQtNsz0tKXbQXah/LjhEmV6MM=
-github.com/aaronland/go-sqlite v0.2.0/go.mod h1:0i4dX1N7bECFAOAUjUNRgTAHHWjpgwaTtpoXWsqxd/4=
+github.com/aaronland/go-sqlite v0.2.1 h1:srT/QmqMe+Fizm0ZPqjEd1z1+gr55HS4wi4iSRPM10Y=
+github.com/aaronland/go-sqlite v0.2.1/go.mod h1:uzdxcqowGC9e64UaiViOGPCi49oEOqGkIOYMiJyXMYs=
 github.com/g8rswimmer/error-chain v1.0.0 h1:WnwnunlvqtGPHVHmBfbmUyAgrtag8Y6nNpwLWmtSYOQ=
 github.com/g8rswimmer/error-chain v1.0.0/go.mod h1:XPJ/brUsL7yzc5VRlIxtf9GvoUqnOKVI9fg2MB5DWx8=
 github.com/gogo/protobuf v1.3.2/go.mod h1:P1XiOD3dCwIKUDQYPy72D8LYyHL2YPYrpS2s69NZV8Q=
@@ -21,8 +21,8 @@ github.com/jtacoma/uritemplates v1.0.0/go.mod h1:IhIICdE9OcvgUnGwTtJxgBQ+VrTrti5
 github.com/kisielk/errcheck v1.5.0/go.mod h1:pFxgyoBC7bSaBwPgfKdkLd5X25qrDl4LWUI2bnpBCr8=
 github.com/kisielk/gotool v1.0.0/go.mod h1:XhKaO+MFFWcvkIS/tQcRk01m1F5IRFswLeQ+oQHNcck=
 github.com/mattn/go-sqlite3 v1.14.12/go.mod h1:NyWgC/yNuGj7Q9rpYnZvas74GogHl5/Z4A/KQRfk6bU=
-github.com/mattn/go-sqlite3 v1.14.13 h1:1tj15ngiFfcZzii7yd82foL+ks+ouQcj8j/TPq3fk1I=
-github.com/mattn/go-sqlite3 v1.14.13/go.mod h1:NyWgC/yNuGj7Q9rpYnZvas74GogHl5/Z4A/KQRfk6bU=
+github.com/mattn/go-sqlite3 v1.14.15 h1:vfoHhTN1af61xCRSWzFIWzx2YskyMTwHLrExkBOjvxI=
+github.com/mattn/go-sqlite3 v1.14.15/go.mod h1:2eHXhiwb8IkHr+BDWZGa96P6+rkvnG63S2DGjv9HUNg=
 github.com/natefinch/atomic v1.0.1 h1:ZPYKxkqQOx3KZ+RsbnP/YsgvxWQPGxjC0oBt2AhwV0A=
 github.com/natefinch/atomic v1.0.1/go.mod h1:N/D/ELrljoqDyT3rZrsUmtsuzvHkeB/wWjHV22AZRbM=
 github.com/patrickmn/go-cache v2.1.0+incompatible h1:HRMgzkcYKYpi3C8ajMPV8OFXaaRUnok+kx1WdO15EQc=
@@ -38,8 +38,9 @@ github.com/sfomuseum/go-edtf v1.0.0/go.mod h1:1rP0EJZ/84j3HO80vGcnG2T9MFBDAFyTNt
 github.com/sfomuseum/go-edtf v1.1.1 h1:R5gElndHGDaK/rGSh2X+ulaLtlcHCdQA1cTzB8e9wv8=
 github.com/sfomuseum/go-edtf v1.1.1/go.mod h1:1rP0EJZ/84j3HO80vGcnG2T9MFBDAFyTNtjrr8cv3T4=
 github.com/sfomuseum/go-flags v0.7.0/go.mod h1:ML3DTNbF9xnjExSdS/9FtVLjIUhRU5gm/ehzISv+t2w=
-github.com/sfomuseum/go-flags v0.8.3 h1:rclKNzfBgN8nfS5qKjMUo8ymQ4mrH4KaEMFQRAT98m8=
 github.com/sfomuseum/go-flags v0.8.3/go.mod h1:VXOnnX1/yxQpX2yiwHaBV6aCmhtszQOL5bL1/nNo3co=
+github.com/sfomuseum/go-flags v0.9.0 h1:sKB5Be4LzSTz4yEZ1P0r4gB+J3PfiaxJg1b+JqifAHM=
+github.com/sfomuseum/go-flags v0.9.0/go.mod h1:VXOnnX1/yxQpX2yiwHaBV6aCmhtszQOL5bL1/nNo3co=
 github.com/tidwall/gjson v1.12.1/go.mod h1:/wbyibRr2FHMks5tjHJ5F8dMZh3AcwJEMf5vlfC0lxk=
 github.com/tidwall/gjson v1.14.1/go.mod h1:/wbyibRr2FHMks5tjHJ5F8dMZh3AcwJEMf5vlfC0lxk=
 github.com/tidwall/gjson v1.14.2 h1:6BBkirS0rAHjumnjHF6qgy5d2YAJ1TLIaFE2lzfOLqo=
@@ -74,8 +75,8 @@ github.com/whosonfirst/go-whosonfirst-placetypes v0.3.0 h1:68kuizK8FXjfEIOKlqWem
 github.com/whosonfirst/go-whosonfirst-placetypes v0.3.0/go.mod h1:ez0VFkGFbgT2/z2oi3PIuW6FewsZ2+5glyfDD79XEHk=
 github.com/whosonfirst/go-whosonfirst-sources v0.1.0 h1:JuKLa6KWke22jBfJ1pM9WQHoz1/3pbDv2C+aR+THPPQ=
 github.com/whosonfirst/go-whosonfirst-sources v0.1.0/go.mod h1:EUMHyGzUmqPPxlMmOp+28BFeoBdxxE0HCKRd67lkqGM=
-github.com/whosonfirst/go-whosonfirst-spatial v0.3.6 h1:CRtxUo9BQ3I4E5pCSM/qR1ZovVKPSsx3HWRGPZirx7A=
-github.com/whosonfirst/go-whosonfirst-spatial v0.3.6/go.mod h1:p46BcoZ4Uc1PU6143tDnWDJBCvhRh9KYufvBaN5MHhk=
+github.com/whosonfirst/go-whosonfirst-spatial v0.3.7 h1:V3tTuiPjKefJ6HPFj75O5G9jHDr2mt6dm16z3zYaC74=
+github.com/whosonfirst/go-whosonfirst-spatial v0.3.7/go.mod h1:z0rtflfxU86KveXuK2ao7pMaiHkgsEM64pRVjC6NGcY=
 github.com/whosonfirst/go-whosonfirst-spr/v2 v2.2.0/go.mod h1:3P6fiSVGtIbM3UcyaVMs4i1N6Hi88GmTsdouuXzlr78=
 github.com/whosonfirst/go-whosonfirst-spr/v2 v2.2.1 h1:WRL/a9KPyA+MC6/ChIWlRqa/1BtV94Ak9Fh4cZB0yjs=
 github.com/whosonfirst/go-whosonfirst-spr/v2 v2.2.1/go.mod h1:3P6fiSVGtIbM3UcyaVMs4i1N6Hi88GmTsdouuXzlr78=
@@ -86,8 +87,8 @@ github.com/whosonfirst/go-whosonfirst-sqlite-spr v0.3.2/go.mod h1:3gpz9giK3Nkh9O
 github.com/whosonfirst/go-whosonfirst-uri v1.0.1/go.mod h1:8eaDVcc4v+HHHEDaRbApdmhPwM4/JQllw2PktvZcPVs=
 github.com/whosonfirst/go-whosonfirst-uri v1.2.0 h1:lhmRsIhcpTr5HAo+kXKRGsSt76HTh3Ko/oTR2jpCm/o=
 github.com/whosonfirst/go-whosonfirst-uri v1.2.0/go.mod h1:CuVygTCUpMG945MMvqHyqxvc/L5YkDaMrrVpRFr7ZxY=
-github.com/whosonfirst/go-writer/v2 v2.0.0 h1:BQL9qR3z5yHGuRtbkqf/MYkaqu/p6r5txRTZ/h1w5xA=
-github.com/whosonfirst/go-writer/v2 v2.0.0/go.mod h1:/fiSSOP4uSOTCQOHzin9Ey/G9s55U4iRLdK9MHr2MMo=
+github.com/whosonfirst/go-writer/v3 v3.0.0 h1:EyGed1mP60LbXYGTVqQl5PAkfUkLfczGOPcC9mcHTMQ=
+github.com/whosonfirst/go-writer/v3 v3.0.0/go.mod h1:TmYoKR7RvrzJaj3eOgMhgXHFE+R1yuO/4smxKHFhv14=
 github.com/whosonfirst/walk v0.0.1 h1:t0QrqGwOdPMSeovFZSXfiS0GIGHrRXK3Wb9z5Uhs2bg=
 github.com/whosonfirst/walk v0.0.1/go.mod h1:1KtP/VeooSlFOI61p+THc/C16Ra8Z5MjpjI0tsd3c1M=
 github.com/whosonfirst/warning v0.1.1/go.mod h1:/unEMzhB9YaMeEwTJpzLN3kM5LiSxdJhKEsf/OQhn6s=
