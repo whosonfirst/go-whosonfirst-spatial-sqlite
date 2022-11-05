@@ -13,6 +13,8 @@ import (
 	"github.com/paulmach/orb/encoding/wkt"
 	"github.com/paulmach/orb/planar"
 	"github.com/whosonfirst/go-ioutil"
+	"github.com/whosonfirst/go-reader"
+	"github.com/whosonfirst/go-writer/v3"	
 	"github.com/whosonfirst/go-whosonfirst-spatial"
 	"github.com/whosonfirst/go-whosonfirst-spatial/database"
 	"github.com/whosonfirst/go-whosonfirst-spatial/filter"
@@ -33,6 +35,8 @@ import (
 func init() {
 	ctx := context.Background()
 	database.RegisterSpatialDatabase(ctx, "sqlite", NewSQLiteSpatialDatabase)
+	reader.RegisterReader(ctx, "sqlite", NewSQLiteSpatialDatabaseReader)
+	writer.RegisterWriter(ctx, "sqlite", NewSQLiteSpatialDatabaseWriter)	
 }
 
 // SQLiteSpatialDatabase is a struct that implements the `database.SpatialDatabase` for performing
@@ -87,6 +91,14 @@ type SQLiteResults struct {
 // Results returns a `whosonfirst/go-whosonfirst-spr.StandardPlacesResults` instance for rows matching a spatial query.
 func (r *SQLiteResults) Results() []spr.StandardPlacesResult {
 	return r.Places
+}
+
+func NewSQLiteSpatialDatabaseReader(ctx context.Context, uri string) (reader.Reader, error) {
+	return NewSQLiteSpatialDatabase(ctx, uri)
+}
+
+func NewSQLiteSpatialDatabaseWriter(ctx context.Context, uri string) (writer.Writer, error) {
+	return NewSQLiteSpatialDatabase(ctx, uri)
 }
 
 // NewSQLiteSpatialDatabase returns a new `whosonfirst/go-whosonfirst-spatial/database.database.SpatialDatabase`

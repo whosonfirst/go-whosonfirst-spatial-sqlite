@@ -8,11 +8,13 @@ require (
 	github.com/paulmach/orb v0.7.1
 	github.com/sfomuseum/go-flags v0.10.0
 	github.com/whosonfirst/go-ioutil v1.0.2
+	github.com/whosonfirst/go-reader v1.0.1
 	github.com/whosonfirst/go-whosonfirst-spatial v0.4.0
 	github.com/whosonfirst/go-whosonfirst-spr/v2 v2.2.1
 	github.com/whosonfirst/go-whosonfirst-sqlite-features v0.10.0
 	github.com/whosonfirst/go-whosonfirst-sqlite-spr v0.3.2
 	github.com/whosonfirst/go-whosonfirst-uri v1.2.0
+	github.com/whosonfirst/go-writer/v3 v3.0.0
 )
 
 require (
@@ -29,7 +31,6 @@ require (
 	github.com/tidwall/match v1.1.1 // indirect
 	github.com/tidwall/pretty v1.2.0 // indirect
 	github.com/tidwall/sjson v1.2.5 // indirect
-	github.com/whosonfirst/go-reader v1.0.1 // indirect
 	github.com/whosonfirst/go-rfc-5646 v0.1.0 // indirect
 	github.com/whosonfirst/go-sanitize v0.1.0 // indirect
 	github.com/whosonfirst/go-whosonfirst-crawl v0.2.1 // indirect
@@ -39,6 +40,5 @@ require (
 	github.com/whosonfirst/go-whosonfirst-names v0.1.0 // indirect
 	github.com/whosonfirst/go-whosonfirst-placetypes v0.3.0 // indirect
 	github.com/whosonfirst/go-whosonfirst-sources v0.1.0 // indirect
-	github.com/whosonfirst/go-writer/v3 v3.0.0 // indirect
 	github.com/whosonfirst/walk v0.0.1 // indirect
 )
