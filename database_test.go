@@ -16,7 +16,7 @@ func TestSpatialDatabaseQuery(t *testing.T) {
 
 	ctx := context.Background()
 
-	database_uri := "sqlite://?dsn=fixtures/sfomuseum-architecture.db"
+	database_uri := "sqlite://?dsn=modernc://cwd/fixtures/sfomuseum-architecture.db"
 
 	expected := int64(1745882085) // This test may fail if sfomuseum-data/sfomuseum-data-architecture is updated and there is a "newer" T2
 

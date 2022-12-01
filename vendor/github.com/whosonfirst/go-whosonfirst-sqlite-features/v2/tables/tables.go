@@ -4,7 +4,7 @@ package tables
 
 import (
 	"context"
-	"github.com/aaronland/go-sqlite"
+	"github.com/aaronland/go-sqlite/v2"
 )
 
 type TableOptions struct {

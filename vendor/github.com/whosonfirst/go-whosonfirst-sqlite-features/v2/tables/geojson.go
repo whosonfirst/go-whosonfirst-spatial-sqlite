@@ -3,10 +3,10 @@ package tables
 import (
 	"context"
 	"fmt"
-	"github.com/aaronland/go-sqlite"
+	"github.com/aaronland/go-sqlite/v2"
 	"github.com/whosonfirst/go-whosonfirst-feature/alt"
 	"github.com/whosonfirst/go-whosonfirst-feature/properties"
-	"github.com/whosonfirst/go-whosonfirst-sqlite-features"
+	"github.com/whosonfirst/go-whosonfirst-sqlite-features/v2"
 )
 
 type GeoJSONTableOptions struct {
@@ -150,7 +150,7 @@ func (t *GeoJSONTable) IndexFeature(ctx context.Context, db sqlite.Database, f [
 
 	lastmod := properties.LastModified(f)
 
-	conn, err := db.Conn()
+	conn, err := db.Conn(ctx)
 
 	if err != nil {
 		return DatabaseConnectionError(t, err)

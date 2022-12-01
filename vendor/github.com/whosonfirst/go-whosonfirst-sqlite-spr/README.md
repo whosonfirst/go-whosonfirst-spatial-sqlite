@@ -1,10 +1,10 @@
 # go-whosonfirst-sqlite-spr
 
-Go package to implement the `whosonfirst/go-whosonfirst-spr` interface for "standard places result" (SPR) data stored in a SQLite database.
+Go package to implement the `whosonfirst/go-whosonfirst-spr` interface for "standard places result" (SPR) data stored in a SQLite database that has been indexed using the `whosonfirst/go-whosonfirst-sqlite-features` package.
 
-## Important
+## Documentation
 
-This is still work-in-progress. It's mostly settled but things might still change.
+[![Go Reference](https://pkg.go.dev/badge/github.com/whosonfirst/go-whosonfirst-sqlite-spr.svg)](https://pkg.go.dev/github.com/whosonfirst/go-whosonfirst-sqlite-spr)
 
 ## Description
 
@@ -23,7 +23,7 @@ For example:
 ```
 import (
         "context"
-	"github.com/whosonfirst/go-whosonfirst-sqlite/database"
+	"github.com/aaronland/go-sqlite/database"
 	"github.com/whosonfirst/go-whosonfirst-sqlite-features/tables"
 	"github.com/whosonfirst/go-whosonfirst-sqlite-spr"
 )
@@ -70,6 +70,6 @@ type SQLiteStandardPlacesResult struct {
 
 ## See also
 
+* https://github.com/aaronland/go-sqlite
 * https://github.com/whosonfirst/go-whosonfirst-spr
-* https://github.com/whosonfirst/go-whosonfirst-sqlite
 * https://github.com/whosonfirst/go-whosonfirst-sqlite-features

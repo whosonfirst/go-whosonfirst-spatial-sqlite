@@ -6,8 +6,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/aaronland/go-sqlite"
-	sqlite_database "github.com/aaronland/go-sqlite/database"
+	"github.com/aaronland/go-sqlite/v2"
 	gocache "github.com/patrickmn/go-cache"
 	"github.com/paulmach/orb"
 	"github.com/paulmach/orb/encoding/wkt"
@@ -20,7 +19,7 @@ import (
 	"github.com/whosonfirst/go-whosonfirst-spatial/filter"
 	"github.com/whosonfirst/go-whosonfirst-spatial/timer"
 	"github.com/whosonfirst/go-whosonfirst-spr/v2"
-	"github.com/whosonfirst/go-whosonfirst-sqlite-features/tables"
+	"github.com/whosonfirst/go-whosonfirst-sqlite-features/v2/tables"
 	sqlite_spr "github.com/whosonfirst/go-whosonfirst-sqlite-spr"
 	"github.com/whosonfirst/go-whosonfirst-uri"
 	"io"
@@ -47,7 +46,7 @@ type SQLiteSpatialDatabase struct {
 	Logger        *log.Logger
 	Timer         *timer.Timer
 	mu            *sync.RWMutex
-	db            *sqlite_database.SQLiteDatabase
+	db            *sqlite.Database
 	rtree_table   sqlite.Table
 	spr_table     sqlite.Table
 	geojson_table sqlite.Table
@@ -119,7 +118,7 @@ func NewSQLiteSpatialDatabase(ctx context.Context, uri string) (database.Spatial
 		return nil, fmt.Errorf("Missing 'dsn' parameter")
 	}
 
-	sqlite_db, err := sqlite_database.NewDB(ctx, dsn)
+	sqlite_db, err := sqlite.NewDatabase(ctx, dsn)
 
 	if err != nil {
 		return nil, fmt.Errorf("Failed to create new SQLite database, %w", err)

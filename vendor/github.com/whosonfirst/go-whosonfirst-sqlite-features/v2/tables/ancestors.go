@@ -3,10 +3,10 @@ package tables
 import (
 	"context"
 	"fmt"
-	"github.com/aaronland/go-sqlite"
+	"github.com/aaronland/go-sqlite/v2"
 	"github.com/whosonfirst/go-whosonfirst-feature/alt"
 	"github.com/whosonfirst/go-whosonfirst-feature/properties"
-	"github.com/whosonfirst/go-whosonfirst-sqlite-features"
+	"github.com/whosonfirst/go-whosonfirst-sqlite-features/v2"
 	"strings"
 )
 
@@ -89,7 +89,7 @@ func (t *AncestorsTable) IndexFeature(ctx context.Context, db sqlite.Database, f
 		return MissingPropertyError(t, "id", err)
 	}
 
-	conn, err := db.Conn()
+	conn, err := db.Conn(ctx)
 
 	if err != nil {
 		return DatabaseConnectionError(t, err)

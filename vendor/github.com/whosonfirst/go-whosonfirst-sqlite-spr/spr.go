@@ -17,15 +17,22 @@ import (
 	"strings"
 )
 
+// SQLiteResults is a struct that implements the `whosonfirst/go-whosonfirst-spr.StandardPlacesResults`
+// interface for returning a list of `StandardPlacesResults.StandardPlacesResults` instances.
 type SQLiteResults struct {
 	wof_spr.StandardPlacesResults `json:",omitempty"`
+	// Places are the list of `StandardPlacesResults.StandardPlacesResults` instances contained by the struct.
 	Places                        []wof_spr.StandardPlacesResult `json:"places"`
 }
 
+// Results returns a list of `StandardPlacesResults.StandardPlacesResults` instances.
 func (r *SQLiteResults) Results() []wof_spr.StandardPlacesResult {
 	return r.Places
 }
 
+// SQLiteStandardPlacesResult is a struct that implements the `whosonfirst/go-whosonfirst-spr.StandardPlacesResult`
+// interface for records stored in a SQLite database and which have been indexed by the `whosonfirst/go-whosonfirst-sqlite-features`
+// package.
 type SQLiteStandardPlacesResult struct {
 	wof_spr.StandardPlacesResult `json:",omitempty"`
 	WOFId                        string  `json:"wof:id"`

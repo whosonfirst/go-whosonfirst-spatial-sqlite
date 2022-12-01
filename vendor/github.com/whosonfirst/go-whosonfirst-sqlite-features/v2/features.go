@@ -1,7 +1,7 @@
 package features
 
 import (
-	"github.com/aaronland/go-sqlite"
+	"github.com/aaronland/go-sqlite/v2"
 )
 
 // FeatureTable is an interface that implements the `aaronland/go-sqlite.Table` interface

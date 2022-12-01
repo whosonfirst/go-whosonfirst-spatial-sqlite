@@ -2,7 +2,7 @@ package tables
 
 import (
 	"fmt"
-	"github.com/aaronland/go-sqlite"
+	"github.com/aaronland/go-sqlite/v2"
 )
 
 // TBD: move these in to aaronland/go-sqlite ?

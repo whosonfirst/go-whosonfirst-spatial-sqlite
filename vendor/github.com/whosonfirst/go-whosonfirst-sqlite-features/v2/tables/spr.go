@@ -3,11 +3,11 @@ package tables
 import (
 	"context"
 	"fmt"
-	"github.com/aaronland/go-sqlite"
+	"github.com/aaronland/go-sqlite/v2"
 	"github.com/whosonfirst/go-whosonfirst-feature/alt"
 	"github.com/whosonfirst/go-whosonfirst-feature/properties"
 	"github.com/whosonfirst/go-whosonfirst-spr/v2"
-	"github.com/whosonfirst/go-whosonfirst-sqlite-features"
+	"github.com/whosonfirst/go-whosonfirst-sqlite-features/v2"
 	_ "log"
 	"strconv"
 	"strings"
@@ -243,7 +243,7 @@ func (t *SPRTable) IndexFeature(ctx context.Context, db sqlite.Database, f []byt
 		s.LastModified(),
 	}
 
-	conn, err := db.Conn()
+	conn, err := db.Conn(ctx)
 
 	if err != nil {
 		return DatabaseConnectionError(t, err)
