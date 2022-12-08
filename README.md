@@ -30,7 +30,7 @@ $> ./bin/wof-sqlite-index-features \
 	-spr \
 	-properties \
 	-timings \
-	-dsn /usr/local/ca-alt.db \
+	-dsn modernc:///usr/local/ca-alt.db \
 	-mode repo:// \
 	/usr/local/data/whosonfirst-data-admin-ca/
 
@@ -50,7 +50,7 @@ And then...
 
 ```
 $> ./bin/query \
-	-database-uri 'sqlite://?dsn=/usr/local/data/ca-alt.db' \
+	-database-uri 'sqlite://?dsn=modernc:///usr/local/data/ca-alt.db' \
 	-latitude 45.572744 \
 	-longitude -73.586295
 | jq \
@@ -91,8 +91,8 @@ import (
 
 func main() {
 
-	database_uri := "sqlite://?dsn=whosonfirst.db"
-	properties_uri := "sqlite://?dsn=whosonfirst.db"
+	database_uri := "sqlite://?dsn=modernc://cwd/whosonfirst.db"
+	properties_uri := "sqlite://?dsn=modernc://cwd/whosonfirst.db"
 	latitude := 37.616951
 	longitude := -122.383747
 
@@ -174,7 +174,7 @@ For example:
 
 ```
 $> ./bin/query \
-	-spatial-database-uri 'sqlite://?dsn=/usr/local/data/sfomuseum-data-architecture.db' \
+	-spatial-database-uri 'sqlite://?dsn=modernc:///usr/local/data/sfomuseum-data-architecture.db' \
 	-latitude 37.616951 \
 	-longitude -122.383747 \
 	-properties 'wof:hierarchy' \
@@ -241,7 +241,7 @@ It is possible to filter results by one or more existential flags (`-is-current`
 
 ```
 $> ./bin/query \
-	-spatial-database-uri 'sqlite://?dsn=/usr/local/data/sfom-arch.db' \
+	-spatial-database-uri 'sqlite://?dsn=modernc:///usr/local/data/sfom-arch.db' \
 	-latitude 37.616951 \
 	-longitude -122.383747
 
@@ -255,7 +255,7 @@ But when filtered using the `-is-current 1` flag there is only a single result:
 
 ```
 > ./bin/query \
-	-spatial-database-uri 'sqlite://?dsn=/usr/local/data/sfom-arch.db' \
+	-spatial-database-uri 'sqlite://?dsn=modernc:///usr/local/data/sfom-arch.db' \
 	-latitude 37.616951 \
 	-longitude -122.383747 \
 	-is-current 1
@@ -296,7 +296,7 @@ You can also filter results to one or more specific alternate geometry labels. F
 
 ```
 $> ./bin/query \
-	-spatial-database-uri 'sqlite://?dsn=/usr/local/data/ca-alt.db' \
+	-spatial-database-uri 'sqlite://?dsn=modernc:///usr/local/data/ca-alt.db' \
 	-latitude 45.572744 \
 	-longitude -73.586295 \
 	-alternate-geometry quattroshapes \
@@ -326,7 +326,7 @@ The exclude alternate geometries from query results pass the `-geometries defaul
 
 ```
 $> ./bin/query \
-	-spatial-database-uri 'sqlite://?dsn=/usr/local/data/ca-alt.db' \
+	-spatial-database-uri 'sqlite://?dsn=modernc:///usr/local/data/ca-alt.db' \
 	-latitude 45.572744 \
 	-longitude -73.586295 \
 	-geometries default
@@ -345,7 +345,7 @@ To limit query results to _only_ alternate geometries pass the `-geometries alte
 
 ```
 $> ./bin/query \
-	-spatial-database-uri 'sqlite://?dsn=/usr/local/data/ca-alt.db' \
+	-spatial-database-uri 'sqlite://?dsn=modernc:///usr/local/data/ca-alt.db' \
 	-latitude 45.572744 \
 	-longitude -73.586295 \
 	-geometries alternate
@@ -407,10 +407,31 @@ import (
 pr, err := properties.NewPropertiesReader(ctx, "sqlite://?dsn={DSN}")
 ```
 
+## sqlite://?dsn= URIs
+
+Under the hood this package is the [aaronland/go-sqlite/v2](https://github.com/aaronland/go-sqlite) and the [aaronland/go-sqlite-modernc](https://github.com/aaronland/go-sqlite-modernc) packages. The value of the `?dsn=` parameter in a `sqlite://` spatial database URI should be a valid `aaronland/go-sqlite.Database` URI. For example:
+
+```
+modernc:///usr/local/sqlite.db
+```
+
+Or, to specify a database in the current directory:
+
+```
+modernc://mem/sqlite.db
+```
+
+Or, to create an in-memory database:
+
+```
+modernc://mem
+```
+
 ## See also
 
 * https://www.sqlite.org/rtree.html
 * https://github.com/whosonfirst/go-whosonfirst-spatial
-* https://github.com/whosonfirst/go-whosonfirst-sqlite
+* https://github.com/aaronland/go-sqlite
+* https://github.com/aaronland/go-sqlite-modernc
 * https://github.com/whosonfirst/go-whosonfirst-sqlite-features
 * https://github.com/whosonfirst/go-reader
