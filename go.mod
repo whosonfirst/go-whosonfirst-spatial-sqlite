@@ -10,7 +10,7 @@ require (
 	github.com/whosonfirst/go-ioutil v1.0.2
 	github.com/whosonfirst/go-reader v1.0.2
 	github.com/whosonfirst/go-whosonfirst-spatial v0.5.4
-	github.com/whosonfirst/go-whosonfirst-spatial-pip v0.3.1
+	github.com/whosonfirst/go-whosonfirst-spatial-pip v0.3.2
 	github.com/whosonfirst/go-whosonfirst-spr/v2 v2.3.3
 	github.com/whosonfirst/go-whosonfirst-sqlite-features/v2 v2.0.0
 	github.com/whosonfirst/go-whosonfirst-sqlite-spr/v2 v2.0.0
@@ -26,7 +26,7 @@ require (
 	github.com/aaronland/go-pagination-sql v0.2.0 // indirect
 	github.com/aaronland/go-roster v1.0.0 // indirect
 	github.com/akrylysov/algnhsa v0.12.1 // indirect
-	github.com/aws/aws-lambda-go v1.35.0 // indirect
+	github.com/aws/aws-lambda-go v1.36.0 // indirect
 	github.com/g8rswimmer/error-chain v1.0.0 // indirect
 	github.com/google/uuid v1.3.0 // indirect
 	github.com/hashicorp/errwrap v1.0.0 // indirect

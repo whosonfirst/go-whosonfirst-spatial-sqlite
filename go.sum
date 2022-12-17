@@ -17,8 +17,8 @@ github.com/aaronland/go-sqlite/v2 v2.2.0/go.mod h1:CI0V49+b2LZvf27tSFPJ9jw6F594g
 github.com/akrylysov/algnhsa v0.12.1 h1:A9Ojt4hZrL77mhBc3qGO3Sn9reyf+tvM3DmR0SfXguc=
 github.com/akrylysov/algnhsa v0.12.1/go.mod h1:xAcJ/X8DV+81e+dUjIoB/r5CbISrSXV9//leoMDHcdk=
 github.com/aws/aws-lambda-go v1.9.0/go.mod h1:zUsUQhAUjYzR8AuduJPCfhBuKWUaDbQiPOG+ouzmE1A=
-github.com/aws/aws-lambda-go v1.35.0 h1:iocVDy5Cw5SCRrKOPHwarkdFwwy48OkfmHoE6SJ3ATg=
-github.com/aws/aws-lambda-go v1.35.0/go.mod h1:jwFe2KmMsHmffA1X2R09hH6lFzJQxzI8qK17ewzbQMM=
+github.com/aws/aws-lambda-go v1.36.0 h1:NWBWBJgavrQOjF1uKDG5D7Qs5y5o75HcrjfA16Hwfak=
+github.com/aws/aws-lambda-go v1.36.0/go.mod h1:jwFe2KmMsHmffA1X2R09hH6lFzJQxzI8qK17ewzbQMM=
 github.com/davecgh/go-spew v1.1.0/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c=
 github.com/dustin/go-humanize v1.0.0 h1:VSnTsYCnlFHaM2/igO1h6X3HA71jcobQuxemgkq4zYo=
@@ -106,8 +106,8 @@ github.com/whosonfirst/go-whosonfirst-sources v0.1.0 h1:JuKLa6KWke22jBfJ1pM9WQHo
 github.com/whosonfirst/go-whosonfirst-sources v0.1.0/go.mod h1:EUMHyGzUmqPPxlMmOp+28BFeoBdxxE0HCKRd67lkqGM=
 github.com/whosonfirst/go-whosonfirst-spatial v0.5.4 h1:JJO2K+xLyciyWVPmpQ/VKZqXAswYm0O4yaXohFCBp/c=
 github.com/whosonfirst/go-whosonfirst-spatial v0.5.4/go.mod h1:Q8SCUVV0mcGZpMB3Lq9GiBXkm6ZVS/kor4GuPQGvaCA=
-github.com/whosonfirst/go-whosonfirst-spatial-pip v0.3.1 h1:j2QhDx8t4z0s3RJqvm+Ll4t2zG4c195NZx2XRFRCAtY=
-github.com/whosonfirst/go-whosonfirst-spatial-pip v0.3.1/go.mod h1:klRSLQeAVdFZd84f0xfKjSmVj1L8JCF8GPdGUiVOqnA=
+github.com/whosonfirst/go-whosonfirst-spatial-pip v0.3.2 h1:WHBQiSTC7/pWyaqWrpHqaq1yN7YsJU+Y5kCXYNntSnc=
+github.com/whosonfirst/go-whosonfirst-spatial-pip v0.3.2/go.mod h1:Nxk/JAeLMgcPd6xEfmUKWCHBGWTrxwfnDqEcWYpng70=
 github.com/whosonfirst/go-whosonfirst-spr-geojson v0.0.8 h1:K0rCaKo0xvOtuS/x9r62bEfIK3OTdZqbDmgG+A3xDSs=
 github.com/whosonfirst/go-whosonfirst-spr-geojson v0.0.8/go.mod h1:Nh7PwBMDT1kUrp9jBMFw+Ilue6up1tz2KhE39btS/ZU=
 github.com/whosonfirst/go-whosonfirst-spr/v2 v2.3.3 h1:dc7BdkGrSKtGyIEO8jW4h6xS0DMdKANwMHFRc1+WcnM=
