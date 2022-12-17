@@ -9,7 +9,7 @@ require (
 	github.com/paulmach/orb v0.7.1
 	github.com/whosonfirst/go-ioutil v1.0.2
 	github.com/whosonfirst/go-reader v1.0.2
-	github.com/whosonfirst/go-whosonfirst-spatial v0.5.1
+	github.com/whosonfirst/go-whosonfirst-spatial v0.5.4
 	github.com/whosonfirst/go-whosonfirst-spatial-pip v0.3.1
 	github.com/whosonfirst/go-whosonfirst-spr/v2 v2.3.3
 	github.com/whosonfirst/go-whosonfirst-sqlite-features/v2 v2.0.0
