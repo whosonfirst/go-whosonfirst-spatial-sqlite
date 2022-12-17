@@ -1,4 +1,4 @@
-package api
+package pip
 
 import (
 	"flag"
@@ -13,8 +13,6 @@ import (
 type PointInPolygonRequest struct {
 	Latitude            float64  `json:"latitude"`
 	Longitude           float64  `json:"longitude"`
-	Properties          []string `json:"properties"`
-	Date                string   `json:"date"`
 	Placetypes          []string `json:"placetypes,omitempty"`
 	Geometries          string   `json:"geometries,omitempty"`
 	AlternateGeometries []string `json:"alternate_geometries,omitempty"`
@@ -25,6 +23,8 @@ type PointInPolygonRequest struct {
 	IsSuperseding       []int64  `json:"is_superseding,omitempty"`
 	InceptionDate       string   `json:"inception_date,omitempty"`
 	CessationDate       string   `json:"cessation_date,omitempty"`
+	Properties          []string `json:"properties,omitempty"`
+	Sort                []string `json:"sort,omitempty"`
 }
 
 func NewPointInPolygonRequestFromFlagSet(fs *flag.FlagSet) (*PointInPolygonRequest, error) {
@@ -46,14 +46,6 @@ func NewPointInPolygonRequestFromFlagSet(fs *flag.FlagSet) (*PointInPolygonReque
 	}
 
 	req.Longitude = longitude
-
-	props, err := lookup.MultiStringVar(fs, flags.PROPERTIES)
-
-	if err != nil {
-		return nil, err
-	}
-
-	req.Properties = props
 
 	placetypes, err := lookup.MultiStringVar(fs, flags.PLACETYPES)
 
@@ -133,6 +125,14 @@ func NewPointInPolygonRequestFromFlagSet(fs *flag.FlagSet) (*PointInPolygonReque
 	}
 
 	req.IsSuperseding = is_superseding
+
+	sort_uris, err := lookup.MultiStringVar(fs, "sort-uri")
+
+	if err != nil {
+		return nil, err
+	}
+
+	req.Sort = sort_uris
 
 	return req, nil
 }
