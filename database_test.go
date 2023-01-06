@@ -80,7 +80,7 @@ func TestSpatialDatabaseRemoveFeature(t *testing.T) {
 
 	ctx := context.Background()
 
-	database_uri := "sqlite://?dsn=:memory:"
+	database_uri := "sqlite://?dsn=modernc://mem"
 
 	db, err := database.NewSpatialDatabase(ctx, database_uri)
 
