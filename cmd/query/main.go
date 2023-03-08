@@ -6,8 +6,9 @@ import (
 
 import (
 	"context"
-	"github.com/whosonfirst/go-whosonfirst-spatial-pip/app/query"
 	"log"
+
+	"github.com/whosonfirst/go-whosonfirst-spatial-pip/app/query"	
 )
 
 func main() {

@@ -3,13 +3,14 @@ package sqlite
 import (
 	"context"
 	"fmt"
-	"github.com/whosonfirst/go-whosonfirst-spatial/database"
-	"github.com/whosonfirst/go-whosonfirst-spatial/filter"
-	"github.com/whosonfirst/go-whosonfirst-spatial/geo"
 	"io"
 	"os"
 	"strconv"
 	"testing"
+
+	"github.com/whosonfirst/go-whosonfirst-spatial/database"
+	"github.com/whosonfirst/go-whosonfirst-spatial/filter"
+	"github.com/whosonfirst/go-whosonfirst-spatial/geo"	
 )
 
 func TestSpatialDatabaseQuery(t *testing.T) {
