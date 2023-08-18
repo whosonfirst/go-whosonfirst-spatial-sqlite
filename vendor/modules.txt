@@ -68,7 +68,7 @@ github.com/patrickmn/go-cache
 # github.com/paulmach/go.geojson v1.4.0
 ## explicit
 github.com/paulmach/go.geojson
-# github.com/paulmach/orb v0.9.0
+# github.com/paulmach/orb v0.10.0
 ## explicit; go 1.15
 github.com/paulmach/orb
 github.com/paulmach/orb/encoding/wkt
@@ -124,8 +124,8 @@ github.com/whosonfirst/go-rfc-5646
 # github.com/whosonfirst/go-sanitize v0.1.0
 ## explicit; go 1.12
 github.com/whosonfirst/go-sanitize
-# github.com/whosonfirst/go-whosonfirst-crawl v0.2.1
-## explicit; go 1.12
+# github.com/whosonfirst/go-whosonfirst-crawl v0.2.2
+## explicit; go 1.18
 github.com/whosonfirst/go-whosonfirst-crawl
 # github.com/whosonfirst/go-whosonfirst-feature v0.0.26
 ## explicit; go 1.18
@@ -139,7 +139,7 @@ github.com/whosonfirst/go-whosonfirst-flags/date
 github.com/whosonfirst/go-whosonfirst-flags/existential
 github.com/whosonfirst/go-whosonfirst-flags/geometry
 github.com/whosonfirst/go-whosonfirst-flags/placetypes
-# github.com/whosonfirst/go-whosonfirst-iterate/v2 v2.3.1
+# github.com/whosonfirst/go-whosonfirst-iterate/v2 v2.3.2
 ## explicit; go 1.18
 github.com/whosonfirst/go-whosonfirst-iterate/v2/emitter
 github.com/whosonfirst/go-whosonfirst-iterate/v2/filters
@@ -155,7 +155,7 @@ github.com/whosonfirst/go-whosonfirst-placetypes
 ## explicit; go 1.12
 github.com/whosonfirst/go-whosonfirst-sources
 github.com/whosonfirst/go-whosonfirst-sources/sources
-# github.com/whosonfirst/go-whosonfirst-spatial v0.5.6
+# github.com/whosonfirst/go-whosonfirst-spatial v0.5.7
 ## explicit; go 1.18
 github.com/whosonfirst/go-whosonfirst-spatial
 github.com/whosonfirst/go-whosonfirst-spatial/app
@@ -191,13 +191,13 @@ github.com/whosonfirst/go-writer-featurecollection/v3
 # github.com/whosonfirst/go-writer/v3 v3.1.0
 ## explicit; go 1.18
 github.com/whosonfirst/go-writer/v3
-# github.com/whosonfirst/walk v0.0.1
-## explicit; go 1.12
+# github.com/whosonfirst/walk v0.0.2
+## explicit; go 1.18
 github.com/whosonfirst/walk
 # github.com/whosonfirst/warning v0.1.1
 ## explicit; go 1.12
 github.com/whosonfirst/warning
-# go.mongodb.org/mongo-driver v1.11.1
+# go.mongodb.org/mongo-driver v1.11.4
 ## explicit; go 1.13
 go.mongodb.org/mongo-driver/bson
 go.mongodb.org/mongo-driver/bson/bsoncodec
