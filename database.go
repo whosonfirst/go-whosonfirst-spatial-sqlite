@@ -439,6 +439,11 @@ func (r *SQLiteSpatialDatabase) getIntersectsByCoord(ctx context.Context, coord 
 // defined in 'filters'.
 func (r *SQLiteSpatialDatabase) getIntersectsByRect(ctx context.Context, rect *orb.Bound, filters ...spatial.Filter) ([]*RTreeSpatialIndex, error) {
 
+	t1 := time.Now()
+	defer func(){
+		log.Printf("Time to rect, %v\n", time.Since(t1))
+	}()
+	
 	conn, err := r.db.Conn(ctx)
 
 	if err != nil {
@@ -513,6 +518,12 @@ func (r *SQLiteSpatialDatabase) getIntersectsByRect(ctx context.Context, rect *o
 // to 'rsp_ch' (on succcess) and 'err_ch' (if there was an error).
 func (r *SQLiteSpatialDatabase) inflateResultsWithChannels(ctx context.Context, rsp_ch chan spr.StandardPlacesResult, err_ch chan error, possible []*RTreeSpatialIndex, c *orb.Point, filters ...spatial.Filter) {
 
+	t1 := time.Now()
+
+	defer func(){
+		log.Printf("Time to inflate, %v\n", time.Since(t1))
+	}()
+	
 	seen := make(map[string]bool)
 	mu := new(sync.RWMutex)
 
@@ -536,6 +547,11 @@ func (r *SQLiteSpatialDatabase) inflateResultsWithChannels(ctx context.Context, 
 // will be skipped; if not it will be added (to 'seen') once the spatial index has been successfully inflated.
 func (r *SQLiteSpatialDatabase) inflateSpatialIndexWithChannels(ctx context.Context, rsp_ch chan spr.StandardPlacesResult, err_ch chan error, seen map[string]bool, mu *sync.RWMutex, sp *RTreeSpatialIndex, c *orb.Point, filters ...spatial.Filter) {
 
+	t1 := time.Now()
+	defer func(){
+		log.Printf("Time to inflate w/ channel, %v\n", time.Since(t1))
+	}()
+	
 	select {
 	case <-ctx.Done():
 		return
