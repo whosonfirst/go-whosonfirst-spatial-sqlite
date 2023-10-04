@@ -7,6 +7,7 @@ require (
 	github.com/aaronland/go-sqlite/v2 v2.2.0
 	github.com/patrickmn/go-cache v2.1.0+incompatible
 	github.com/paulmach/orb v0.10.0
+	github.com/pkg/errors v0.9.1
 	github.com/whosonfirst/go-ioutil v1.0.2
 	github.com/whosonfirst/go-reader v1.0.2
 	github.com/whosonfirst/go-whosonfirst-spatial v0.5.8
