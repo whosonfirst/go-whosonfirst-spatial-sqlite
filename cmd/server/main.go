@@ -3,7 +3,7 @@ package main
 import (
 	"context"
 	_ "github.com/whosonfirst/go-whosonfirst-spatial-sqlite"
-	"github.com/whosonfirst/go-whosonfirst-spatial-www/application/server"
+	"github.com/whosonfirst/go-whosonfirst-spatial-www/app/server"
 	"log"
 )
 
