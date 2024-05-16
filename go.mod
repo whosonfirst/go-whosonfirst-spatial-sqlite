@@ -3,6 +3,7 @@ module github.com/whosonfirst/go-whosonfirst-spatial-sqlite
 go 1.22.1
 
 require (
+	github.com/aaronland/go-sqlite-mattn v0.0.3
 	github.com/aaronland/go-sqlite-modernc v0.0.3
 	github.com/aaronland/go-sqlite/v2 v2.2.0
 	github.com/patrickmn/go-cache v2.1.0+incompatible
@@ -16,7 +17,7 @@ require (
 	github.com/whosonfirst/go-whosonfirst-sqlite-features/v2 v2.0.3
 	github.com/whosonfirst/go-whosonfirst-sqlite-spr/v2 v2.0.0
 	github.com/whosonfirst/go-whosonfirst-uri v1.3.0
-	github.com/whosonfirst/go-writer/v3 v3.1.0
+	github.com/whosonfirst/go-writer/v3 v3.1.1
 )
 
 require (
@@ -71,7 +72,7 @@ require (
 	github.com/kballard/go-shellquote v0.0.0-20180428030007-95032a82bc51 // indirect
 	github.com/mattn/go-isatty v0.0.17 // indirect
 	github.com/mattn/go-runewidth v0.0.14 // indirect
-	github.com/mattn/go-sqlite3 v1.14.16 // indirect
+	github.com/mattn/go-sqlite3 v1.14.22 // indirect
 	github.com/mitchellh/colorstring v0.0.0-20190213212951-d06e56a500db // indirect
 	github.com/mschoch/smat v0.2.0 // indirect
 	github.com/natefinch/atomic v1.0.1 // indirect

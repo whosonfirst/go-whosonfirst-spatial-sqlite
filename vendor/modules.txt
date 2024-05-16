@@ -58,6 +58,9 @@ github.com/aaronland/go-pagination-sql
 # github.com/aaronland/go-roster v1.0.0
 ## explicit; go 1.16
 github.com/aaronland/go-roster
+# github.com/aaronland/go-sqlite-mattn v0.0.3
+## explicit; go 1.18
+github.com/aaronland/go-sqlite-mattn
 # github.com/aaronland/go-sqlite-modernc v0.0.3
 ## explicit; go 1.18
 github.com/aaronland/go-sqlite-modernc
@@ -287,8 +290,8 @@ github.com/mattn/go-isatty
 # github.com/mattn/go-runewidth v0.0.14
 ## explicit; go 1.9
 github.com/mattn/go-runewidth
-# github.com/mattn/go-sqlite3 v1.14.16
-## explicit; go 1.16
+# github.com/mattn/go-sqlite3 v1.14.22
+## explicit; go 1.19
 github.com/mattn/go-sqlite3
 # github.com/mitchellh/colorstring v0.0.0-20190213212951-d06e56a500db
 ## explicit
@@ -493,8 +496,8 @@ github.com/whosonfirst/go-whosonfirst-uri
 # github.com/whosonfirst/go-writer-featurecollection/v3 v3.0.0-20220916180959-42588e308a3e
 ## explicit; go 1.12
 github.com/whosonfirst/go-writer-featurecollection/v3
-# github.com/whosonfirst/go-writer/v3 v3.1.0
-## explicit; go 1.18
+# github.com/whosonfirst/go-writer/v3 v3.1.1
+## explicit; go 1.22.1
 github.com/whosonfirst/go-writer/v3
 # github.com/whosonfirst/walk v0.0.2
 ## explicit; go 1.18

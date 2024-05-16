@@ -48,6 +48,8 @@ github.com/aaronland/go-pagination-sql v0.2.0 h1:WVesObJVvwawIgkl6Twot9DXia09qiZ
 github.com/aaronland/go-pagination-sql v0.2.0/go.mod h1:Thovmz045/sxI0actKFyGLzIKmlCK4R9Qi4gS742PbY=
 github.com/aaronland/go-roster v1.0.0 h1:FRDGrTqsYySKjWnAhbBGXyeGlI/o5/t9FZYCbUmyQtI=
 github.com/aaronland/go-roster v1.0.0/go.mod h1:KIsYZgrJlAsyb9LsXSCvlqvbcCBVjCSqcQiZx42i9ro=
+github.com/aaronland/go-sqlite-mattn v0.0.3 h1:kTRjlvgvmYF8srMtpXdegz0buVZpfqoLRhNKV/x93C0=
+github.com/aaronland/go-sqlite-mattn v0.0.3/go.mod h1:n4naPDRooHfkWhHfmFctXvpZJq+EzovMj5o5GhBDzk8=
 github.com/aaronland/go-sqlite-modernc v0.0.3 h1:jCXzkZSLUgYbEY5FJluQY/x7hEfeYJ0LYxFYbTPTdXU=
 github.com/aaronland/go-sqlite-modernc v0.0.3/go.mod h1:utUqGH4Wu7rD7BYZ7dIg35MwmTuHziIUWkEw1mdjbGw=
 github.com/aaronland/go-sqlite/v2 v2.2.0 h1:Efase4L+f5LgWYEHiA/dUwEuNzJgJdjOVElHMvGEZRw=
@@ -197,8 +199,8 @@ github.com/mattn/go-isatty v0.0.17/go.mod h1:kYGgaQfpe5nmfYZH+SKPsOc2e4SrIfOl2e/
 github.com/mattn/go-runewidth v0.0.14 h1:+xnbZSEeDbOIg5/mE6JF0w6n9duR1l3/WmbinWVwUuU=
 github.com/mattn/go-runewidth v0.0.14/go.mod h1:Jdepj2loyihRzMpdS35Xk/zdY8IAYHsh153qUoGf23w=
 github.com/mattn/go-sqlite3 v1.14.14/go.mod h1:NyWgC/yNuGj7Q9rpYnZvas74GogHl5/Z4A/KQRfk6bU=
-github.com/mattn/go-sqlite3 v1.14.16 h1:yOQRA0RpS5PFz/oikGwBEqvAWhWg5ufRz4ETLjwpU1Y=
-github.com/mattn/go-sqlite3 v1.14.16/go.mod h1:2eHXhiwb8IkHr+BDWZGa96P6+rkvnG63S2DGjv9HUNg=
+github.com/mattn/go-sqlite3 v1.14.22 h1:2gZY6PC6kBnID23Tichd1K+Z0oS6nE/XwU+Vz/5o4kU=
+github.com/mattn/go-sqlite3 v1.14.22/go.mod h1:Uh1q+B4BYcTPb+yiD3kU8Ct7aC0hY9fxUwlHK0RXw+Y=
 github.com/mitchellh/colorstring v0.0.0-20190213212951-d06e56a500db h1:62I3jR2EmQ4l5rM/4FEfDWcRD+abF5XlKShorW5LRoQ=
 github.com/mitchellh/colorstring v0.0.0-20190213212951-d06e56a500db/go.mod h1:l0dey0ia/Uv7NcFFVbCLtqEBQbrT4OCwCSKTEv6enCw=
 github.com/montanaflynn/stats v0.0.0-20171201202039-1bf9dbcd8cbe/go.mod h1:wL8QJuTMNUDYhXwkmfOly8iTdp5TEcJFWZD2D7SIkUc=
@@ -325,8 +327,8 @@ github.com/whosonfirst/go-whosonfirst-uri v1.3.0/go.mod h1:CuVygTCUpMG945MMvqHyq
 github.com/whosonfirst/go-writer-featurecollection/v3 v3.0.0-20220916180959-42588e308a3e h1:FMjhKz9LHZDDZOCrNvof2o7CduM7mSQg3AKSXkJowmg=
 github.com/whosonfirst/go-writer-featurecollection/v3 v3.0.0-20220916180959-42588e308a3e/go.mod h1:Ee7DXBL23kO62yG/yzkLaO9OOqOGTcHLnxRIN2BB4Tg=
 github.com/whosonfirst/go-writer/v3 v3.0.0/go.mod h1:TmYoKR7RvrzJaj3eOgMhgXHFE+R1yuO/4smxKHFhv14=
-github.com/whosonfirst/go-writer/v3 v3.1.0 h1:lEZ6TIYvZb5NJ6e2OXYRM1j+MM2svKCSlb+6Vzbz+/M=
-github.com/whosonfirst/go-writer/v3 v3.1.0/go.mod h1:TmYoKR7RvrzJaj3eOgMhgXHFE+R1yuO/4smxKHFhv14=
+github.com/whosonfirst/go-writer/v3 v3.1.1 h1:YFG/LUzqr8tNNV/rqqvACrMT2jaoXMEecjVusRE06jI=
+github.com/whosonfirst/go-writer/v3 v3.1.1/go.mod h1:vK1dX0is3i0rw890qSsRXqsUkWlmZX5qiedwf1vSbkE=
 github.com/whosonfirst/walk v0.0.2 h1:fA0xskpnorC8OTvA1IKVOwQ12joCW6R5k2+/qd9lS7k=
 github.com/whosonfirst/walk v0.0.2/go.mod h1:HvRa/XX8jGtggvwAFMWMMuNy1M3+ZDqDX2hxiGR9b2o=
 github.com/whosonfirst/warning v0.1.1 h1:h29zL3VNL9VUHztkAAndzblhrDHyik9z47OuUR2Vovw=
