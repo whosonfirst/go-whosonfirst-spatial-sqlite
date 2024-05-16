@@ -58,9 +58,6 @@ github.com/aaronland/go-pagination-sql
 # github.com/aaronland/go-roster v1.0.0
 ## explicit; go 1.16
 github.com/aaronland/go-roster
-# github.com/aaronland/go-sqlite-mattn v0.0.3
-## explicit; go 1.18
-github.com/aaronland/go-sqlite-mattn
 # github.com/aaronland/go-sqlite-modernc v0.0.3
 ## explicit; go 1.18
 github.com/aaronland/go-sqlite-modernc

@@ -3,7 +3,6 @@ module github.com/whosonfirst/go-whosonfirst-spatial-sqlite
 go 1.22.1
 
 require (
-	github.com/aaronland/go-sqlite-mattn v0.0.3
 	github.com/aaronland/go-sqlite-modernc v0.0.3
 	github.com/aaronland/go-sqlite/v2 v2.2.0
 	github.com/patrickmn/go-cache v2.1.0+incompatible

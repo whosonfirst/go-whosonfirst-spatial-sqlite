@@ -48,8 +48,6 @@ github.com/aaronland/go-pagination-sql v0.2.0 h1:WVesObJVvwawIgkl6Twot9DXia09qiZ
 github.com/aaronland/go-pagination-sql v0.2.0/go.mod h1:Thovmz045/sxI0actKFyGLzIKmlCK4R9Qi4gS742PbY=
 github.com/aaronland/go-roster v1.0.0 h1:FRDGrTqsYySKjWnAhbBGXyeGlI/o5/t9FZYCbUmyQtI=
 github.com/aaronland/go-roster v1.0.0/go.mod h1:KIsYZgrJlAsyb9LsXSCvlqvbcCBVjCSqcQiZx42i9ro=
-github.com/aaronland/go-sqlite-mattn v0.0.3 h1:kTRjlvgvmYF8srMtpXdegz0buVZpfqoLRhNKV/x93C0=
-github.com/aaronland/go-sqlite-mattn v0.0.3/go.mod h1:n4naPDRooHfkWhHfmFctXvpZJq+EzovMj5o5GhBDzk8=
 github.com/aaronland/go-sqlite-modernc v0.0.3 h1:jCXzkZSLUgYbEY5FJluQY/x7hEfeYJ0LYxFYbTPTdXU=
 github.com/aaronland/go-sqlite-modernc v0.0.3/go.mod h1:utUqGH4Wu7rD7BYZ7dIg35MwmTuHziIUWkEw1mdjbGw=
 github.com/aaronland/go-sqlite/v2 v2.2.0 h1:Efase4L+f5LgWYEHiA/dUwEuNzJgJdjOVElHMvGEZRw=

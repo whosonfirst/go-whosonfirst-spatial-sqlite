@@ -16,7 +16,6 @@ import (
 	"time"
 
 	_ "github.com/aaronland/go-sqlite-modernc"
-	_ "github.com/aaronland/go-sqlite-mattn"	
 	"github.com/aaronland/go-sqlite/v2"
 	gocache "github.com/patrickmn/go-cache"
 	"github.com/paulmach/orb"
