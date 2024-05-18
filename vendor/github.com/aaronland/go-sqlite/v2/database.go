@@ -9,13 +9,7 @@ import (
 	"net/url"
 	"sort"
 	"strings"
-
-	"log/slog"
 )
-
-func init(){
-	slog.Info("WUT")
-}
 
 type Database interface {
 	DSN(context.Context) string
@@ -36,7 +30,6 @@ type DatabaseInitializationFunc func(ctx context.Context, uri string) (Database,
 // used to create new `Database` instances by the `NewDatabase` method.
 func RegisterDatabase(ctx context.Context, scheme string, init_func DatabaseInitializationFunc) error {
 
-	slog.Info("re", "s", scheme)
 	err := ensureDatabaseRoster()
 
 	if err != nil {
