@@ -1,6 +1,6 @@
 module github.com/whosonfirst/go-whosonfirst-spatial-sqlite
 
-go 1.22.1
+go 1.22.3
 
 require (
 	github.com/aaronland/go-sqlite-modernc v0.0.3
@@ -10,8 +10,8 @@ require (
 	github.com/pkg/errors v0.9.1
 	github.com/whosonfirst/go-ioutil v1.0.2
 	github.com/whosonfirst/go-reader v1.0.2
-	github.com/whosonfirst/go-whosonfirst-spatial v0.7.4
-	github.com/whosonfirst/go-whosonfirst-spatial-www v0.0.50
+	github.com/whosonfirst/go-whosonfirst-spatial v0.8.0
+	github.com/whosonfirst/go-whosonfirst-spatial-www v0.1.0
 	github.com/whosonfirst/go-whosonfirst-spr/v2 v2.3.7
 	github.com/whosonfirst/go-whosonfirst-sqlite-features/v2 v2.0.3
 	github.com/whosonfirst/go-whosonfirst-sqlite-spr/v2 v2.0.0
@@ -22,7 +22,9 @@ require (
 require (
 	github.com/NYTimes/gziphandler v1.1.1 // indirect
 	github.com/RoaringBitmap/roaring v1.5.0 // indirect
+	github.com/aaronland/go-artisanal-integers v0.9.1 // indirect
 	github.com/aaronland/go-aws-session v0.2.1 // indirect
+	github.com/aaronland/go-brooklynintegers-api v1.2.7 // indirect
 	github.com/aaronland/go-http-bootstrap v0.4.0 // indirect
 	github.com/aaronland/go-http-leaflet v0.4.0 // indirect
 	github.com/aaronland/go-http-maps v0.3.2 // indirect
@@ -36,10 +38,15 @@ require (
 	github.com/aaronland/go-log/v2 v2.0.0 // indirect
 	github.com/aaronland/go-pagination v0.2.0 // indirect
 	github.com/aaronland/go-pagination-sql v0.2.0 // indirect
+	github.com/aaronland/go-pool/v2 v2.0.0 // indirect
 	github.com/aaronland/go-roster v1.0.0 // indirect
 	github.com/aaronland/go-string v1.0.0 // indirect
+	github.com/aaronland/go-uid v0.4.0 // indirect
+	github.com/aaronland/go-uid-artisanal v0.0.4 // indirect
+	github.com/aaronland/go-uid-proxy v0.1.1 // indirect
+	github.com/aaronland/go-uid-whosonfirst v0.0.4 // indirect
 	github.com/akrylysov/algnhsa v1.1.0 // indirect
-	github.com/aws/aws-lambda-go v1.46.0 // indirect
+	github.com/aws/aws-lambda-go v1.47.0 // indirect
 	github.com/aws/aws-sdk-go v1.45.12 // indirect
 	github.com/aws/aws-sdk-go-v2 v1.20.0 // indirect
 	github.com/aws/aws-sdk-go-v2/config v1.18.32 // indirect
@@ -54,7 +61,9 @@ require (
 	github.com/aws/aws-sdk-go-v2/service/ssooidc v1.15.1 // indirect
 	github.com/aws/aws-sdk-go-v2/service/sts v1.21.1 // indirect
 	github.com/aws/smithy-go v1.14.0 // indirect
+	github.com/benbjohnson/clock v1.3.0 // indirect
 	github.com/bits-and-blooms/bitset v1.2.0 // indirect
+	github.com/cenkalti/backoff/v4 v4.2.1 // indirect
 	github.com/dominikbraun/graph v0.23.0 // indirect
 	github.com/dustin/go-humanize v1.0.1 // indirect
 	github.com/fsnotify/fsnotify v1.6.0 // indirect
@@ -71,7 +80,7 @@ require (
 	github.com/kballard/go-shellquote v0.0.0-20180428030007-95032a82bc51 // indirect
 	github.com/mattn/go-isatty v0.0.17 // indirect
 	github.com/mattn/go-runewidth v0.0.14 // indirect
-	github.com/mattn/go-sqlite3 v1.14.22 // indirect
+	github.com/mattn/go-sqlite3 v1.14.16 // indirect
 	github.com/mitchellh/colorstring v0.0.0-20190213212951-d06e56a500db // indirect
 	github.com/mschoch/smat v0.2.0 // indirect
 	github.com/natefinch/atomic v1.0.1 // indirect
@@ -79,13 +88,14 @@ require (
 	github.com/protomaps/go-pmtiles v1.10.5 // indirect
 	github.com/remyoudompheng/bigfft v0.0.0-20230129092748-24d4a6f8daec // indirect
 	github.com/rivo/uniseg v0.4.3 // indirect
-	github.com/rs/cors v1.10.1 // indirect
+	github.com/rs/cors v1.11.0 // indirect
 	github.com/schollz/progressbar/v3 v3.13.1 // indirect
 	github.com/sfomuseum/go-edtf v1.1.1 // indirect
 	github.com/sfomuseum/go-flags v0.10.0 // indirect
 	github.com/sfomuseum/go-http-auth v0.11.0 // indirect
 	github.com/sfomuseum/go-http-protomaps v0.2.0 // indirect
 	github.com/sfomuseum/go-http-rollup v0.0.2 // indirect
+	github.com/sfomuseum/go-sfomuseum-mapshaper v0.0.3 // indirect
 	github.com/sfomuseum/go-sfomuseum-pmtiles v1.2.0 // indirect
 	github.com/sfomuseum/go-template v1.8.0 // indirect
 	github.com/sfomuseum/go-timings v1.2.1 // indirect
@@ -102,31 +112,37 @@ require (
 	github.com/whosonfirst/go-rfc-5646 v0.1.0 // indirect
 	github.com/whosonfirst/go-sanitize v0.1.0 // indirect
 	github.com/whosonfirst/go-whosonfirst-crawl v0.2.2 // indirect
+	github.com/whosonfirst/go-whosonfirst-export/v2 v2.7.1 // indirect
 	github.com/whosonfirst/go-whosonfirst-feature v0.0.27 // indirect
 	github.com/whosonfirst/go-whosonfirst-flags v0.5.1 // indirect
-	github.com/whosonfirst/go-whosonfirst-iterate/v2 v2.3.4 // indirect
+	github.com/whosonfirst/go-whosonfirst-format v0.4.1 // indirect
+	github.com/whosonfirst/go-whosonfirst-id v1.2.2 // indirect
+	github.com/whosonfirst/go-whosonfirst-iterate/v2 v2.4.1 // indirect
 	github.com/whosonfirst/go-whosonfirst-names v0.1.0 // indirect
 	github.com/whosonfirst/go-whosonfirst-placetypes v0.7.2 // indirect
+	github.com/whosonfirst/go-whosonfirst-reader v1.0.2 // indirect
 	github.com/whosonfirst/go-whosonfirst-sources v0.1.0 // indirect
 	github.com/whosonfirst/go-whosonfirst-spr-geojson v0.0.8 // indirect
 	github.com/whosonfirst/go-whosonfirst-sql v0.0.3 // indirect
+	github.com/whosonfirst/go-whosonfirst-writer/v3 v3.1.0 // indirect
 	github.com/whosonfirst/go-writer-featurecollection/v3 v3.0.0-20220916180959-42588e308a3e // indirect
 	github.com/whosonfirst/walk v0.0.2 // indirect
 	github.com/whosonfirst/warning v0.1.1 // indirect
 	go.mongodb.org/mongo-driver v1.11.4 // indirect
 	go.opencensus.io v0.24.0 // indirect
+	go.uber.org/ratelimit v0.3.0 // indirect
 	gocloud.dev v0.34.0 // indirect
 	golang.org/x/mod v0.11.0 // indirect
-	golang.org/x/net v0.17.0 // indirect
+	golang.org/x/net v0.23.0 // indirect
 	golang.org/x/sync v0.4.0 // indirect
-	golang.org/x/sys v0.13.0 // indirect
-	golang.org/x/term v0.13.0 // indirect
-	golang.org/x/text v0.13.0 // indirect
+	golang.org/x/sys v0.18.0 // indirect
+	golang.org/x/term v0.18.0 // indirect
+	golang.org/x/text v0.14.0 // indirect
 	golang.org/x/tools v0.10.0 // indirect
 	golang.org/x/xerrors v0.0.0-20220907171357-04be3eba64a2 // indirect
 	google.golang.org/api v0.142.0 // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20230920204549-e6e6cdab5c13 // indirect
-	google.golang.org/grpc v1.58.2 // indirect
+	google.golang.org/grpc v1.58.3 // indirect
 	google.golang.org/protobuf v1.33.0 // indirect
 	lukechampine.com/uint128 v1.2.0 // indirect
 	modernc.org/cc/v3 v3.40.0 // indirect
