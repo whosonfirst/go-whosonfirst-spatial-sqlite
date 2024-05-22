@@ -4,7 +4,7 @@ import (
 	"context"
 	"log/slog"
 	"os"
-	
+
 	_ "github.com/whosonfirst/go-whosonfirst-spatial-sqlite"
 	"github.com/whosonfirst/go-whosonfirst-spatial-www/app/server"
 )
