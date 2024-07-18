@@ -560,7 +560,7 @@ func (r *SQLiteSpatialDatabase) inflateSpatialIndexWithChannels(ctx context.Cont
 		// pass
 	}
 
-	sp_id := fmt.Sprintf("%s:%s", sp.Id, sp.AltLabel)
+	// sp_id := fmt.Sprintf("%s:%s", sp.Id, sp.AltLabel)
 	feature_id := fmt.Sprintf("%s:%s", sp.FeatureId, sp.AltLabel)
 
 	logger := slog.Default()
@@ -649,7 +649,7 @@ func (r *SQLiteSpatialDatabase) inflateSpatialIndexWithChannels(ctx context.Cont
 	s, err := r.retrieveSPR(ctx, sp.Path())
 
 	if err != nil {
-		slog.Error("Failed to retrieve feature cache", "id", sp_id, "error", err)
+		logger.Error("Failed to retrieve feature cache", "key", sp.Path(), "error", err)
 		return
 	}
 
@@ -658,12 +658,12 @@ func (r *SQLiteSpatialDatabase) inflateSpatialIndexWithChannels(ctx context.Cont
 		err = filter.FilterSPR(f, s)
 
 		if err != nil {
-			slog.Debug("Feature failed filter", "filter", f, "error", err)
+			slog.Debug("Feature failed SPR filter", "feature_id", feature_id, "error", err)
 			return
 		}
 	}
 
-	slog.Debug("Return inflated SPR", "id", s.Id())
+	logger.Debug("Return inflated SPR", "id", s.Id())
 	rsp_ch <- s
 }
 
