@@ -10,7 +10,7 @@ require (
 	github.com/pkg/errors v0.9.1
 	github.com/whosonfirst/go-ioutil v1.0.2
 	github.com/whosonfirst/go-reader v1.0.2
-	github.com/whosonfirst/go-whosonfirst-spatial v0.9.0
+	github.com/whosonfirst/go-whosonfirst-spatial v0.10.0
 	github.com/whosonfirst/go-whosonfirst-spatial-www v0.2.0
 	github.com/whosonfirst/go-whosonfirst-spr/v2 v2.3.7
 	github.com/whosonfirst/go-whosonfirst-sqlite-features/v2 v2.0.3
