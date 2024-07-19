@@ -29,8 +29,8 @@ func DefaultFlagSet() (*flag.FlagSet, error) {
 
 	fs := flagset.NewFlagSet("server")
 
-	fs.StringVar(&host, "host", "localhost", "...")
-	fs.IntVar(&port, "port", 8082, "...")
+	fs.StringVar(&host, "host", "localhost", "The host to listen for requests on")
+	fs.IntVar(&port, "port", 8082, "The port to listen for requests on")
 
 	available_databases := database.Schemes()
 	desc_databases := fmt.Sprintf("A valid whosonfirst/go-whosonfirst-spatial/data.SpatialDatabase URI. options are: %s", available_databases)

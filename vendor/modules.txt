@@ -503,8 +503,9 @@ github.com/whosonfirst/go-whosonfirst-spatial/geo
 github.com/whosonfirst/go-whosonfirst-spatial/hierarchy
 github.com/whosonfirst/go-whosonfirst-spatial/hierarchy/filter
 github.com/whosonfirst/go-whosonfirst-spatial/pip
-# github.com/whosonfirst/go-whosonfirst-spatial-grpc v0.1.1
+# github.com/whosonfirst/go-whosonfirst-spatial-grpc v0.1.2
 ## explicit; go 1.22.2
+github.com/whosonfirst/go-whosonfirst-spatial-grpc/app/client
 github.com/whosonfirst/go-whosonfirst-spatial-grpc/app/server
 github.com/whosonfirst/go-whosonfirst-spatial-grpc/request
 github.com/whosonfirst/go-whosonfirst-spatial-grpc/server
