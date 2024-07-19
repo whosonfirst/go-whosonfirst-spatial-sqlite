@@ -16,8 +16,6 @@ func FilterSPR(filters spatial.Filter, s spr.StandardPlacesResult) error {
 
 	var ok bool
 
-	slog.Debug("Create placetype flag for SPR filtering", "placetype", s.Placetype())
-	
 	pf, err := placetypes.NewPlacetypeFlag(s.Placetype())
 
 	if err != nil {
