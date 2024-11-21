@@ -1,6 +1,8 @@
 module github.com/whosonfirst/go-whosonfirst-spatial-sqlite
 
-go 1.22.3
+go 1.23
+
+toolchain go1.23.2
 
 require (
 	github.com/aaronland/go-sqlite-modernc v0.0.3
@@ -10,7 +12,7 @@ require (
 	github.com/pkg/errors v0.9.1
 	github.com/whosonfirst/go-ioutil v1.0.2
 	github.com/whosonfirst/go-reader v1.0.2
-	github.com/whosonfirst/go-whosonfirst-spatial v0.10.1
+	github.com/whosonfirst/go-whosonfirst-spatial v0.10.2
 	github.com/whosonfirst/go-whosonfirst-spatial-grpc v0.1.2
 	github.com/whosonfirst/go-whosonfirst-spatial-www v0.2.0
 	github.com/whosonfirst/go-whosonfirst-spr/v2 v2.3.7
@@ -35,7 +37,7 @@ require (
 	github.com/aaronland/go-http-server v1.4.1 // indirect
 	github.com/aaronland/go-http-static v0.0.3 // indirect
 	github.com/aaronland/go-http-tangramjs v0.3.0 // indirect
-	github.com/aaronland/go-json-query v0.1.4 // indirect
+	github.com/aaronland/go-json-query v0.1.5 // indirect
 	github.com/aaronland/go-log/v2 v2.0.0 // indirect
 	github.com/aaronland/go-pagination v0.2.0 // indirect
 	github.com/aaronland/go-pagination-sql v0.2.0 // indirect
@@ -44,7 +46,7 @@ require (
 	github.com/aaronland/go-string v1.0.0 // indirect
 	github.com/aaronland/go-uid v0.4.0 // indirect
 	github.com/aaronland/go-uid-artisanal v0.0.4 // indirect
-	github.com/aaronland/go-uid-proxy v0.2.0 // indirect
+	github.com/aaronland/go-uid-proxy v0.3.0 // indirect
 	github.com/aaronland/go-uid-whosonfirst v0.0.5 // indirect
 	github.com/akrylysov/algnhsa v1.1.0 // indirect
 	github.com/aws/aws-lambda-go v1.47.0 // indirect
@@ -99,13 +101,13 @@ require (
 	github.com/sfomuseum/go-sfomuseum-mapshaper v0.0.3 // indirect
 	github.com/sfomuseum/go-sfomuseum-pmtiles v1.2.0 // indirect
 	github.com/sfomuseum/go-template v1.8.0 // indirect
-	github.com/sfomuseum/go-timings v1.3.0 // indirect
+	github.com/sfomuseum/go-timings v1.4.0 // indirect
 	github.com/sfomuseum/iso8601duration v1.1.0 // indirect
 	github.com/sfomuseum/runtimevar v1.1.2 // indirect
 	github.com/skip2/go-qrcode v0.0.0-20200617195104-da1b6568686e // indirect
 	github.com/tdewolff/minify/v2 v2.19.10 // indirect
 	github.com/tdewolff/parse/v2 v2.6.8 // indirect
-	github.com/tidwall/gjson v1.17.3 // indirect
+	github.com/tidwall/gjson v1.18.0 // indirect
 	github.com/tidwall/match v1.1.1 // indirect
 	github.com/tidwall/pretty v1.2.0 // indirect
 	github.com/tidwall/sjson v1.2.5 // indirect
@@ -113,12 +115,12 @@ require (
 	github.com/whosonfirst/go-rfc-5646 v0.1.0 // indirect
 	github.com/whosonfirst/go-sanitize v0.1.0 // indirect
 	github.com/whosonfirst/go-whosonfirst-crawl v0.2.2 // indirect
-	github.com/whosonfirst/go-whosonfirst-export/v2 v2.8.2 // indirect
+	github.com/whosonfirst/go-whosonfirst-export/v2 v2.8.3 // indirect
 	github.com/whosonfirst/go-whosonfirst-feature v0.0.28 // indirect
 	github.com/whosonfirst/go-whosonfirst-flags v0.5.2 // indirect
 	github.com/whosonfirst/go-whosonfirst-format v0.4.1 // indirect
-	github.com/whosonfirst/go-whosonfirst-id v1.2.4 // indirect
-	github.com/whosonfirst/go-whosonfirst-iterate/v2 v2.4.1 // indirect
+	github.com/whosonfirst/go-whosonfirst-id v1.2.5 // indirect
+	github.com/whosonfirst/go-whosonfirst-iterate/v2 v2.5.0 // indirect
 	github.com/whosonfirst/go-whosonfirst-names v0.1.0 // indirect
 	github.com/whosonfirst/go-whosonfirst-placetypes v0.7.3 // indirect
 	github.com/whosonfirst/go-whosonfirst-reader v1.0.2 // indirect
