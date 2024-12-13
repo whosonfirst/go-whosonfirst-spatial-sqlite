@@ -353,8 +353,8 @@ github.com/whosonfirst/go-whosonfirst-reader v1.0.2 h1:yLsDd6GJOsfMVJz63noH5Haoo
 github.com/whosonfirst/go-whosonfirst-reader v1.0.2/go.mod h1:1M6osxb9qXB3+ARINW4vuEaCTIN55abLRBGbBtfpGJ0=
 github.com/whosonfirst/go-whosonfirst-sources v0.1.0 h1:JuKLa6KWke22jBfJ1pM9WQHoz1/3pbDv2C+aR+THPPQ=
 github.com/whosonfirst/go-whosonfirst-sources v0.1.0/go.mod h1:EUMHyGzUmqPPxlMmOp+28BFeoBdxxE0HCKRd67lkqGM=
-github.com/whosonfirst/go-whosonfirst-spatial v0.11.0 h1:+ptVNprdT9PuwJmsA4tnrxLmiOnYUHjKzbmXmhUdzKA=
-github.com/whosonfirst/go-whosonfirst-spatial v0.11.0/go.mod h1:ja79l9imEriYcWFVX1vbW4eMAf407/GqEQ3q5Fpa/1A=
+github.com/whosonfirst/go-whosonfirst-spatial v0.11.1 h1:EUYDE5I6ojL+70VL+B3unmCE3ehb0E/cHkf+mql45QE=
+github.com/whosonfirst/go-whosonfirst-spatial v0.11.1/go.mod h1:ja79l9imEriYcWFVX1vbW4eMAf407/GqEQ3q5Fpa/1A=
 github.com/whosonfirst/go-whosonfirst-spatial-grpc v0.2.1 h1:FHADyxeRmrDaj9w7N8DzuNqN4nWURggh3ir22noC7kM=
 github.com/whosonfirst/go-whosonfirst-spatial-grpc v0.2.1/go.mod h1:4Jz+k9hc7E1vdB7gHMotwURKYIAkTDXgzwaarlpVTMU=
 github.com/whosonfirst/go-whosonfirst-spatial-www v0.3.1 h1:rNs19ctrgOEgKUqs09jeaeNfEKVoP3f4W77sVhD9Glc=
