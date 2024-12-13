@@ -105,6 +105,8 @@ func NewSQLiteSpatialDatabaseWriter(ctx context.Context, uri string) (writer.Wri
 // instance for performing spatial operations derived from 'uri'.
 func NewSQLiteSpatialDatabase(ctx context.Context, uri string) (database.SpatialDatabase, error) {
 
+	slog.Info(uri)
+
 	db, err := database_sql.OpenWithURI(ctx, uri)
 
 	if err != nil {

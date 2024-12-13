@@ -15,7 +15,7 @@ require (
 	github.com/whosonfirst/go-whosonfirst-spatial-grpc v0.2.1
 	github.com/whosonfirst/go-whosonfirst-spatial-www v0.3.1
 	github.com/whosonfirst/go-whosonfirst-spr/v2 v2.3.7
-	github.com/whosonfirst/go-whosonfirst-sqlite-spr/v2 v2.0.0
+	github.com/whosonfirst/go-whosonfirst-sqlite-spr/v2 v2.1.0
 	github.com/whosonfirst/go-whosonfirst-uri v1.3.0
 	github.com/whosonfirst/go-writer/v3 v3.1.1
 )
@@ -35,11 +35,10 @@ require (
 	github.com/aaronland/go-http-server v1.5.0 // indirect
 	github.com/aaronland/go-http-static v0.0.3 // indirect
 	github.com/aaronland/go-json-query v0.1.5 // indirect
-	github.com/aaronland/go-pagination v0.2.0 // indirect
+	github.com/aaronland/go-pagination v0.3.0 // indirect
 	github.com/aaronland/go-pagination-sql v0.2.0 // indirect
 	github.com/aaronland/go-pool/v2 v2.0.0 // indirect
 	github.com/aaronland/go-roster v1.0.0 // indirect
-	github.com/aaronland/go-sqlite/v2 v2.2.0 // indirect
 	github.com/aaronland/go-string v1.0.0 // indirect
 	github.com/aaronland/go-uid v0.4.0 // indirect
 	github.com/aaronland/go-uid-artisanal v0.0.4 // indirect

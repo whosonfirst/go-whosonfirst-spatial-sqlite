@@ -1,6 +1,6 @@
 //go:build mattn
 
-package database
+package sqlite
 
 import (
 	_ "github.com/mattn/go-sqlite3"
