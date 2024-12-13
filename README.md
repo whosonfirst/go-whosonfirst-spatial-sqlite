@@ -84,7 +84,7 @@ For example:
 sqlite://sqlite3?dsn=test.db
 ```
 
-By default this package bundles support for the [mattn/go-sqlite3](https://github.com/mattn/go-sqlite3) driver but does NOT enable it by default. You will need to pass in the `-tag mattn` argument when building tools to enable it. this is the default behaviour in the `cli` Makefile target for building binary tools.
+By default this package bundles support for the [mattn/go-sqlite3](https://github.com/mattn/go-sqlite3) driver but does NOT enable it by default. You will need to pass in the `-tag mattn` argument when building tools to enable it. This is the default behaviour in the `cli` Makefile target for building binary tools.
 
 If you want or need to use the [modernc.org/sqlite](https://pkg.go.dev/modernc.org/sqlite) driver take a look at the [database_mattn.go](database_mattn.go) file for an example of how you might go about enabling it. As of this writing the `modernc.org/sqlite` package is not bundled with this package because it adds ~200MB of code to the `vendor` directory.
 
