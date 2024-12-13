@@ -18,7 +18,6 @@ import (
 
 	gocache "github.com/patrickmn/go-cache"
 	"github.com/paulmach/orb"
-	_ "github.com/paulmach/orb/encoding/wkt"
 	"github.com/paulmach/orb/planar"
 	database_sql "github.com/sfomuseum/go-database/sql"
 	"github.com/whosonfirst/go-ioutil"
