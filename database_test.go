@@ -8,6 +8,8 @@ import (
 	"strconv"
 	"testing"
 
+	_ "github.com/mattn/go-sqlite3"
+
 	"github.com/whosonfirst/go-whosonfirst-spatial/database"
 	"github.com/whosonfirst/go-whosonfirst-spatial/filter"
 	"github.com/whosonfirst/go-whosonfirst-spatial/geo"
@@ -17,7 +19,7 @@ func TestSpatialDatabaseQuery(t *testing.T) {
 
 	ctx := context.Background()
 
-	database_uri := "sqlite://?dsn=modernc://cwd/fixtures/sfomuseum-architecture.db"
+	database_uri := "sqlite://sqlite3?dsn=fixtures/sfomuseum-architecture.db"
 
 	expected := int64(1745882085) // This test may fail if sfomuseum-data/sfomuseum-data-architecture is updated and there is a "newer" T2
 
@@ -81,7 +83,7 @@ func TestSpatialDatabaseRemoveFeature(t *testing.T) {
 
 	ctx := context.Background()
 
-	database_uri := "sqlite://?dsn=modernc://mem"
+	database_uri := "sqlite://sqlite3?dsn=:memory:"
 
 	db, err := database.NewSpatialDatabase(ctx, database_uri)
 
