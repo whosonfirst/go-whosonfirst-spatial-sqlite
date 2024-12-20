@@ -118,43 +118,58 @@ func NewSQLiteSpatialDatabase(ctx context.Context, uri string) (database.Spatial
 
 	is_tmp := false
 	tmp_path := ""
-	
-	if dsn == "{tmp}" {
+
+	switch dsn {
+	case "{tmp}":
 
 		f, err := os.CreateTemp("", ".db")
 		
                 if err != nil {
                         return nil, fmt.Errorf("Failed to create temp file, %w", err)
 		}
-
+		
 		tmp_path = f.Name()
                 is_tmp = true
-
+		
 		q.Del("dsn")
 		q.Set("dsn", tmp_path)
-
+		
 		u.RawQuery = q.Encode()
 		uri = u.String()
-	}
 	
-	db, err := database_sql.OpenWithURI(ctx, uri)
-
-	if err != nil {
-		return nil, fmt.Errorf("Failed to create new database, %w", err)
-	}
-
-	spatial_db, err := NewSQLiteSpatialDatabaseWithDatabase(ctx, uri, db)
-
-	if err != nil {
-		return nil, err
-	}
-
-	if is_tmp {
+		db, err := database_sql.OpenWithURI(ctx, uri)
+		
+		if err != nil {
+			return nil, fmt.Errorf("Failed to create new database, %w", err)
+		}
+		
+		spatial_db, err := NewSQLiteSpatialDatabaseWithDatabase(ctx, uri, db)
+		
+		if err != nil {
+			return nil, err
+		}
+		
 		spatial_db.(*SQLiteSpatialDatabase).is_tmp = is_tmp
 		spatial_db.(*SQLiteSpatialDatabase).tmp_path = tmp_path
-	}
+		
+		return spatial_db, nil
 
-	return spatial_db, nil
+	case "{ram}":
+
+		// TBD...
+		// https://github.com/mroth/ramdisk
+		return nil, fmt.Errorf("Not implemented")
+		
+	default:
+
+		db, err := database_sql.OpenWithURI(ctx, uri)
+		
+		if err != nil {
+			return nil, fmt.Errorf("Failed to create new database, %w", err)
+		}
+		
+		return NewSQLiteSpatialDatabaseWithDatabase(ctx, uri, db)
+	}		
 }
 
 // NewSQLiteSpatialDatabaseWithDatabase returns a new `whosonfirst/go-whosonfirst-spatial/database.database.SpatialDatabase`
