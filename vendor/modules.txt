@@ -325,6 +325,10 @@ github.com/matttproud/golang_protobuf_extensions/v2/pbutil
 # github.com/mitchellh/colorstring v0.0.0-20190213212951-d06e56a500db
 ## explicit
 github.com/mitchellh/colorstring
+# github.com/mroth/ramdisk v0.1.2
+## explicit; go 1.14
+github.com/mroth/ramdisk
+github.com/mroth/ramdisk/datasize
 # github.com/mschoch/smat v0.2.0
 ## explicit; go 1.13
 github.com/mschoch/smat

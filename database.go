@@ -12,11 +12,13 @@ import (
 	"os"
 	"log/slog"
 	"net/url"
+	"path/filepath"
 	"strconv"
 	"strings"
 	"sync"
 	"time"
 
+	"github.com/mroth/ramdisk"
 	gocache "github.com/patrickmn/go-cache"
 	"github.com/paulmach/orb"
 	"github.com/paulmach/orb/planar"
@@ -55,6 +57,8 @@ type SQLiteSpatialDatabase struct {
 	dsn           string
 	is_tmp bool
 	tmp_path string
+	is_ramdisk bool
+	ramdisk *ramdisk.RAMDisk
 }
 
 // RTreeSpatialIndex is a struct representing an RTree based spatial index
@@ -156,9 +160,41 @@ func NewSQLiteSpatialDatabase(ctx context.Context, uri string) (database.Spatial
 
 	case "{ram}":
 
-		// TBD...
-		// https://github.com/mroth/ramdisk
-		return nil, fmt.Errorf("Not implemented")
+		// Technically this works but it is very very slow...
+		
+		rd_opts := ramdisk.Options{}
+
+		rd, err := ramdisk.Create(rd_opts)
+
+		if err != nil {
+			return nil, fmt.Errorf("Failed to create ramdisk, %w", err)
+		}
+
+		rd_fname := "tmp.db"
+		rd_path := filepath.Join(rd.MountPath, rd_fname)
+		
+		q.Del("dsn")
+		q.Set("dsn", rd_path)
+
+		u.RawQuery = q.Encode()
+		uri = u.String()
+	
+		db, err := database_sql.OpenWithURI(ctx, uri)
+		
+		if err != nil {
+			return nil, fmt.Errorf("Failed to create new database, %w", err)
+		}
+		
+		spatial_db, err := NewSQLiteSpatialDatabaseWithDatabase(ctx, uri, db)
+		
+		if err != nil {
+			return nil, err
+		}
+		
+		spatial_db.(*SQLiteSpatialDatabase).is_ramdisk = true
+		spatial_db.(*SQLiteSpatialDatabase).ramdisk = rd
+		
+		return spatial_db, nil
 		
 	default:
 
@@ -245,6 +281,10 @@ func (r *SQLiteSpatialDatabase) Disconnect(ctx context.Context) error {
 		}
 	}
 
+	if r.ramdisk != nil {
+		ramdisk.Destroy(r.ramdisk.DevicePath)
+	}
+	
 	return r.db.Close()	
 }
 

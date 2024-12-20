@@ -4,6 +4,7 @@ go 1.23.3
 
 require (
 	github.com/mattn/go-sqlite3 v1.14.24
+	github.com/mroth/ramdisk v0.1.2
 	github.com/patrickmn/go-cache v2.1.0+incompatible
 	github.com/paulmach/orb v0.11.1
 	github.com/pkg/errors v0.9.1
