@@ -316,8 +316,8 @@ github.com/mattn/go-isatty
 # github.com/mattn/go-runewidth v0.0.14
 ## explicit; go 1.9
 github.com/mattn/go-runewidth
-# github.com/mattn/go-sqlite3 v1.14.16
-## explicit; go 1.16
+# github.com/mattn/go-sqlite3 v1.14.24
+## explicit; go 1.19
 github.com/mattn/go-sqlite3
 # github.com/matttproud/golang_protobuf_extensions/v2 v2.0.0
 ## explicit; go 1.19
@@ -387,7 +387,7 @@ github.com/rs/cors/internal
 # github.com/schollz/progressbar/v3 v3.13.1
 ## explicit; go 1.13
 github.com/schollz/progressbar/v3
-# github.com/sfomuseum/go-database v0.0.7
+# github.com/sfomuseum/go-database v0.0.10
 ## explicit; go 1.23.3
 github.com/sfomuseum/go-database/sql
 # github.com/sfomuseum/go-edtf v1.2.1
@@ -406,7 +406,7 @@ github.com/sfomuseum/go-edtf/unix
 ## explicit; go 1.16
 github.com/sfomuseum/go-flags/flagset
 github.com/sfomuseum/go-flags/multi
-# github.com/sfomuseum/go-http-auth v0.11.0
+# github.com/sfomuseum/go-http-auth v0.12.0
 ## explicit; go 1.18
 github.com/sfomuseum/go-http-auth
 # github.com/sfomuseum/go-http-protomaps v0.3.0
@@ -479,7 +479,7 @@ github.com/whosonfirst/go-sanitize
 # github.com/whosonfirst/go-whosonfirst-crawl v0.2.2
 ## explicit; go 1.18
 github.com/whosonfirst/go-whosonfirst-crawl
-# github.com/whosonfirst/go-whosonfirst-database v0.0.2
+# github.com/whosonfirst/go-whosonfirst-database v0.0.8
 ## explicit; go 1.23.3
 github.com/whosonfirst/go-whosonfirst-database/sql/tables
 # github.com/whosonfirst/go-whosonfirst-export/v2 v2.8.3
@@ -545,7 +545,7 @@ github.com/whosonfirst/go-whosonfirst-spatial-grpc/app/server
 github.com/whosonfirst/go-whosonfirst-spatial-grpc/request
 github.com/whosonfirst/go-whosonfirst-spatial-grpc/server
 github.com/whosonfirst/go-whosonfirst-spatial-grpc/spatial
-# github.com/whosonfirst/go-whosonfirst-spatial-www v0.3.1
+# github.com/whosonfirst/go-whosonfirst-spatial-www v0.4.0
 ## explicit; go 1.23
 github.com/whosonfirst/go-whosonfirst-spatial-www/app/server
 github.com/whosonfirst/go-whosonfirst-spatial-www/http

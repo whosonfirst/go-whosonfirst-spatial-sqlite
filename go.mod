@@ -3,17 +3,17 @@ module github.com/whosonfirst/go-whosonfirst-spatial-sqlite
 go 1.23.3
 
 require (
-	github.com/mattn/go-sqlite3 v1.14.16
+	github.com/mattn/go-sqlite3 v1.14.24
 	github.com/patrickmn/go-cache v2.1.0+incompatible
 	github.com/paulmach/orb v0.11.1
 	github.com/pkg/errors v0.9.1
-	github.com/sfomuseum/go-database v0.0.7
+	github.com/sfomuseum/go-database v0.0.10
 	github.com/whosonfirst/go-ioutil v1.0.2
 	github.com/whosonfirst/go-reader v1.0.2
-	github.com/whosonfirst/go-whosonfirst-database v0.0.2
+	github.com/whosonfirst/go-whosonfirst-database v0.0.8
 	github.com/whosonfirst/go-whosonfirst-spatial v0.11.1
 	github.com/whosonfirst/go-whosonfirst-spatial-grpc v0.2.1
-	github.com/whosonfirst/go-whosonfirst-spatial-www v0.3.1
+	github.com/whosonfirst/go-whosonfirst-spatial-www v0.4.0
 	github.com/whosonfirst/go-whosonfirst-spr/v2 v2.3.7
 	github.com/whosonfirst/go-whosonfirst-sqlite-spr/v2 v2.1.0
 	github.com/whosonfirst/go-whosonfirst-uri v1.3.0
@@ -101,7 +101,7 @@ require (
 	github.com/schollz/progressbar/v3 v3.13.1 // indirect
 	github.com/sfomuseum/go-edtf v1.2.1 // indirect
 	github.com/sfomuseum/go-flags v0.10.0 // indirect
-	github.com/sfomuseum/go-http-auth v0.11.0 // indirect
+	github.com/sfomuseum/go-http-auth v0.12.0 // indirect
 	github.com/sfomuseum/go-http-protomaps v0.3.0 // indirect
 	github.com/sfomuseum/go-http-rollup v0.0.3 // indirect
 	github.com/sfomuseum/go-sfomuseum-mapshaper v0.0.3 // indirect
