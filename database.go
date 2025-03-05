@@ -383,20 +383,13 @@ func (db *SQLiteSpatialDatabase) getIntersectsByCoord(ctx context.Context, coord
 
 // getIntersectsByCoord will return the list of `RTreeSpatialIndex` instances for records that intersect 'rect' and are inclusive of any filters
 // defined in 'filters'.
-func (r *SQLiteSpatialDatabase) getIntersectsByRect(ctx context.Context, rect *orb.Bound, filters ...spatial.Filter) ([]*RTreeSpatialIndex, error) {
-
-	/*
-		t1 := time.Now()
-		defer func(){
-			log.Printf("Time to rect, %v\n", time.Since(t1))
-		}()
-	*/
+func (db *SQLiteSpatialDatabase) getIntersectsByRect(ctx context.Context, rect *orb.Bound, filters ...spatial.Filter) ([]*RTreeSpatialIndex, error) {
 
 	logger := slog.Default()
 	logger = logger.With("query", "intersects by rect")
 	logger = logger.With("center", rect.Center())
 
-	q := fmt.Sprintf("SELECT id, wof_id, is_alt, alt_label, geometry, min_x, min_y, max_x, max_y FROM %s  WHERE min_x <= ? AND max_x >= ?  AND min_y <= ? AND max_y >= ?", r.rtree_table.Name())
+	q := fmt.Sprintf("SELECT id, wof_id, is_alt, alt_label, geometry, min_x, min_y, max_x, max_y FROM %s  WHERE min_x <= ? AND max_x >= ?  AND min_y <= ? AND max_y >= ?", db.rtree_table.Name())
 
 	// Left returns the left of the bound.
 	// Right returns the right of the bound.
@@ -406,7 +399,7 @@ func (r *SQLiteSpatialDatabase) getIntersectsByRect(ctx context.Context, rect *o
 	maxx := rect.Right()
 	maxy := rect.Top()
 
-	rows, err := r.db.QueryContext(ctx, q, minx, maxx, miny, maxy)
+	rows, err := db.db.QueryContext(ctx, q, minx, maxx, miny, maxy)
 
 	if err != nil {
 		return nil, fmt.Errorf("SQL query failed, %w", err)
@@ -416,44 +409,12 @@ func (r *SQLiteSpatialDatabase) getIntersectsByRect(ctx context.Context, rect *o
 
 	intersects := make([]*RTreeSpatialIndex, 0)
 
-	for rows.Next() {
-
-		var id string
-		var feature_id string
-		var is_alt int32
-		var alt_label string
-		var geometry string
-		var minx float64
-		var miny float64
-		var maxx float64
-		var maxy float64
-
-		err := rows.Scan(&id, &feature_id, &is_alt, &alt_label, &geometry, &minx, &miny, &maxx, &maxy)
+	for i, err := range db.rowsToSpatialIndices(ctx, rows, filters...) {
 
 		if err != nil {
-			return nil, fmt.Errorf("Result row scan failed, %w", err)
+			return nil, err
 		}
-
-		min := orb.Point{minx, miny}
-		max := orb.Point{maxx, maxy}
-
-		rect := orb.Bound{
-			Min: min,
-			Max: max,
-		}
-
-		i := &RTreeSpatialIndex{
-			Id:        fmt.Sprintf("%s#%s", feature_id, id),
-			FeatureId: feature_id,
-			bounds:    rect,
-			geometry:  geometry,
-		}
-
-		if is_alt == 1 {
-			i.IsAlt = true
-			i.AltLabel = alt_label
-		}
-
+		
 		intersects = append(intersects, i)
 	}
 
@@ -607,6 +568,55 @@ func (r *SQLiteSpatialDatabase) retrieveSPR(ctx context.Context, uri_str string)
 
 	r.gocache.Set(uri_str, s, -1)
 	return s, nil
+}
+
+func (db *SQLiteSpatialDatabase) rowsToSpatialIndices(ctx context.Context, rows *sql.Rows, filters ...spatial.Filter) iter.Seq2[*RTreeSpatialIndex, error] {
+
+	return func(yield func(*RTreeSpatialIndex, error) bool) {
+		
+		for rows.Next() {
+			
+			var id string
+			var feature_id string
+			var is_alt int32
+			var alt_label string
+			var geometry string
+			var minx float64
+			var miny float64
+			var maxx float64
+			var maxy float64
+			
+			err := rows.Scan(&id, &feature_id, &is_alt, &alt_label, &geometry, &minx, &miny, &maxx, &maxy)
+			
+			if err != nil {
+				yield(nil, fmt.Errorf("Result row scan failed, %w", err))
+				break
+			}
+			
+			min := orb.Point{minx, miny}
+			max := orb.Point{maxx, maxy}
+			
+			rect := orb.Bound{
+				Min: min,
+				Max: max,
+			}
+			
+			i := &RTreeSpatialIndex{
+				Id:        fmt.Sprintf("%s#%s", feature_id, id),
+				FeatureId: feature_id,
+				bounds:    rect,
+				geometry:  geometry,
+			}
+			
+			if is_alt == 1 {
+				i.IsAlt = true
+				i.AltLabel = alt_label
+			}
+
+			yield(i, nil)
+		}
+		
+	}
 }
 
 // Read implements the whosonfirst/go-reader interface so that the database itself can be used as a
