@@ -357,7 +357,7 @@ func (db *SQLiteSpatialDatabase) PointInPolygonWithIterator(ctx context.Context,
 		}
 
 		for r, err := range db.inflateResults(ctx, rows, coord, filters...) {
-
+			
 			if !yield(r, err) {
 				return
 			}
@@ -414,7 +414,7 @@ func (db *SQLiteSpatialDatabase) getIntersectsByRect(ctx context.Context, rect *
 		if err != nil {
 			return nil, err
 		}
-		
+
 		intersects = append(intersects, i)
 	}
 
@@ -514,7 +514,7 @@ func (db *SQLiteSpatialDatabase) inflateResults(ctx context.Context, possible []
 			for _, f := range filters {
 
 				err = filter.FilterSPR(f, s)
-
+				
 				if err != nil {
 					slog.Debug("Feature failed SPR filter", "feature_id", feature_id, "error", err)
 					matches = false
@@ -522,7 +522,7 @@ func (db *SQLiteSpatialDatabase) inflateResults(ctx context.Context, possible []
 				}
 			}
 
-			if matches {
+			if !matches {
 				continue
 			}
 

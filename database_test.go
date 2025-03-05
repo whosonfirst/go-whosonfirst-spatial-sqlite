@@ -15,7 +15,7 @@ import (
 	"github.com/whosonfirst/go-whosonfirst-spatial/geo"
 )
 
-func TestSpatialDatabaseQuery(t *testing.T) {
+func TestPointInPolygonQuery(t *testing.T) {
 
 	ctx := context.Background()
 
@@ -79,7 +79,7 @@ func TestSpatialDatabaseQuery(t *testing.T) {
 	}
 }
 
-func TestSpatialDatabaseRemoveFeature(t *testing.T) {
+func TestRemoveFeature(t *testing.T) {
 
 	ctx := context.Background()
 
