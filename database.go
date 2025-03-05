@@ -796,7 +796,7 @@ func (r *SQLiteSpatialDatabase) Read(ctx context.Context, str_uri string) (io.Re
 	// TO DO : ALT STUFF HERE
 
 	q := fmt.Sprintf("SELECT body FROM %s WHERE id = ?", r.geojson_table.Name())
-
+	
 	row := r.db.QueryRowContext(ctx, q, id)
 
 	var body string

@@ -13,7 +13,72 @@ import (
 	"github.com/whosonfirst/go-whosonfirst-spatial/database"
 	"github.com/whosonfirst/go-whosonfirst-spatial/filter"
 	"github.com/whosonfirst/go-whosonfirst-spatial/geo"
+	"github.com/paulmach/orb/geojson"
 )
+
+// 1360521545
+
+func TestIntersectsQuery(t *testing.T) {
+
+	ctx := context.Background()
+
+	database_uri := "sqlite://sqlite3?dsn=fixtures/sfomuseum-architecture.db"
+
+	db, err := database.NewSpatialDatabase(ctx, database_uri)
+
+	if err != nil {
+		t.Fatalf("Failed to create new spatial database, %v", err)
+	}
+
+	defer db.Close(ctx)
+
+	t2 := int64(1360521545)
+
+	r, err := db.Read(ctx, strconv.FormatInt(t2, 10))
+
+	if err != nil {
+		t.Fatalf("Failed to read data for %d, %v", t2, err)
+	}
+
+	defer r.Close()
+	
+	body, err := io.ReadAll(r)
+
+	if err != nil {
+		t.Fatalf("Failed to read record for %d, %v", t2, err)
+	}
+
+	f, err := geojson.UnmarshalFeature(body)
+
+	if err != nil {
+		t.Fatalf("Failed to unmarshal feature for %d, %v", t2, 344)
+	}
+	
+	geom := f.Geometry
+
+	rsp, err := db.Intersects(ctx, geom)
+
+	if err != nil {
+		t.Fatalf("Failed to perform intersects query, %v", err)
+	}
+
+	results := rsp.Results()
+	count := len(results)
+
+	expected := 24
+
+	if count != expected {
+		t.Fatalf("Invalid count for intersects (%d), expected %d", count, expected)
+	}
+	
+	/*
+	slog.Info("Results", "count", count)
+
+	for _, r := range results {
+		slog.Info("R", "id", r.Id())
+	}
+	*/
+}
 
 func TestPointInPolygonQuery(t *testing.T) {
 
@@ -21,7 +86,7 @@ func TestPointInPolygonQuery(t *testing.T) {
 
 	database_uri := "sqlite://sqlite3?dsn=fixtures/sfomuseum-architecture.db"
 
-	expected := int64(1745882085) // This test may fail if sfomuseum-data/sfomuseum-data-architecture is updated and there is a "newer" T2
+	expected := int64(1947304591) // This test may fail if sfomuseum-data/sfomuseum-data-architecture is updated and there is a "newer" T2
 
 	lat := 37.616951
 	lon := -122.383747
