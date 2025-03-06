@@ -3,6 +3,8 @@ LDFLAGS=-s -w
 
 TAGS=mattn
 ENGINE=sqlite3
+DSN=fixtures/sfomuseum-architecture.db
+INITIAL_VIEW=-122.384292,37.621131,13
 
 cli:
 	go build -tags $(TAGS) -ldflags="$(LDFLAGS)" -mod $(GOMOD) -o bin/http-server cmd/http-server/main.go
@@ -15,6 +17,7 @@ httpd:
 	go run -tags $(TAGS) -mod $(GOMOD) \
 		cmd/http-server/main.go \
 		-enable-www \
+		-initial-view '$(INITIAL_VIEW)' \
 		-spatial-database-uri "sqlite://$(ENGINE)?dsn=$(DSN)"
 
 grpcd:
