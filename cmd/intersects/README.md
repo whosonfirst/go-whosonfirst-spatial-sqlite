@@ -54,3 +54,19 @@ Valid options are:
   -verbose
     	Enable verbose (debug) logging.
 ```
+
+## Example
+
+```
+$> ./bin/intersects \
+	-is-current 1 \
+	-geometry-source file \
+	-geometry-type geojson \
+	-geometry-value fixtures/1360521545.geojson \
+	-spatial-database-uri 'sqlite://sqlite3?dsn=fixtures/sfomuseum-architecture.db' \
+	| jq -r '.places[]["wof:name"]'
+
+SFO Terminal Complex
+San Francisco International Airport
+Terminal 2
+``

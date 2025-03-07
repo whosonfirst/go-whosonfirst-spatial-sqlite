@@ -14,7 +14,7 @@ cli:
 	go build -tags $(TAGS) -ldflags="$(LDFLAGS)" -mod $(GOMOD) -o bin/pip cmd/pip/main.go
 	go build -tags $(TAGS) -ldflags="$(LDFLAGS)" -mod $(GOMOD) -o bin/intersects cmd/intersects/main.go
 
-httpd:
+http-server:
 	go run -tags $(TAGS) -mod $(GOMOD) \
 		cmd/http-server/main.go \
 		-enable-www \
