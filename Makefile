@@ -12,6 +12,7 @@ cli:
 	go build -tags $(TAGS) -ldflags="$(LDFLAGS)" -mod $(GOMOD) -o bin/grpc-client cmd/grpc-client/main.go
 	go build -tags $(TAGS) -ldflags="$(LDFLAGS)" -mod $(GOMOD) -o bin/update-hierarchies cmd/update-hierarchies/main.go
 	go build -tags $(TAGS) -ldflags="$(LDFLAGS)" -mod $(GOMOD) -o bin/pip cmd/pip/main.go
+	go build -tags $(TAGS) -ldflags="$(LDFLAGS)" -mod $(GOMOD) -o bin/intersects cmd/intersects/main.go
 
 httpd:
 	go run -tags $(TAGS) -mod $(GOMOD) \
