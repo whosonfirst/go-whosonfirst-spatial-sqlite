@@ -3,15 +3,15 @@ module github.com/whosonfirst/go-whosonfirst-spatial-sqlite
 go 1.24.0
 
 require (
-	github.com/mattn/go-sqlite3 v1.14.24
+	github.com/mattn/go-sqlite3 v1.14.27
 	github.com/patrickmn/go-cache v2.1.0+incompatible
 	github.com/paulmach/orb v0.11.1
 	github.com/pkg/errors v0.9.1
 	github.com/sfomuseum/go-database v0.0.12
 	github.com/whosonfirst/go-ioutil v1.0.2
-	github.com/whosonfirst/go-reader v1.0.2
+	github.com/whosonfirst/go-reader v1.1.0
 	github.com/whosonfirst/go-whosonfirst-database v0.0.8
-	github.com/whosonfirst/go-whosonfirst-spatial v0.13.0
+	github.com/whosonfirst/go-whosonfirst-spatial v0.16.1
 	github.com/whosonfirst/go-whosonfirst-spatial-grpc v0.2.2
 	github.com/whosonfirst/go-whosonfirst-spatial-www v0.5.0
 	github.com/whosonfirst/go-whosonfirst-spr/v2 v2.3.7
