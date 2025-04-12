@@ -10,10 +10,10 @@ import (
 
 	_ "github.com/mattn/go-sqlite3"
 
+	"github.com/paulmach/orb/geojson"
 	"github.com/whosonfirst/go-whosonfirst-spatial/database"
 	"github.com/whosonfirst/go-whosonfirst-spatial/filter"
 	"github.com/whosonfirst/go-whosonfirst-spatial/geo"
-	"github.com/paulmach/orb/geojson"
 )
 
 // 1360521545
@@ -41,7 +41,7 @@ func TestIntersectsQuery(t *testing.T) {
 	}
 
 	defer r.Close()
-	
+
 	body, err := io.ReadAll(r)
 
 	if err != nil {
@@ -53,7 +53,7 @@ func TestIntersectsQuery(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Failed to unmarshal feature for %d, %v", t2, 344)
 	}
-	
+
 	geom := f.Geometry
 
 	rsp, err := db.Intersects(ctx, geom)
@@ -70,13 +70,13 @@ func TestIntersectsQuery(t *testing.T) {
 	if count != expected {
 		t.Fatalf("Invalid count for intersects (%d), expected %d", count, expected)
 	}
-	
-	/*
-	slog.Info("Results", "count", count)
 
-	for _, r := range results {
-		slog.Info("R", "id", r.Id())
-	}
+	/*
+		slog.Info("Results", "count", count)
+
+		for _, r := range results {
+			slog.Info("R", "id", r.Id())
+		}
 	*/
 }
 
