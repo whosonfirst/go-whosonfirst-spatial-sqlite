@@ -11,9 +11,9 @@ require (
 	github.com/whosonfirst/go-ioutil v1.0.2
 	github.com/whosonfirst/go-reader v1.1.0
 	github.com/whosonfirst/go-whosonfirst-database v0.0.8
-	github.com/whosonfirst/go-whosonfirst-spatial v0.16.1
+	github.com/whosonfirst/go-whosonfirst-spatial v0.16.2
 	github.com/whosonfirst/go-whosonfirst-spatial-grpc v0.2.2
-	github.com/whosonfirst/go-whosonfirst-spatial-www v0.5.0
+	github.com/whosonfirst/go-whosonfirst-spatial-www v0.6.0
 	github.com/whosonfirst/go-whosonfirst-spr/v2 v2.3.7
 	github.com/whosonfirst/go-whosonfirst-sqlite-spr/v2 v2.1.0
 	github.com/whosonfirst/go-whosonfirst-uri v1.3.0
@@ -54,7 +54,7 @@ require (
 	github.com/rs/cors v1.11.1 // indirect
 	github.com/sfomuseum/go-edtf v1.2.1 // indirect
 	github.com/sfomuseum/go-flags v0.10.0 // indirect
-	github.com/sfomuseum/go-http-auth v0.12.0 // indirect
+	github.com/sfomuseum/go-http-auth v1.0.0 // indirect
 	github.com/sfomuseum/go-sfomuseum-mapshaper v0.0.3 // indirect
 	github.com/sfomuseum/go-timings v1.4.0 // indirect
 	github.com/sfomuseum/iso8601duration v1.1.0 // indirect
