@@ -434,7 +434,7 @@ func (db *SQLiteSpatialDatabase) getIntersectsByRect(ctx context.Context, rect *
 	logger = logger.With("query", "intersects by rect")
 	logger = logger.With("center", rect.Center())
 
-	q := fmt.Sprintf("SELECT id, wof_id, is_alt, alt_label, geometry, min_x, min_y, max_x, max_y FROM %s  WHERE min_x <= ? AND max_x >= ?  AND min_y <= ? AND max_y >= ?", db.rtree_table.Name())
+	q := fmt.Sprintf("SELECT id, wof_id, is_alt, alt_label, geometry, min_x, min_y, max_x, max_y FROM %s  WHERE min_x <= ? OR max_x >= ?  OR min_y <= ? OR max_y >= ?", db.rtree_table.Name())	
 
 	// Left returns the left of the bound.
 	// Right returns the right of the bound.
