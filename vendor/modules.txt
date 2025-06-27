@@ -60,7 +60,7 @@ github.com/aaronland/gocloud-blob/s3
 # github.com/akrylysov/algnhsa v1.1.0
 ## explicit; go 1.18
 github.com/akrylysov/algnhsa
-# github.com/aws/aws-lambda-go v1.47.0
+# github.com/aws/aws-lambda-go v1.49.0
 ## explicit; go 1.18
 github.com/aws/aws-lambda-go/events
 github.com/aws/aws-lambda-go/lambda
@@ -338,7 +338,7 @@ github.com/paulmach/orb/internal/length
 github.com/paulmach/orb/internal/mercator
 github.com/paulmach/orb/maptile
 github.com/paulmach/orb/planar
-# github.com/peterstace/simplefeatures v0.53.0
+# github.com/peterstace/simplefeatures v0.54.0
 ## explicit; go 1.17
 github.com/peterstace/simplefeatures/geom
 github.com/peterstace/simplefeatures/rtree
@@ -349,7 +349,7 @@ github.com/pkg/errors
 ## explicit; go 1.13
 github.com/rs/cors
 github.com/rs/cors/internal
-# github.com/sfomuseum/go-database v0.0.12
+# github.com/sfomuseum/go-database v0.0.14
 ## explicit; go 1.23.3
 github.com/sfomuseum/go-database/sql
 # github.com/sfomuseum/go-edtf v1.2.1
@@ -371,7 +371,7 @@ github.com/sfomuseum/go-flags/multi
 # github.com/sfomuseum/go-http-auth v1.2.0
 ## explicit; go 1.24
 github.com/sfomuseum/go-http-auth
-# github.com/sfomuseum/go-sfomuseum-mapshaper v0.0.3
+# github.com/sfomuseum/go-sfomuseum-mapshaper v0.0.4
 ## explicit; go 1.22
 github.com/sfomuseum/go-sfomuseum-mapshaper
 # github.com/sfomuseum/go-timings v1.4.0
@@ -407,13 +407,10 @@ github.com/whosonfirst/go-rfc-5646
 # github.com/whosonfirst/go-sanitize v0.1.0
 ## explicit; go 1.12
 github.com/whosonfirst/go-sanitize
-# github.com/whosonfirst/go-whosonfirst-crawl v0.2.2
-## explicit; go 1.18
-github.com/whosonfirst/go-whosonfirst-crawl
-# github.com/whosonfirst/go-whosonfirst-database v0.0.8
-## explicit; go 1.23.3
+# github.com/whosonfirst/go-whosonfirst-database v0.0.9
+## explicit; go 1.24.0
 github.com/whosonfirst/go-whosonfirst-database/sql/tables
-# github.com/whosonfirst/go-whosonfirst-export/v2 v2.8.4
+# github.com/whosonfirst/go-whosonfirst-export/v2 v2.8.5
 ## explicit; go 1.22
 github.com/whosonfirst/go-whosonfirst-export/v2
 github.com/whosonfirst/go-whosonfirst-export/v2/properties
@@ -434,14 +431,14 @@ github.com/whosonfirst/go-whosonfirst-flags/placetypes
 # github.com/whosonfirst/go-whosonfirst-format v0.4.1
 ## explicit; go 1.16
 github.com/whosonfirst/go-whosonfirst-format
-# github.com/whosonfirst/go-whosonfirst-id v1.2.6
+# github.com/whosonfirst/go-whosonfirst-id v1.3.0
 ## explicit; go 1.22
 github.com/whosonfirst/go-whosonfirst-id
-# github.com/whosonfirst/go-whosonfirst-iterate/v2 v2.7.1
-## explicit; go 1.22
-github.com/whosonfirst/go-whosonfirst-iterate/v2/emitter
-github.com/whosonfirst/go-whosonfirst-iterate/v2/filters
-github.com/whosonfirst/go-whosonfirst-iterate/v2/iterator
+# github.com/whosonfirst/go-whosonfirst-iterate/v3 v3.1.0
+## explicit; go 1.24
+github.com/whosonfirst/go-whosonfirst-iterate/v3
+github.com/whosonfirst/go-whosonfirst-iterate/v3/filters
+github.com/whosonfirst/go-whosonfirst-iterate/v3/flags
 # github.com/whosonfirst/go-whosonfirst-names v0.1.0
 ## explicit; go 1.12
 github.com/whosonfirst/go-whosonfirst-names
@@ -456,8 +453,8 @@ github.com/whosonfirst/go-whosonfirst-reader
 ## explicit; go 1.12
 github.com/whosonfirst/go-whosonfirst-sources
 github.com/whosonfirst/go-whosonfirst-sources/sources
-# github.com/whosonfirst/go-whosonfirst-spatial v0.16.2
-## explicit; go 1.23
+# github.com/whosonfirst/go-whosonfirst-spatial v0.16.3
+## explicit; go 1.24
 github.com/whosonfirst/go-whosonfirst-spatial
 github.com/whosonfirst/go-whosonfirst-spatial/app/hierarchy/update
 github.com/whosonfirst/go-whosonfirst-spatial/app/intersects
@@ -465,27 +462,26 @@ github.com/whosonfirst/go-whosonfirst-spatial/app/pip
 github.com/whosonfirst/go-whosonfirst-spatial/application
 github.com/whosonfirst/go-whosonfirst-spatial/database
 github.com/whosonfirst/go-whosonfirst-spatial/filter
-github.com/whosonfirst/go-whosonfirst-spatial/flags
 github.com/whosonfirst/go-whosonfirst-spatial/geo
 github.com/whosonfirst/go-whosonfirst-spatial/hierarchy
 github.com/whosonfirst/go-whosonfirst-spatial/hierarchy/filter
 github.com/whosonfirst/go-whosonfirst-spatial/maptile
 github.com/whosonfirst/go-whosonfirst-spatial/query
-# github.com/whosonfirst/go-whosonfirst-spatial-grpc v0.2.2
-## explicit; go 1.23
+# github.com/whosonfirst/go-whosonfirst-spatial-grpc v0.2.3
+## explicit; go 1.24
 github.com/whosonfirst/go-whosonfirst-spatial-grpc/app/client
 github.com/whosonfirst/go-whosonfirst-spatial-grpc/app/server
 github.com/whosonfirst/go-whosonfirst-spatial-grpc/request
 github.com/whosonfirst/go-whosonfirst-spatial-grpc/server
 github.com/whosonfirst/go-whosonfirst-spatial-grpc/spatial
-# github.com/whosonfirst/go-whosonfirst-spatial-www v0.6.1
+# github.com/whosonfirst/go-whosonfirst-spatial-www v0.6.2
 ## explicit; go 1.24.0
 github.com/whosonfirst/go-whosonfirst-spatial-www/app/server
 github.com/whosonfirst/go-whosonfirst-spatial-www/http
 github.com/whosonfirst/go-whosonfirst-spatial-www/http/api
 github.com/whosonfirst/go-whosonfirst-spatial-www/static/www
-# github.com/whosonfirst/go-whosonfirst-spelunker v0.0.5
-## explicit; go 1.22
+# github.com/whosonfirst/go-whosonfirst-spelunker v0.0.6
+## explicit; go 1.24.0
 github.com/whosonfirst/go-whosonfirst-spelunker/document
 # github.com/whosonfirst/go-whosonfirst-spr-geojson/v2 v2.0.0
 ## explicit; go 1.22.1
@@ -500,7 +496,7 @@ github.com/whosonfirst/go-whosonfirst-sqlite-spr/v2
 # github.com/whosonfirst/go-whosonfirst-uri v1.3.0
 ## explicit; go 1.13
 github.com/whosonfirst/go-whosonfirst-uri
-# github.com/whosonfirst/go-whosonfirst-writer/v3 v3.1.4
+# github.com/whosonfirst/go-whosonfirst-writer/v3 v3.1.5
 ## explicit; go 1.22.1
 github.com/whosonfirst/go-whosonfirst-writer/v3
 # github.com/whosonfirst/go-writer-featurecollection/v3 v3.0.2
@@ -509,9 +505,6 @@ github.com/whosonfirst/go-writer-featurecollection/v3
 # github.com/whosonfirst/go-writer/v3 v3.1.1
 ## explicit; go 1.22.1
 github.com/whosonfirst/go-writer/v3
-# github.com/whosonfirst/walk v0.0.2
-## explicit; go 1.18
-github.com/whosonfirst/walk
 # go.mongodb.org/mongo-driver v1.11.4
 ## explicit; go 1.13
 go.mongodb.org/mongo-driver/bson
@@ -595,8 +588,8 @@ google.golang.org/api/internal/third_party/uritemplates
 google.golang.org/genproto/googleapis/rpc/code
 google.golang.org/genproto/googleapis/rpc/errdetails
 google.golang.org/genproto/googleapis/rpc/status
-# google.golang.org/grpc v1.71.0
-## explicit; go 1.22.0
+# google.golang.org/grpc v1.73.0
+## explicit; go 1.23.0
 google.golang.org/grpc
 google.golang.org/grpc/attributes
 google.golang.org/grpc/backoff
