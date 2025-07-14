@@ -283,6 +283,8 @@ github.com/whosonfirst/go-ioutil v1.0.2 h1:+GJPfa42OFn5A+5yJSc5jQTQIkNV3/MhYyg4p
 github.com/whosonfirst/go-ioutil v1.0.2/go.mod h1:2dS1vWdAIkiHDvDF8fYyjv6k2NISmwaIjJJeEDBEdvg=
 github.com/whosonfirst/go-reader v1.1.0 h1:FK4m5FTSy9EUxIwAvNhGhLqDmfVOba4ExsF1B0HK7wU=
 github.com/whosonfirst/go-reader v1.1.0/go.mod h1:ek9GZaWThZ67ttojNJ6yVOCN3mijK0q9kKNHSA2kf8Q=
+github.com/whosonfirst/go-reader/v2 v2.0.0 h1:BP6aUQ1HAMCZcp27Lh5XDwzlPXV1quwBF1fajRg0ddo=
+github.com/whosonfirst/go-reader/v2 v2.0.0/go.mod h1:u1q/ZH2EeYDioLYx7544lyVl6WXbal4JRyvk2qpIYsk=
 github.com/whosonfirst/go-rfc-5646 v0.1.0 h1:HNFPAem6v5De61PXLgbGzx9tfNOP83AAkVvm9WAddJY=
 github.com/whosonfirst/go-rfc-5646 v0.1.0/go.mod h1:JZj//FV9YeV3fkyOY/82V53EMLQXwRwNPuQIGs8BUmo=
 github.com/whosonfirst/go-sanitize v0.1.0 h1:ygSqCnakwdzH/m8UEa15zXGDsoo5/JJeRkgmAjXZrBU=
