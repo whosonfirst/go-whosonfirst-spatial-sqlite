@@ -4,5 +4,7 @@ src
 !vendor/src
 bin
 !bin/.gitignore
-*.dot
-*.png
+*.log
+*.json
+.travis.yml
+go.work*
