@@ -28,7 +28,7 @@ $> ./bin/wof-sqlite-index \
 	-index-alt-files \
 	-spatial-tables \
 	-timings \
-	-database-uri /usr/local/ca-alt.db \
+	-database-uri 'sql://sqlite3?dsn=/usr/local/ca-alt.db' \
 	-iterator-uri repo:// \
 	/usr/local/data/whosonfirst-data-admin-ca/
 
