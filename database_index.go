@@ -138,7 +138,7 @@ func (db *SQLiteSpatialDatabase) PointInPolygon(ctx context.Context, coord *orb.
 		return nil, err
 	}
 
-	for r, err := range db.inflateResults(ctx, rows, coord, filters...) {
+	for r, err := range db.inflatePointInPolygonResults(ctx, rows, coord, filters...) {
 
 		if err != nil {
 			return nil, err
@@ -342,8 +342,8 @@ func (db *SQLiteSpatialDatabase) getIntersectsByRect(ctx context.Context, rect *
 	return intersects, nil
 }
 
-// inflateResults creates `spr.StandardPlacesResult` instances for each record defined in 'possible'.
-func (db *SQLiteSpatialDatabase) inflateResults(ctx context.Context, possible []*RTreeSpatialIndex, c *orb.Point, filters ...spatial.Filter) iter.Seq2[spr.StandardPlacesResult, error] {
+// inflatePointInPolygonResults creates `spr.StandardPlacesResult` instances for each record defined in 'possible'.
+func (db *SQLiteSpatialDatabase) inflatePointInPolygonResults(ctx context.Context, possible []*RTreeSpatialIndex, c *orb.Point, filters ...spatial.Filter) iter.Seq2[spr.StandardPlacesResult, error] {
 
 	return func(yield func(spr.StandardPlacesResult, error) bool) {
 
@@ -399,7 +399,7 @@ func (db *SQLiteSpatialDatabase) inflateResults(ctx context.Context, possible []
 	}
 }
 
-// inflateResults creates `spr.StandardPlacesResult` instances for each record defined in 'possible'.
+// inflateIntersectsResults creates `spr.StandardPlacesResult` instances for each record defined in 'possible'.
 func (db *SQLiteSpatialDatabase) inflateIntersectsResults(ctx context.Context, possible []*RTreeSpatialIndex, geom orb.Geometry, filters ...spatial.Filter) iter.Seq2[spr.StandardPlacesResult, error] {
 
 	return func(yield func(spr.StandardPlacesResult, error) bool) {
