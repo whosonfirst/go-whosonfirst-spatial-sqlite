@@ -63,7 +63,6 @@ func OpenWithURI(ctx context.Context, db_uri string) (*sql.DB, error) {
 	switch Driver(db) {
 	case "sqlite":
 
-		
 		pragma := DefaultSQLitePragma()
 		err := ConfigureSQLitePragma(ctx, db, pragma)
 

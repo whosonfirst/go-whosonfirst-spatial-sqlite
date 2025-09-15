@@ -132,7 +132,7 @@ func (db *SQLiteSpatialDatabase) PointInPolygon(ctx context.Context, coord *orb.
 	t1 := time.Now()
 
 	defer func() {
-		slog.Info("Time to PIP", "time", time.Since(t1))
+		slog.Debug("Time to PIP", "time", time.Since(t1))
 	}()
 
 	results := make([]spr.StandardPlacesResult, 0)
