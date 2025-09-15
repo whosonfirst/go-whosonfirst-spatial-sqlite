@@ -29,7 +29,6 @@ grpcd:
 pip:
 	go run -tags $(TAGS) -mod $(GOMOD) \
 		cmd/pip/main.go \
-		-verbose \
 		-spatial-database-uri 'sqlite://sqlite3?dsn=$(DSN)' \
 		-latitude 37.621131 \
 		-longitude -122.384292

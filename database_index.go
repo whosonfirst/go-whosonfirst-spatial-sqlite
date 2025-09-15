@@ -4,7 +4,6 @@ package sqlite
 
 import (
 	"context"
-	"database/sql"
 	"encoding/json"
 	"fmt"
 	"iter"
@@ -130,15 +129,15 @@ func (r *SQLiteSpatialDatabase) RemoveFeature(ctx context.Context, str_id string
 // that are inclusive of any filters defined by 'filters'.
 func (db *SQLiteSpatialDatabase) PointInPolygon(ctx context.Context, coord *orb.Point, filters ...spatial.Filter) (spr.StandardPlacesResults, error) {
 
+	t1 := time.Now()
+
+	defer func() {
+		slog.Info("Time to PIP", "time", time.Since(t1))
+	}()
+
 	results := make([]spr.StandardPlacesResult, 0)
 
-	rows, err := db.getIntersectsByCoord(ctx, coord, filters...)
-
-	if err != nil {
-		return nil, err
-	}
-
-	for r, err := range db.inflatePointInPolygonResults(ctx, rows, coord, filters...) {
+	for r, err := range db.PointInPolygonWithIterator(ctx, coord, filters...) {
 
 		if err != nil {
 			return nil, err
@@ -166,45 +165,70 @@ func (db *SQLiteSpatialDatabase) PointInPolygonWithIterator(ctx context.Context,
 
 		rows, err := db.getIntersectsByCoord(ctx, coord, filters...)
 
-		slog.Debug("Time to intersect", "time", time.Since(t1))
-
 		if err != nil {
 			yield(nil, err)
 			return
 		}
 
 		seen := new(sync.Map)
+		wg := new(sync.WaitGroup)
+
+		working := new(atomic.Bool)
+		working.Store(true)
 
 		for _, sp := range rows {
 
-			_, exists := seen.LoadOrStore(sp.Id, true)
+			wg.Go(func() {
 
-			if exists {
-				continue
-			}
+				if !working.Load() {
+					return
+				}
 
-			r, err := db.inflatePointInPolygonSpatialIndex(ctx, sp, coord, filters...)
+				_, exists := seen.Load(sp.Id)
 
-			if err != nil {
-				slog.Error("Failed to inflate index", "error", err)
-				continue
-			}
+				if exists {
+					return
+				}
 
-			if r == nil {
-				continue
-			}
+				r, err := db.inflatePointInPolygonSpatialIndex(ctx, sp, coord, filters...)
 
-			if !yield(r, nil) {
-				break
-			}
+				if err != nil {
+
+					slog.Error("Failed to inflate index", "error", err)
+
+					if working.Load() {
+
+						if !yield(nil, err) {
+							working.Swap(false)
+						}
+					}
+
+					return
+				}
+
+				if r == nil {
+					return
+				}
+
+				seen.Store(sp.Id, r)
+
+				if working.Load() {
+					yield(r, nil)
+				}
+			})
 		}
 
-		slog.Debug("Time to inflate", "time", time.Since(t1))
-		return
+		wg.Wait()
 	}
 }
 
 func (db *SQLiteSpatialDatabase) Intersects(ctx context.Context, geom orb.Geometry, filters ...spatial.Filter) (spr.StandardPlacesResults, error) {
+
+	t1 := time.Now()
+
+	defer func() {
+		slog.Debug("Time to intersects", "time", time.Since(t1))
+	}()
 
 	results := make([]spr.StandardPlacesResult, 0)
 
@@ -329,10 +353,42 @@ func (db *SQLiteSpatialDatabase) getIntersectsByRect(ctx context.Context, rect *
 
 	intersects := make([]*RTreeSpatialIndex, 0)
 
-	for i, err := range db.rowsToSpatialIndices(ctx, rows, filters...) {
+	for rows.Next() {
+
+		var id string
+		var feature_id string
+		var is_alt int32
+		var alt_label string
+		var geometry string
+		var minx float64
+		var miny float64
+		var maxx float64
+		var maxy float64
+
+		err := rows.Scan(&id, &feature_id, &is_alt, &alt_label, &geometry, &minx, &miny, &maxx, &maxy)
 
 		if err != nil {
 			return nil, err
+		}
+
+		min := orb.Point{minx, miny}
+		max := orb.Point{maxx, maxy}
+
+		rect := orb.Bound{
+			Min: min,
+			Max: max,
+		}
+
+		i := &RTreeSpatialIndex{
+			Id:        fmt.Sprintf("%s#%s", feature_id, id),
+			FeatureId: feature_id,
+			bounds:    rect,
+			geometry:  geometry,
+		}
+
+		if is_alt == 1 {
+			i.IsAlt = true
+			i.AltLabel = alt_label
 		}
 
 		intersects = append(intersects, i)
@@ -340,71 +396,6 @@ func (db *SQLiteSpatialDatabase) getIntersectsByRect(ctx context.Context, rect *
 
 	logger.Debug("Intersects by rect candidates", "r", rect, "count", len(intersects))
 	return intersects, nil
-}
-
-// inflatePointInPolygonResults creates `spr.StandardPlacesResult` instances for each record defined in 'possible'.
-func (db *SQLiteSpatialDatabase) inflatePointInPolygonResults(ctx context.Context, possible []*RTreeSpatialIndex, c *orb.Point, filters ...spatial.Filter) iter.Seq2[spr.StandardPlacesResult, error] {
-
-	return func(yield func(spr.StandardPlacesResult, error) bool) {
-
-		seen := new(sync.Map)
-		wg := new(sync.WaitGroup)
-
-		working := new(atomic.Bool)
-		working.Store(true)
-
-		for _, sp := range possible {
-
-			wg.Go(func() {
-
-				if !working.Load() {
-					return
-				}
-
-				_, exists := seen.Load(sp.Id)
-
-				if exists {
-					return
-				}
-
-				r, err := db.inflatePointInPolygonSpatialIndex(ctx, sp, c, filters...)
-
-				if err != nil {
-
-					slog.Error("Failed to inflate index", "error", err)
-
-					if working.Load() {
-
-						if !yield(nil, err) {
-							working.Swap(false)
-						}
-					}
-
-					return
-				}
-
-				if r == nil {
-					return
-				}
-
-				seen.Store(sp.Id, r)
-
-				if working.Load() {
-					yield(r, nil)
-				}
-			})
-		}
-
-		wg.Wait()
-	}
-}
-
-// inflateIntersectsResults creates `spr.StandardPlacesResult` instances for each record defined in 'possible'.
-func (db *SQLiteSpatialDatabase) inflateIntersectsResults(ctx context.Context, possible []*RTreeSpatialIndex, geom orb.Geometry, filters ...spatial.Filter) iter.Seq2[spr.StandardPlacesResult, error] {
-
-	return func(yield func(spr.StandardPlacesResult, error) bool) {
-
-	}
 }
 
 // retrieveSPR retrieves a `spr.StandardPlacesResult` instance from the local database cache identified by 'uri_str'.
@@ -443,55 +434,6 @@ func (r *SQLiteSpatialDatabase) retrieveSPR(ctx context.Context, uri_str string)
 
 	r.gocache.Set(uri_str, s, -1)
 	return s, nil
-}
-
-func (db *SQLiteSpatialDatabase) rowsToSpatialIndices(ctx context.Context, rows *sql.Rows, filters ...spatial.Filter) iter.Seq2[*RTreeSpatialIndex, error] {
-
-	return func(yield func(*RTreeSpatialIndex, error) bool) {
-
-		for rows.Next() {
-
-			var id string
-			var feature_id string
-			var is_alt int32
-			var alt_label string
-			var geometry string
-			var minx float64
-			var miny float64
-			var maxx float64
-			var maxy float64
-
-			err := rows.Scan(&id, &feature_id, &is_alt, &alt_label, &geometry, &minx, &miny, &maxx, &maxy)
-
-			if err != nil {
-				yield(nil, fmt.Errorf("Result row scan failed, %w", err))
-				break
-			}
-
-			min := orb.Point{minx, miny}
-			max := orb.Point{maxx, maxy}
-
-			rect := orb.Bound{
-				Min: min,
-				Max: max,
-			}
-
-			i := &RTreeSpatialIndex{
-				Id:        fmt.Sprintf("%s#%s", feature_id, id),
-				FeatureId: feature_id,
-				bounds:    rect,
-				geometry:  geometry,
-			}
-
-			if is_alt == 1 {
-				i.IsAlt = true
-				i.AltLabel = alt_label
-			}
-
-			yield(i, nil)
-		}
-
-	}
 }
 
 func (db *SQLiteSpatialDatabase) inflateIntersectsSpatialIndex(ctx context.Context, sp *RTreeSpatialIndex, geom orb.Geometry, filters ...spatial.Filter) (spr.StandardPlacesResult, error) {
@@ -547,7 +489,7 @@ func (db *SQLiteSpatialDatabase) inflateIntersectsSpatialIndex(ctx context.Conte
 
 	if err != nil {
 		logger.Error("Failed to determine intersection", "error", err)
-		return nil, err
+		return nil, nil
 	}
 
 	intersects = ok
