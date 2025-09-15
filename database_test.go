@@ -65,7 +65,7 @@ func TestIntersectsQuery(t *testing.T) {
 	results := rsp.Results()
 	count := len(results)
 
-	expected := 93
+	expected := 98
 
 	if count != expected {
 		t.Fatalf("Invalid count for intersects (%d), expected %d", count, expected)
