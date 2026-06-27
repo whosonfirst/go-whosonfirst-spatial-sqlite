@@ -359,7 +359,7 @@ func (p *Parser) parseCoordDrop2() (point orb.Point, err error) {
 
 	// drop the last value M values
 	// and Z coordinates are not really supported
-	for i := 0; i < 2; i++ {
+	for range 2 {
 		t, err := p.scanToken()
 		if err != nil {
 			return point, err

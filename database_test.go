@@ -120,7 +120,7 @@ func TestPointInPolygonQuery(t *testing.T) {
 		t.Fatalf("Failed to create SPR filter from inputs, %v", err)
 	}
 
-	for i := 0; i < 50; i++ {
+	for range 50 {
 		spr, err := db.PointInPolygon(ctx, c, f)
 
 		if err != nil {
