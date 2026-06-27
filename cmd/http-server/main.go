@@ -5,7 +5,7 @@ import (
 	"log"
 
 	_ "github.com/whosonfirst/go-whosonfirst-spatial-sqlite"
-	"github.com/whosonfirst/go-whosonfirst-spatial-www/app/server"
+	"github.com/whosonfirst/go-whosonfirst/v4/app/spatial/www/server"
 )
 
 func main() {

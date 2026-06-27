@@ -1,0 +1,16 @@
+CREATE TABLE `{{ .Name }}` (
+    id TEXT NOT NULL,
+    placetype TEXT,
+    name TEXT,
+    names_all TEXT,
+    names_preferred TEXT,
+    names_variant TEXT,
+    names_colloquial TEXT,
+    is_current TINYINT(1),
+    is_ceased TINYINT(1),
+    is_deprecated TINYINT(1),
+    is_superseded TINYINT(1),
+    
+    -- Full-text search index
+    FULLTEXT(name, names_all, names_preferred, names_variant, names_colloquial)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;

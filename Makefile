@@ -6,6 +6,9 @@ ENGINE=sqlite3
 DSN=fixtures/sfomuseum-architecture.db
 INITIAL_VIEW=-122.384292,37.621131,13
 
+vuln:
+	govulncheck -show verbose ./...
+
 cli:
 	go build -tags $(TAGS) -ldflags="$(LDFLAGS)" -mod $(GOMOD) -o bin/http-server cmd/http-server/main.go
 	go build -tags $(TAGS) -ldflags="$(LDFLAGS)" -mod $(GOMOD) -o bin/grpc-server cmd/grpc-server/main.go

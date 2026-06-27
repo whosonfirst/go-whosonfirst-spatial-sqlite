@@ -1,0 +1,12 @@
+CREATE TABLE {{ .Name }} (
+    id BIGINT NOT NULL,
+    geometry GEOMETRY,
+    type TEXT,
+    is_alt BOOLEAN,
+    alt_label TEXT,
+    lastmodified BIGINT,
+    PRIMARY KEY (id, alt_label)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;;
+
+CREATE SPATIAL INDEX {{ .Name }}_by_geometry ON {{ .Name }} (geometry);
+CREATE INDEX {{ .Name }}_geometries_by_lastmod ON {{ .Name }} (lastmodified);

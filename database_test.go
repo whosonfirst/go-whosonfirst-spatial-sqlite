@@ -11,9 +11,9 @@ import (
 	_ "github.com/mattn/go-sqlite3"
 
 	"github.com/paulmach/orb/geojson"
-	"github.com/whosonfirst/go-whosonfirst-spatial/database"
-	"github.com/whosonfirst/go-whosonfirst-spatial/filter"
-	"github.com/whosonfirst/go-whosonfirst-spatial/geo"
+	"github.com/whosonfirst/go-whosonfirst/v4/spatial/database"
+	"github.com/whosonfirst/go-whosonfirst/v4/spatial/filter"
+	"github.com/whosonfirst/go-whosonfirst/v4/spatial/geo"
 )
 
 // 1360521545
@@ -120,7 +120,7 @@ func TestPointInPolygonQuery(t *testing.T) {
 		t.Fatalf("Failed to create SPR filter from inputs, %v", err)
 	}
 
-	for i := 0; i < 50; i++ {
+	for range 50 {
 		spr, err := db.PointInPolygon(ctx, c, f)
 
 		if err != nil {
