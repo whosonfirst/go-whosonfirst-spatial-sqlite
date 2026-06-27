@@ -1,0 +1,22 @@
+CREATE TABLE {{ .Name }} (
+    id BIGINT(20) UNSIGNED NOT NULL,
+    placetype VARCHAR(48),
+    country VARCHAR(16),
+    language VARCHAR(16),
+    extlang VARCHAR(16),
+    script VARCHAR(16),
+    region VARCHAR(16),
+    variant VARCHAR(16),
+    extension VARCHAR(16),
+    privateuse VARCHAR(16),
+    name VARCHAR(255),
+    lastmodified BIGINT(20) UNSIGNED NOT NULL,
+    KEY {{ .Name }}_by_lastmod (lastmodified),
+    KEY {{ .Name }}_by_country (country, privateuse, placetype),
+    KEY {{ .Name }}_by_language (language, privateuse, placetype),
+    KEY {{ .Name }}_by_placetype (placetype, country, privateuse),
+    KEY {{ .Name }}_by_name (name, placetype, country),
+    KEY {{ .Name }}_by_name_private  (name, privateuse, placetype, country),
+    KEY {{ .Name }}_by_wofid (id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+

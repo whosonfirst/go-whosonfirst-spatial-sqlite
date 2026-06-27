@@ -15,9 +15,9 @@ import (
 	"github.com/paulmach/orb"
 	database_sql "github.com/sfomuseum/go-database/sql"
 	"github.com/whosonfirst/go-reader/v2"
-	"github.com/whosonfirst/go-whosonfirst-database/sql/tables"
-	"github.com/whosonfirst/go-whosonfirst-spatial/database"
-	"github.com/whosonfirst/go-whosonfirst-spr/v2"
+	"github.com/whosonfirst/go-whosonfirst/v4/database/sql/tables"
+	"github.com/whosonfirst/go-whosonfirst/v4/spatial/database"
+	"github.com/whosonfirst/go-whosonfirst/v4/spr"
 	"github.com/whosonfirst/go-writer/v3"
 )
 

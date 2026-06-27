@@ -1,0 +1,7 @@
+CREATE TABLE {{ .Name }} (
+	id BIGINT(20) UNSIGNED NOT NULL,
+	ancestor_id BIGINT(20) UNSIGNED NOT NULL,
+	ancestor_placetype VARCHAR(255),
+	lastmodified BIGINT(20),
+	UNIQUE KEY {{ .Name }}_by_ancestor (id, ancestor_id)
+);

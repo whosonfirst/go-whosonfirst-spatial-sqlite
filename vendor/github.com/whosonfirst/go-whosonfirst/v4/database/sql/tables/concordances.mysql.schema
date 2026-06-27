@@ -1,0 +1,8 @@
+CREATE TABLE {{ .Name }} (
+	id BIGINT(20) UNSIGNED NOT NULL,
+	other_id VARCHAR(255) NOT NULL,
+	other_source VARCHAR(255),
+	lastmodified BIGINT(20) UNSIGNED NOT NULL,
+	PRIMARY KEY {{ .Name }}_by_other (id, other_source),
+	KEY {{ .Name }}_other_id (other_source, other_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;

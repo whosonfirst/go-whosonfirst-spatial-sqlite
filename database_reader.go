@@ -10,7 +10,7 @@ import (
 	"strings"
 
 	"github.com/whosonfirst/go-ioutil"
-	"github.com/whosonfirst/go-whosonfirst-uri"
+	"github.com/whosonfirst/go-whosonfirst/v4/uri"
 )
 
 // Read implements the whosonfirst/go-reader interface so that the database itself can be used as a

@@ -2,7 +2,7 @@ package geom
 
 import "fmt"
 
-func wrap(err error, format string, args ...interface{}) error {
+func wrap(err error, format string, args ...any) error {
 	if err == nil {
 		return nil
 	}
@@ -126,4 +126,26 @@ func (e validationError) Error() string {
 		return fmt.Sprintf("%s (at or near %v)", e.RuleViolation, e.Location)
 	}
 	return string(e.RuleViolation)
+}
+
+type forbiddenForeignMemberError struct {
+	memberName string
+}
+
+func (e forbiddenForeignMemberError) Error() string {
+	return "disallowed foreign member: " + e.memberName
+}
+
+// intersectionMatrixError is an error used to indicate that a DE-9IM
+// intersection matrix string is invalid.
+type intersectionMatrixError struct {
+	// reason should describe the invalid syntax (as opposed to describing the
+	// syntax rule that was broken).
+	reason string
+	// matrix is the invalid intersection matrix string.
+	matrix string
+}
+
+func (e intersectionMatrixError) Error() string {
+	return fmt.Sprintf("invalid intersection matrix %q: %s", e.matrix, e.reason)
 }

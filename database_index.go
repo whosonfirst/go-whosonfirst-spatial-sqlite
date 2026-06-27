@@ -18,13 +18,13 @@ import (
 	"github.com/paulmach/orb"
 	"github.com/paulmach/orb/planar"
 	database_sql "github.com/sfomuseum/go-database/sql"
-	"github.com/whosonfirst/go-whosonfirst-spatial"
+	"github.com/whosonfirst/go-whosonfirst/v4/spatial"
 	"github.com/whosonfirst/go-whosonfirst-spatial-sqlite/wkttoorb"
-	"github.com/whosonfirst/go-whosonfirst-spatial/filter"
-	"github.com/whosonfirst/go-whosonfirst-spatial/geo"
-	"github.com/whosonfirst/go-whosonfirst-spr/v2"
-	sqlite_spr "github.com/whosonfirst/go-whosonfirst-sqlite-spr/v2"
-	"github.com/whosonfirst/go-whosonfirst-uri"
+	"github.com/whosonfirst/go-whosonfirst/v4/spatial/filter"
+	"github.com/whosonfirst/go-whosonfirst/v4/spatial/geo"
+	"github.com/whosonfirst/go-whosonfirst/v4/spr"
+	sqlite_spr "github.com/whosonfirst/go-whosonfirst/v4/spr/sqlite"
+	"github.com/whosonfirst/go-whosonfirst/v4/uri"
 )
 
 // Disconnect will close the underlying database connection.

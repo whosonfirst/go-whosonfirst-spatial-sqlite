@@ -1,0 +1,11 @@
+CREATE TABLE {{ .Name }} (
+    id BIGINT(20) UNSIGNED NOT NULL,
+    body TEXT,
+    is_alt BOOLEAN,
+    alt_label VARCHAR(255),
+    lastmodified BIGINT(20) UNSIGNED NOT NULL,
+    PRIMARY KEY (id, alt_label),
+    KEY {{ .Name }}_by_alt (id, is_alt, alt_label),
+    KEY {{ .Name }}_by_lastmod (lastmodified)    
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+

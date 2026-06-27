@@ -11,9 +11,9 @@ import (
 	_ "github.com/mattn/go-sqlite3"
 
 	"github.com/paulmach/orb/geojson"
-	"github.com/whosonfirst/go-whosonfirst-spatial/database"
-	"github.com/whosonfirst/go-whosonfirst-spatial/filter"
-	"github.com/whosonfirst/go-whosonfirst-spatial/geo"
+	"github.com/whosonfirst/go-whosonfirst/v4/spatial/database"
+	"github.com/whosonfirst/go-whosonfirst/v4/spatial/filter"
+	"github.com/whosonfirst/go-whosonfirst/v4/spatial/geo"
 )
 
 // 1360521545
