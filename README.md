@@ -2,6 +2,21 @@
 
 SQLite-backed implementation of the go-whosonfirst-spatial interfaces.
 
+
+## Deprecation notice
+
+This package has been deprecated. Its functionality has been moved in to the [whosonfirst/go-whosonfirst](https://github.com/whosonfirst/go-whosonfirst) package. Efforts have been made to keep changes as minimal as possible. In most (but not all) cases update should be as simple as replacing:
+
+```
+import "github.com/whosonfirst/go-whosonfirst-spatial-sqlite`
+```
+
+With:
+
+```
+import "github.com/whosonfirst/go-whosonfirst/v4/spatial/sqlite"
+```
+
 ## Important
 
 This is work in progress. It may change still. The goal is to have a package that conforms to the [database.SpatialDatabase](https://github.com/whosonfirst/go-whosonfirst-spatial#spatialdatabase) interface using [mattn/go-sqlite3](https://github.com/mattn/go-sqlite3) and SQLite's [RTree](https://www.sqlite.org/rtree.html) extension.
